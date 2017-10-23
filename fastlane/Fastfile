@@ -1,0 +1,3 @@
+lane :test do
+  test_control
+end
