@@ -6,12 +6,6 @@ module Fastlane
 
     class SuppressTestsAction < Action
       def self.run(params)
-        # fastlane will take care of reading in the parameter and fetching the environment variable:
-        UI.message "Parameter API Token: #{params[:api_token]}"
-
-        # sh "shellcommand ./path"
-
-        # Actions.lane_context[SharedValues::SUPPRESS_TESTS_CUSTOM_VALUE] = "my_val"
       end
 
       #####################################################
@@ -41,6 +35,21 @@ module Fastlane
               UI.user_error!("Error: Xcode project file path not given!") unless path and !path.empty?
               UI.user_error!("Error: Xcode project '#{path}' not found!") unless Dir.exist?(path)
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :tests,
+            env_name: "FL_SUPPRESS_TESTS_TESTS_TO_SUPPRESS", # The name of the environment variable
+            description: "A list of tests to suppress", # a short description of this parameter
+            verify_block: proc do |tests|
+              UI.user_error!("Error: no tests were given to suppress!") unless tests and !tests.empty?
+              tests.each do |test_identifier|
+                is_valid_test_identifier = %r{^[a-zA-Z][a-zA-Z0-9]+(\/test[a-zA-Z0-9]+)?$} =~ test_identifier
+                unless is_valid_test_identifier
+                  UI.user_error!("Error: invalid test identifier '#{test_identifier}'. It must be in the format of 'TestSuiteToSuppress' or 'TestSuiteToSuppress/testToSuppress'")
+                end
+              end
+            end,
+            type: Array
           )
         ]
       end
