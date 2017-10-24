@@ -1,3 +1,22 @@
-lane :test do
-  test_control
+lane :suppress_all do
+  suppress_tests(
+    xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+    tests: ['HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests']
+  )
+end
+
+lane :suppress_one do
+  suppress_tests(
+    xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+    tests: ['HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests'],
+    scheme: 'Professor'
+  )
+end
+
+lane :suppressed_for_all do
+  UI.message("Suppressed tests for project: #{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj')}")
+end
+
+lane :suppressed_for_one do
+  UI.message("Suppressed tests for scheme: #{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', scheme: 'Professor')}")
 end

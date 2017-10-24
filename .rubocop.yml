@@ -38,7 +38,7 @@ Metrics/ModuleLength:
   Enabled: false
 
 # certificate_1 is an okay variable name
-Style/VariableNumber:
+Naming/VariableNumber:
   Enabled: false
 
 # This is used a lot across the fastlane code base for config files
@@ -209,7 +209,7 @@ Lint/ParenthesesAsGroupedExpression:
 
 # This would reject is_ in front of methods
 # We use `is_supported?` everywhere already
-Style/PredicateName:
+Naming/PredicateName:
   Enabled: false
 
 # We allow the $
@@ -222,7 +222,7 @@ Layout/SpaceAroundOperators:
     - '**/spec/actions_specs/xcodebuild_spec.rb'
 
 AllCops:
-  TargetRubyVersion: 2.0
+  TargetRubyVersion: 2.1
   Include:
     - '**/fastlane/Fastfile'
   Exclude:
@@ -230,7 +230,7 @@ AllCops:
     - './vendor/**/*'
 
 # They have not to be snake_case
-Style/FileName:
+Naming/FileName:
   Exclude:
     - '**/Dangerfile'
     - '**/Brewfile'

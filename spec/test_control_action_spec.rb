@@ -1,9 +1,9 @@
-describe Fastlane::Actions::TestControlAction do
+describe Fastlane::Actions::TestCenterAction do
   describe '#run' do
     it 'prints a message' do
-      expect(Fastlane::UI).to receive(:message).with("The test_control plugin is working!")
+      expect(Fastlane::UI).to receive(:message).with("The test_center plugin is working!")
 
-      Fastlane::Actions::TestControlAction.run(nil)
+      Fastlane::Actions::TestCenterAction.run(nil)
     end
   end
 end

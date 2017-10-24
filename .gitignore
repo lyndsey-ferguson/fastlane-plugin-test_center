@@ -1,5 +1,6 @@
 *.gem
 Gemfile.lock
+.byebug_history
 
 ## Documentation cache and generated files:
 /.yardoc/

@@ -10,6 +10,6 @@ module SpecHelper
 end
 
 require 'fastlane' # to import the Action super class
-require 'fastlane/plugin/test_control' # import the actual plugin
+require 'fastlane/plugin/test_center' # import the actual plugin
 
 Fastlane.load_actions # load other actions (in case your plugin calls other actions or shared values)
