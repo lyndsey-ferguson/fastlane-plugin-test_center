@@ -5,7 +5,26 @@ module Fastlane
     end
 
     class SuppressTestsAction < Action
+      require 'xcodeproj'
+
       def self.run(params)
+        project_path = params[:xcodeproj]
+        tests_to_skip = params[:tests]
+
+        scheme_filepaths = Dir.glob("#{project_path}/{xcshareddata,xcuserdata}/**/xcschemes/*.xcscheme")
+        scheme_filepaths.each do |scheme_filepath|
+          is_dirty = false
+          xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
+          xcscheme.test_action.testables.each do |testable|
+            tests_to_skip.each do |test_to_skip|
+              skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
+              skipped_test.identifier = test_to_skip
+              testable.add_skipped_test(skipped_test)
+              is_dirty = true
+            end
+          end
+          xcscheme.save! if is_dirty
+        end
       end
 
       #####################################################
