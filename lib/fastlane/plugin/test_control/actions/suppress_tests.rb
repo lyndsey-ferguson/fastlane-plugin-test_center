@@ -10,8 +10,14 @@ module Fastlane
       def self.run(params)
         project_path = params[:xcodeproj]
         tests_to_skip = params[:tests]
+        scheme = params[:scheme]
 
-        scheme_filepaths = Dir.glob("#{project_path}/{xcshareddata,xcuserdata}/**/xcschemes/*.xcscheme")
+        scheme_filepaths = Dir.glob("#{project_path}/{xcshareddata,xcuserdata}/**/xcschemes/#{scheme || '*'}.xcscheme")
+        if scheme_filepaths.length.zero?
+          UI.user_error!("Error: cannot find any scheme named #{scheme}") unless scheme.nil?
+          UI.user_error!("Error: cannot find any schemes in the Xcode project")
+        end
+
         scheme_filepaths.each do |scheme_filepath|
           is_dirty = false
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
@@ -69,6 +75,15 @@ module Fastlane
               end
             end,
             type: Array
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :scheme,
+            optional: true,
+            env_name: "FL_SUPPRESS_TESTS_SCHEME_TO_UPDATE", # The name of the environment variable
+            description: "The Xcode scheme where the tests should be suppressed", # a short description of this parameter
+            verify_block: proc do |scheme_name|
+              UI.user_error!("Error: Xcode Scheme '#{scheme_name}' is not valid!") if scheme_name and scheme_name.empty?
+            end
           )
         ]
       end

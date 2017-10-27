@@ -11,13 +11,16 @@ end
 RSpec.shared_context "mocked project context", shared_context: :metadata do
   before(:each) do
     allow(Dir).to receive(:exist?).with('path/to/fake_project.xcodeproj').and_return(true)
-    @scheme_paths = [
+    @scheme_paths = {
       everyone: 'path/to/fake_project.xcodeproj/xcshareddata/xcschemes/Shared.xcscheme',
       arthur: 'path/to/fake_project.xcodeproj/xcuserdata/auturo/auturo.xcuserdatad/xcschemes/MesaRedonda.xcscheme'
-    ]
+    }
     allow(Dir).to receive(:glob).and_call_original
     allow(Dir).to receive(:glob).with('path/to/fake_project.xcodeproj/{xcshareddata,xcuserdata}/**/xcschemes/*.xcscheme') do
-      @scheme_paths.map { |scheme_path_pair| scheme_path_pair[1] }
+      @scheme_paths.values
+    end
+    allow(Dir).to receive(:glob).with('path/to/fake_project.xcodeproj/{xcshareddata,xcuserdata}/**/xcschemes/Shared.xcscheme') do
+      [@scheme_paths[:everyone]]
     end
   end
 end
@@ -28,6 +31,7 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
   before(:each) do
     @xcschemes = {}
     @scheme_skipped_tests = {}
+    @actual_skipped_tests = []
     @scheme_paths.each do |scheme, scheme_path|
       xcscheme = OpenStruct.new
       @xcschemes[scheme] = xcscheme
@@ -35,10 +39,13 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
       xcscheme.test_action.testables = [
         OpenStruct.new
       ]
+      allow(xcscheme.test_action.testables[0]).to receive(:add_skipped_test) do |skipped_test|
+        @actual_skipped_tests << skipped_test.identifier
+      end
       skipped_tests = [OpenStruct.new, OpenStruct.new]
       @scheme_skipped_tests[scheme] = skipped_tests.dup # we will change the list below, so make a shallow copy
       allow(Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest).to receive(:new) do
-        skipped_tests.shift
+        skipped_tests.shift || OpenStruct.new
       end
       allow(Xcodeproj::XCScheme).to receive(:new).with(scheme_path).and_return(xcscheme)
     end
@@ -81,6 +88,22 @@ describe Fastlane::Actions::TestControlAction do
           expect { Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test) }.to(
             raise_error(FastlaneCore::Interface::FastlaneError) do |error|
               expect(error.message).to match(/Error: Xcode project file path not given!/)
+            end
+          )
+        end
+
+        it 'a failure occurs when a non-existent Scheme is specified' do
+          fastfile = "lane :test do
+            suppress_tests(
+              xcodeproj: 'path/to/fake_project.xcodeproj',
+              scheme: 'HolyGrail',
+              tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            )
+          end"
+          allow(Dir).to receive(:exist?).with('path/to/fake_project.xcodeproj').and_return(true)
+          expect { Fastlane::FastFile.new.parse(fastfile).runner.execute(:test) }.to(
+            raise_error(FastlaneCore::Interface::FastlaneError) do |error|
+              expect(error.message).to match("Error: cannot find any scheme named HolyGrail")
             end
           )
         end
@@ -133,6 +156,10 @@ describe Fastlane::Actions::TestControlAction do
             )
           end
         end
+      end
+
+      describe "a project exists with schemes in the current working directory" do
+        include_context "mocked schemes context"
 
         [
           'validtestsuite1',
@@ -148,17 +175,11 @@ describe Fastlane::Actions::TestControlAction do
               )
             end"
 
-            allow(Dir).to receive(:exist?).with('path/to/fake_project.xcodeproj').and_return(true)
-
             Fastlane::FastFile.new.parse(invalid_test_list).runner.execute(:test)
           end
         end
-      end
 
-      describe "a project exists with schemes in the current working directory" do
-        include_context "mocked schemes context"
-
-        it 'suppressed tests appear in Xcode Schemes' do
+        it 'suppressed tests appear in all Xcode Schemes' do
           fastfile = "lane :test do
             suppress_tests(
               xcodeproj: 'path/to/fake_project.xcodeproj',
@@ -168,15 +189,31 @@ describe Fastlane::Actions::TestControlAction do
 
           @scheme_skipped_tests.each do |scheme, skipped_tests|
             xcscheme = @xcschemes[scheme]
-            testable = xcscheme.test_action.testables[0]
-            expect(testable).to receive(:add_skipped_test).with(skipped_tests[0])
-            expect(testable).to receive(:add_skipped_test).with(skipped_tests[1])
-            expect(skipped_tests[0]).to receive(:identifier=).with('HappyNapperTests/testBeepingNonExistentFriendDisplaysError')
-            expect(skipped_tests[1]).to receive(:identifier=).with('GrumpyWorkerTests')
             expect(xcscheme).to receive(:save!)
           end
-
           Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+          expect(@actual_skipped_tests).to include(
+            'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+            'GrumpyWorkerTests'
+          )
+        end
+
+        it 'suppressed tests appear in the specified Xcode Scheme' do
+          fastfile = "lane :test do
+            suppress_tests(
+              xcodeproj: 'path/to/fake_project.xcodeproj',
+              scheme: 'Shared',
+              tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            )
+          end"
+
+          expect(@xcschemes[:everyone]).to receive(:save!)
+          expect(@xcschemes[:arthur]).not_to receive(:save!)
+          Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+          expect(@actual_skipped_tests).to include(
+            'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+            'GrumpyWorkerTests'
+          )
         end
       end
     end
