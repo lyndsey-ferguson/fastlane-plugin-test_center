@@ -52,12 +52,12 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
   end
 end
 
-describe Fastlane::Actions::TestControlAction do
+describe Fastlane::Actions::TestCenterAction do
   describe '#run' do
     it 'prints a message' do
-      expect(Fastlane::UI).to receive(:message).with("The test_control plugin is working!")
+      expect(Fastlane::UI).to receive(:message).with("The test_center plugin is working!")
 
-      Fastlane::Actions::TestControlAction.run(nil)
+      Fastlane::Actions::TestCenterAction.run(nil)
     end
 
     describe 'it handles invalid data' do
@@ -187,7 +187,7 @@ describe Fastlane::Actions::TestControlAction do
             )
           end"
 
-          @scheme_skipped_tests.each do |scheme, skipped_tests|
+          @scheme_skipped_tests.each_key do |scheme|
             xcscheme = @xcschemes[scheme]
             expect(xcscheme).to receive(:save!)
           end

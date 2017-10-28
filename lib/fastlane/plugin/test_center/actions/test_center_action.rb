@@ -1,8 +1,8 @@
 module Fastlane
   module Actions
-    class TestControlAction < Action
+    class TestCenterAction < Action
       def self.run(params)
-        UI.message("The test_control plugin is working!")
+        UI.message("The test_center plugin is working!")
       end
 
       def self.description
@@ -25,7 +25,7 @@ module Fastlane
       def self.available_options
         [
           # FastlaneCore::ConfigItem.new(key: :your_option,
-          #                         env_name: "TEST_CONTROL_YOUR_OPTION",
+          #                         env_name: "TEST_CENTER_YOUR_OPTION",
           #                      description: "A description of your option",
           #                         optional: false,
           #                             type: String)
