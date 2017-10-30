@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = 'ldf.public+github@outlook.com'
 
   spec.summary       = 'Makes testing your iOS app easier'
-  # spec.homepage      = "https://github.com/lyndsey-ferguson/fastlane-plugin-test_center"
+  spec.homepage      = "https://github.com/lyndsey-ferguson/fastlane-plugin-test_center"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
