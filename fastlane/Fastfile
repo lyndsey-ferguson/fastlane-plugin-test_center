@@ -20,3 +20,7 @@ end
 lane :suppressed_for_one do
   UI.message("Suppressed tests for scheme: #{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', scheme: 'Professor')}")
 end
+
+lane :suppressed_junits_for_all do
+  UI.message("Suppressed tests for project: #{suppress_tests_from_junit(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', junit: 'junit.xml', suppress_type: :failed)}")
+end

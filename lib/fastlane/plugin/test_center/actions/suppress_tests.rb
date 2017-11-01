@@ -6,7 +6,7 @@ module Fastlane
 
     class SuppressTestsAction < Action
       require 'xcodeproj'
-      
+
       def self.run(params)
         project_path = params[:xcodeproj]
         tests_to_skip = params[:tests]

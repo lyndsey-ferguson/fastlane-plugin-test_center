@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <testsuites name='CoinTossingUITests.xctest' tests='2' failures='1'>
+    <testsuite name='CoinTossingUITests.CoinTossingUITests' tests='2' failures='1'>
+      <testcase classname='CoinTossingUITests.CoinTossingUITests' name='testResultIsHeads' time='6.362'/>
+      <testcase classname='CoinTossingUITests.CoinTossingUITests' name='testResultIsTails'>
+        <failure message='XCTAssertEqual failed: (&quot;Heads&quot;) is not equal to (&quot;Tails&quot;) - '>CoinTossingUITests.swift:38</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

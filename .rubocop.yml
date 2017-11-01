@@ -38,7 +38,7 @@ Metrics/ModuleLength:
   Enabled: false
 
 # certificate_1 is an okay variable name
-Naming/VariableNumber:
+Style/VariableNumber:
   Enabled: false
 
 # This is used a lot across the fastlane code base for config files
@@ -209,7 +209,7 @@ Lint/ParenthesesAsGroupedExpression:
 
 # This would reject is_ in front of methods
 # We use `is_supported?` everywhere already
-Naming/PredicateName:
+Style/PredicateName:
   Enabled: false
 
 # We allow the $
@@ -230,7 +230,7 @@ AllCops:
     - './vendor/**/*'
 
 # They have not to be snake_case
-Naming/FileName:
+Style/FileName:
   Exclude:
     - '**/Dangerfile'
     - '**/Brewfile'
