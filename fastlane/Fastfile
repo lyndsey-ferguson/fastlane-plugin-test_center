@@ -24,3 +24,9 @@ end
 lane :suppressed_junits_for_all do
   UI.message("Suppressed tests for project: #{suppress_tests_from_junit(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', junit: 'junit.xml', suppress_type: :failed)}")
 end
+
+lane :junit_tests do
+  result = tests_from_junit(junit: './spec/fixtures/junit.xml')
+  UI.message("Passing tests: #{result[:passing]}")
+  UI.message("Failed tests: #{result[:failed]}")
+end
