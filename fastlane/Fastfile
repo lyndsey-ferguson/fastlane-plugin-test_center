@@ -30,3 +30,10 @@ lane :junit_tests do
   UI.message("Passing tests: #{result[:passing]}")
   UI.message("Failed tests: #{result[:failed]}")
 end
+
+lane :test_multiscan do
+  multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'AtomicBoy'
+  )
+end
