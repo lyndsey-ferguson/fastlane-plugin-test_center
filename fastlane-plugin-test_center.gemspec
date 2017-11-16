@@ -18,12 +18,17 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.description = <<-SUMMARY
-    This fastlane plugin includes the following actions:
-    - multi_scan: uses scan to run Xcode tests a given number of times: only re-testing failing tests
-    - suppress_tests_from_junit: uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme
-    - suppress_tests: suppresses specific tests in a specific or all Xcode Schemes in a given project
-    - suppressed_tests: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project
-    - tests_from_junit: retrieves the failing and passing tests as reported in a junit xml file
+    This fastlane plugin includes the following actions:  
+
+    multi_scan: uses scan to run Xcode tests a given number of times: only re-testing failing tests
+
+    suppress_tests_from_junit: uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme
+
+    suppress_tests: suppresses specific tests in a specific or all Xcode Schemes in a given project
+
+    suppressed_tests: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project
+
+    tests_from_junit: retrieves the failing and passing tests as reported in a junit xml file
   SUMMARY
 
   spec.add_development_dependency 'bundler'
