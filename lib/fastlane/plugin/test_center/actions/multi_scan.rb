@@ -81,7 +81,7 @@ module Fastlane
       end
 
       def self.scan_options
-        ScanAction.available_options.reject { |config_item| config_item.key == :output_files }
+        ScanAction.available_options
       end
 
       def self.available_options
