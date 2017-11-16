@@ -12,15 +12,21 @@ fastlane add_plugin test_center
 
 ## About test_center
 
-Makes testing your iOS app easier
+This plugin makes testing your iOS app easier by providing you actions that allow
+you to run the fastlane `scan` action multiple times and retrying only failed
+tests, retrieve which tests failed during `scan`, and suppressing given tests in
+an Xcode project.
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+This fastlane plugin includes the following actions:
+- `multi_scan`: uses scan to run Xcode tests a given number of times: only re-testing failing tests
+- `suppress_tests_from_junit`: uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme
+- `suppress_tests`: suppresses specific tests in a specific or all Xcode Schemes in a given project
+- `suppressed_tests`: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project
+- `tests_from_junit`: retrieves the failing and passing tests as reported in a junit xml file
 
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
-
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
 
 ## Run tests for this plugin
 

@@ -71,13 +71,11 @@ module Fastlane
       #####################################################
 
       def self.description
-        "A short description with <= 80 characters of what this action does"
+        "Uses scan to run Xcode tests a given number of times: only re-testing failing tests."
       end
 
       def self.details
-        # Optional:
-        # this is your chance to provide a more detailed description of this action
-        "You can use this action to do cool things..."
+        "Use this action to run your tests if you have fragile tests that fail sporadically."
       end
 
       def self.scan_options
@@ -88,8 +86,8 @@ module Fastlane
         scan_options + [
           FastlaneCore::ConfigItem.new(
             key: :try_count,
-            env_name: "FL_MULTI_SCAN_TRY_COUNT", # The name of the environment variable
-            description: "The number of times to retry running tests via scan", # a short description of this parameter
+            env_name: "FL_MULTI_SCAN_TRY_COUNT",
+            description: "The number of times to retry running tests via scan",
             type: Integer,
             is_string: false,
             default_value: 1
@@ -97,33 +95,11 @@ module Fastlane
         ]
       end
 
-      def self.output
-        # Define the shared values you are going to provide
-        # Example
-        [
-          ['MULTI_SCAN_CUSTOM_VALUE', 'A description of what this value contains']
-        ]
-      end
-
-      def self.return_value
-        # If your method provides a return value, you can describe here what it does
-      end
-
       def self.authors
-        # So no one will ever forget your contribution to fastlane :) You are awesome btw!
-        ["Your GitHub/Twitter Name"]
+        ["lyndsey-ferguson/@ldferguson"]
       end
 
       def self.is_supported?(platform)
-        # you can do things like
-        #
-        #  true
-        #
-        #  platform == :ios
-        #
-        #  [:ios, :mac].include?(platform)
-        #
-
         platform == :ios
       end
     end

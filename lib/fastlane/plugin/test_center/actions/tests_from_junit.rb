@@ -44,7 +44,7 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Get the failing and passing tests as reported in a junit xml file"
+        "Retrieves the failing and passing tests as reported in a junit xml file"
       end
 
       def self.available_options

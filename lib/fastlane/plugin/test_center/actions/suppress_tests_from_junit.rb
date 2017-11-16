@@ -1,9 +1,5 @@
 module Fastlane
   module Actions
-    module SharedValues
-      SUPPRESS_TESTS_FROM_JUNIT_CUSTOM_VALUE = :SUPPRESS_TESTS_FROM_JUNIT_CUSTOM_VALUE
-    end
-
     class SuppressTestsFromJunitAction < Action
       def self.run(params)
         project_path = params[:xcodeproj]
@@ -94,16 +90,12 @@ module Fastlane
         "Uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme"
       end
 
-      def self.details
-        "To be added"
-      end
-
       def self.available_options
         [
           FastlaneCore::ConfigItem.new(
             key: :xcodeproj,
-            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_XCODE_PROJECT", # The name of the environment variable
-            description: "The file path to the Xcode project file to modify", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_XCODE_PROJECT",
+            description: "The file path to the Xcode project file to modify",
             verify_block: proc do |path|
               UI.user_error!("Error: Xcode project file path not given!") unless path and !path.empty?
               UI.user_error!("Error: Xcode project '#{path}' not found!") unless Dir.exist?(path)
@@ -111,7 +103,7 @@ module Fastlane
           ),
           FastlaneCore::ConfigItem.new(
             key: :junit,
-            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_JUNIT_REPORT", # The name of the environment variable
+            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_JUNIT_REPORT",
             description: "The junit xml report file from which to collect the tests to suppress",
             verify_block: proc do |path|
               UI.user_error!("Error: cannot find the junit xml report file '#{path}'") unless File.exist?(path)
@@ -120,8 +112,8 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :scheme,
             optional: true,
-            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_SCHEME_TO_UPDATE", # The name of the environment variable
-            description: "The Xcode scheme where the tests should be suppressed", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_SCHEME_TO_UPDATE",
+            description: "The Xcode scheme where the tests should be suppressed",
             verify_block: proc do |scheme_name|
               UI.user_error!("Error: Xcode Scheme '#{scheme_name}' is not valid!") if scheme_name and scheme_name.empty?
             end
@@ -129,8 +121,8 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :suppress_type,
             type: Symbol,
-            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_SUPPRESS_TYPE", # The name of the environment variable
-            description: "Tests to suppress are either :failed or :passing", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_FROM_JUNIT_SUPPRESS_TYPE",
+            description: "Tests to suppress are either :failed or :passing",
             verify_block: proc do |type|
               UI.user_error!("Error: suppress type ':#{type}' is invalid! Only :failed or :passing are valid types") unless %i[failed passing].include?(type)
             end

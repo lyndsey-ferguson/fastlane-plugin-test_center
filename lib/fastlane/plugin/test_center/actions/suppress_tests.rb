@@ -1,9 +1,5 @@
 module Fastlane
   module Actions
-    module SharedValues
-      SUPPRESS_TESTS_CUSTOM_VALUE = :SUPPRESS_TESTS_CUSTOM_VALUE
-    end
-
     class SuppressTestsAction < Action
       require 'xcodeproj'
 
@@ -38,24 +34,15 @@ module Fastlane
       #####################################################
 
       def self.description
-        "A short description with <= 80 characters of what this action does"
-      end
-
-      def self.details
-        # Optional:
-        # this is your chance to provide a more detailed description of this action
-        "You can use this action to do cool things..."
+        "Suppresses specific tests in a specific or all Xcode Schemes in a given project"
       end
 
       def self.available_options
-        # Define all options your action supports.
-
-        # Below a few examples
         [
           FastlaneCore::ConfigItem.new(
             key: :xcodeproj,
-            env_name: "FL_SUPPRESS_TESTS_XCODE_PROJECT", # The name of the environment variable
-            description: "The file path to the Xcode project file to modify", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_XCODE_PROJECT",
+            description: "The file path to the Xcode project file to modify",
             verify_block: proc do |path|
               UI.user_error!("Error: Xcode project file path not given!") unless path and !path.empty?
               UI.user_error!("Error: Xcode project '#{path}' not found!") unless Dir.exist?(path)
@@ -63,8 +50,8 @@ module Fastlane
           ),
           FastlaneCore::ConfigItem.new(
             key: :tests,
-            env_name: "FL_SUPPRESS_TESTS_TESTS_TO_SUPPRESS", # The name of the environment variable
-            description: "A list of tests to suppress", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_TESTS_TO_SUPPRESS",
+            description: "A list of tests to suppress",
             verify_block: proc do |tests|
               UI.user_error!("Error: no tests were given to suppress!") unless tests and !tests.empty?
               tests.each do |test_identifier|
@@ -79,8 +66,8 @@ module Fastlane
           FastlaneCore::ConfigItem.new(
             key: :scheme,
             optional: true,
-            env_name: "FL_SUPPRESS_TESTS_SCHEME_TO_UPDATE", # The name of the environment variable
-            description: "The Xcode scheme where the tests should be suppressed", # a short description of this parameter
+            env_name: "FL_SUPPRESS_TESTS_SCHEME_TO_UPDATE",
+            description: "The Xcode scheme where the tests should be suppressed",
             verify_block: proc do |scheme_name|
               UI.user_error!("Error: Xcode Scheme '#{scheme_name}' is not valid!") if scheme_name and scheme_name.empty?
             end
@@ -88,33 +75,11 @@ module Fastlane
         ]
       end
 
-      def self.output
-        # Define the shared values you are going to provide
-        # Example
-        [
-          ['SUPPRESS_TESTS_CUSTOM_VALUE', 'A description of what this value contains']
-        ]
-      end
-
-      def self.return_value
-        # If your method provides a return value, you can describe here what it does
-      end
-
       def self.authors
-        # So no one will ever forget your contribution to fastlane :) You are awesome btw!
-        ["Your GitHub/Twitter Name"]
+        ["lyndsey-ferguson/@ldferguson"]
       end
 
       def self.is_supported?(platform)
-        # you can do things like
-        #
-        #  true
-        #
-        #  platform == :ios
-        #
-        #  [:ios, :mac].include?(platform)
-        #
-
         platform == :ios
       end
     end

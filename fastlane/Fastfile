@@ -37,3 +37,13 @@ lane :test_multiscan do
     scheme: 'AtomicBoy'
   )
 end
+
+lane :test do
+  suppress_all
+  suppress_one
+  suppressed_for_all
+  suppressed_for_one
+  suppressed_junits_for_all
+  junit_tests
+  test_multiscan
+end
