@@ -106,6 +106,7 @@ describe Fastlane::Actions::SuppressTestsFromJunitAction do
             scheme: 'HolyGrail'
           )
         end"
+        allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('path/to/non_existent_junit_report.xml').and_return(true)
         expect { Fastlane::FastFile.new.parse(fastfile).runner.execute(:test) }.to(
           raise_error(FastlaneCore::Interface::FastlaneError) do |error|
@@ -142,6 +143,7 @@ describe Fastlane::Actions::SuppressTestsFromJunitAction do
           )
         end"
 
+        allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('path/to/non_existent_junit_report.xml').and_return(true)
         expect { Fastlane::FastFile.new.parse(fastfile).runner.execute(:test) }.to(
           raise_error(FastlaneCore::Interface::FastlaneError) do |error|
