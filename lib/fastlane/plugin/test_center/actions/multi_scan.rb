@@ -22,6 +22,7 @@ module Fastlane
           UI.verbose("Scan failed with #{e}")
           report_filepath = junit_report_filepath(scan_options)
           scan_options[:only_testing] = other_action.tests_from_junit(junit: report_filepath)[:failed]
+          increment_junit_report_filename(scan_options)
           retry if try_count < params[:try_count]
         end
       end
@@ -57,13 +58,35 @@ module Fastlane
         config
       end
 
-      def self.junit_report_filepath(config)
+      def self.junit_report_filename(config)
         report_filename = config[:custom_report_file_name]
         if report_filename.nil?
           junit_index = config[:output_types].split(',').find_index('junit')
           report_filename = config[:output_files].to_s.split(',')[junit_index]
         end
-        File.join(config[:output_directory], report_filename)
+        report_filename
+      end
+
+      def self.junit_report_filepath(config)
+        File.join(config[:output_directory], junit_report_filename(config))
+      end
+
+      def self.increment_junit_report_filename(config)
+        new_report_number = 2
+        report_filename = junit_report_filename(config)
+        if /^(?<report_filename_no_suffix>.*)-(?<report_number>\d+)\.xml/ =~ report_filename
+          new_report_number = report_number.to_i + 1
+          report_filename = report_filename_no_suffix
+        end
+        new_report_filename = "#{File.basename(report_filename, '.*')}-#{new_report_number}.xml"
+        if config[:custom_report_file_name]
+          config[:custom_report_file_name] = new_report_filename
+        else
+          junit_index = config[:output_types].split(',').find_index('junit')
+          output_files = config[:output_files].to_s.split(',')
+          output_files[junit_index] = new_report_filename
+          config[:output_files] = output_files.join(',')
+        end
       end
 
       #####################################################

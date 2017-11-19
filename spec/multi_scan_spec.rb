@@ -101,6 +101,23 @@ describe Fastlane::Actions::MultiScanAction do
         junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
         expect(File.basename(junit_report_filepath)).to eq(test_data[:desired_report_filepath])
       end
+
+      it "increment_junit_report_filename for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-2.xml" do
+        config = Fastlane::Actions::MultiScanAction.config_with_junit_report(test_data[:config])
+        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
+        expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-2.xml")
+      end
+
+      it "increment_junit_report_filename x 3 for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-4.xml" do
+        config = Fastlane::Actions::MultiScanAction.config_with_junit_report(test_data[:config])
+        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
+        expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-3.xml")
+        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
+        expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-4.xml")
+      end
     end
   end
 
@@ -196,6 +213,7 @@ describe Fastlane::Actions::MultiScanAction do
           expect(config[:build_for_testing]).to be_falsey
           raise FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure'
         when 3
+          expect(config[:custom_report_file_name]).to eq('fake_junit_report-2.xml')
           expect(config[:test_without_building]).to be(true)
           expect(config[:build_for_testing]).to be_falsey
           expect(config[:only_testing]).to eq(['CoinTossingUITests/testResultIsTails'])
