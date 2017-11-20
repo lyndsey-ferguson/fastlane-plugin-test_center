@@ -17,7 +17,8 @@ module Fastlane
 
         begin
           try_count += 1
-          other_action.scan(scan_options)
+          config = FastlaneCore::Configuration.create(Fastlane::Actions::ScanAction.available_options, scan_options)
+          Fastlane::Actions::ScanAction.run(config)
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           UI.verbose("Scan failed with #{e}")
           report_filepath = junit_report_filepath(scan_options)
@@ -30,7 +31,8 @@ module Fastlane
       def self.build_for_testing(scan_options)
         scan_options.delete(:test_without_building)
         scan_options[:build_for_testing] = true
-        other_action.scan(scan_options)
+        config = FastlaneCore::Configuration.create(Fastlane::Actions::ScanAction.available_options, scan_options)
+        Fastlane::Actions::ScanAction.run(config)
       end
 
       def self.config_has_junit_report(config)
