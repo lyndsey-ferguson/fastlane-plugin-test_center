@@ -2,11 +2,12 @@ module Fastlane
   module Actions
     require 'fastlane/actions/scan'
     require 'shellwords'
+    require 'xctest_list'
+    require 'plist'
 
     class MultiScanAction < Action
       def self.run(params)
-        try_count = 0
-        scan_options = params.values.reject { |k| k == :try_count }
+        scan_options = params.values.reject { |k| %i[try_count batch_count].include?(k) }
 
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
@@ -23,21 +24,38 @@ module Fastlane
           scan_options[:test_without_building] = true
         end
 
+        batch_count = params[:batch_count]
+        if batch_count == 1
+          try_scan_with_retry(scan_options, params[:try_count])
+        else
+          tests = tests_to_batch(scan_options)
+          tests.each_slice((tests.length / batch_count.to_f).round).to_a.each do |tests_batch|
+            scan_options.reject! { |key| key == :skip_testing }
+            scan_options[:only_testing] = tests_batch
+            try_scan_with_retry(scan_options, params[:try_count])
+          end
+        end
+        collate_reports(scan_options)
+      end
+
+      def self.try_scan_with_retry(scan_options, maximum_try_count)
+        try_count = 0
         begin
           try_count += 1
           config = FastlaneCore::Configuration.create(Fastlane::Actions::ScanAction.available_options, scan_options)
           Fastlane::Actions::ScanAction.run(config)
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           UI.verbose("Scan failed with #{e}")
-          if try_count < params[:try_count]
+          if try_count < maximum_try_count
             report_filepath = junit_report_filepath(scan_options)
             failed_tests = other_action.tests_from_junit(junit: report_filepath)[:failed]
             scan_options[:only_testing] = failed_tests.map(&:shellescape)
             increment_report_filenames(scan_options)
             retry
           end
+        else
+          increment_report_filenames(scan_options)
         end
-        collate_reports(scan_options)
       end
 
       def self.collate_reports(scan_options)
@@ -53,11 +71,90 @@ module Fastlane
             final_report_name = "#{match[:filename]}#{extension}"
           end
           other_action.collate_junit_reports(
-            reports: report_files.reverse,
+            reports: report_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
             collated_report: File.absolute_path(File.join(scan_options[:output_directory], final_report_name))
           )
         end
         FileUtils.rm_f(Dir.glob("#{scan_options[:output_directory]}/*-[1-9]*#{extension}"))
+      end
+
+      def self.kill(program)
+        Actions.sh("killall -9 '#{program}' &> /dev/null || true", log: false)
+      end
+
+      def self.quit_simulators
+        kill('iPhone Simulator')
+        kill('Simulator')
+        kill('SimulatorBridge')
+
+        launchctl_list_count = 0
+        while Actions.sh('launchctl list | grep com.apple.CoreSimulator.CoreSimulatorService || true', log: false) != ''
+          break if (launchctl_list_count += 1) > 10
+          Actions.sh('launchctl remove com.apple.CoreSimulator.CoreSimulatorService &> /dev/null || true', log: false)
+          sleep(1)
+        end
+      end
+
+      def self.tests_to_batch(scan_options)
+        unless scan_options[:only_testing].nil?
+          return scan_options[:only_testing]
+        end
+
+        xctestrun_path = scan_options[:xctestrun] || testrun_path(scan_options)
+        if xctestrun_path.nil? || !File.exist?(xctestrun_path)
+          UI.user_error!("Error: cannot find expected xctestrun file '#{xctestrun_path}'")
+        end
+        tests = xctestrun_tests(xctestrun_path)
+        remove_skipped_tests(tests, scan_options[:skip_testing])
+      end
+
+      def self.remove_skipped_tests(tests_to_batch, tests_to_skip)
+        if tests_to_skip.nil?
+          return tests_to_batch
+        end
+
+        if tests_to_skip
+          tests_to_skip = tests_to_skip
+          testsuites_to_skip = tests_to_skip.select do |testsuite|
+            testsuite.count('/') == 1 # just the testable/testsuite
+          end
+          tests_to_skip -= testsuites_to_skip
+          tests_to_batch.reject! do |test_identifier|
+            test_suite = test_identifier.split('/').first(2).join('/')
+            testsuites_to_skip.include?(test_suite)
+          end
+          tests_to_batch -= tests_to_skip
+        end
+        tests_to_batch
+      end
+
+      def self.xctestrun_tests(xctestrun_path)
+        xctestrun = Plist.parse_xml(xctestrun_path)
+        xctestrun_rootpath = File.dirname(xctestrun_path)
+        tests = []
+        xctestrun.each do |testable_name, xctestrun_config|
+          test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
+          if xctestrun_config.key?('SkipTestIdentifiers')
+            test_identifiers.reject! { |test_identifier| xctestrun_config['SkipTestIdentifiers'].include?(test_identifier) }
+          end
+          tests += test_identifiers.map do |test_identifier|
+            "#{testable_name.shellescape}/#{test_identifier}"
+          end
+        end
+        tests
+      end
+
+      def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
+        xctest_host_path = xctestrun_config['TestHostPath'].sub('__TESTROOT__', xctestrun_rootpath)
+        xctestrun_config['TestBundlePath'].sub('__TESTHOST__', xctest_host_path)
+      end
+
+      def self.testrun_path(scan_options)
+        Dir.glob("#{scan_options[:derived_data_path]}/Build/Products/#{scan_options[:scheme]}*.xctestrun").first
+      end
+
+      def self.test_products_path(derived_data_path)
+        File.join(derived_data_path, "Build", "Products")
       end
 
       def self.build_for_testing(scan_options)
@@ -65,6 +162,7 @@ module Fastlane
         scan_options[:build_for_testing] = true
         config = FastlaneCore::Configuration.create(Fastlane::Actions::ScanAction.available_options, scan_options)
         Fastlane::Actions::ScanAction.run(config)
+        scan_options[:derived_data_path] = Scan.config[:derived_data_path]
       end
 
       def self.config_has_junit_report(config)
@@ -158,6 +256,18 @@ module Fastlane
             type: Integer,
             is_string: false,
             default_value: 1
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :batch_count,
+            env_name: "FL_MULTI_SCAN_BATCH_COUNT",
+            description: "The number of test batches to run through scan. Can be combined with :try_count",
+            type: Integer,
+            is_string: false,
+            default_value: 1,
+            optional: true,
+            verify_block: proc do |count|
+              UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
+            end
           )
         ]
       end

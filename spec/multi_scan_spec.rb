@@ -226,6 +226,8 @@ describe Fastlane::Actions::MultiScanAction do
         end
         0
       end
+      allow(Scan).to receive(:config).and_return(derived_data_path: 'fake/derived_data_path')
+
       Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
       expect(scan_count).to eq(3)
     end
@@ -299,6 +301,312 @@ describe Fastlane::Actions::MultiScanAction do
         0
       end
       Fastlane::FastFile.new.parse(non_existent_project_xml).runner.execute(:test)
+    end
+  end
+
+  describe ':batch_count' do
+    it 'gets the xctest_bundle_path from a xctestrun hash' do
+      xctestrun_config = {
+        'TestBundlePath' => '__TESTHOST__/PlugIns/AtomicBoyTests.xctest',
+        'TestHostPath' => '__TESTROOT__/Debug-iphonesimulator/AtomicBoy.app'
+      }
+      path = Fastlane::Actions::MultiScanAction.xctest_bundle_path('derived_data/Build/Products', xctestrun_config)
+      expect(path).to eq('derived_data/Build/Products/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+    end
+
+    it 'gets the tests from a given xctestrun file' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/fake.xctestrun'))
+      allow(XCTestList)
+        .to receive(:tests)
+        .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+        .and_return(
+          [
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3'
+          ]
+        )
+
+      allow(XCTestList)
+        .to receive(:tests)
+        .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
+        .and_return(
+          [
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2',
+            'AtomicBoyTests/testUI3'
+          ]
+        )
+
+      tests = Fastlane::Actions::MultiScanAction.xctestrun_tests('path/to/fake.xctestrun')
+      expect(tests).to contain_exactly(
+        'AtomicBoyTests/AtomicBoyTests/testUnit1',
+        'AtomicBoyTests/AtomicBoyTests/testUnit2',
+        'AtomicBoyTests/AtomicBoyTests/testUnit3',
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      )
+    end
+
+    it 'gets the non-skipped tests from a given xctestrun file' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/fake.xctestrun'))
+      allow(XCTestList)
+        .to receive(:tests)
+        .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+        .and_return(
+          [
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3'
+          ]
+        )
+
+      allow(XCTestList)
+        .to receive(:tests)
+        .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
+        .and_return(
+          [
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2',
+            'AtomicBoyTests/testUI3',
+            'AtomicBoyUITests/testExample'
+          ]
+        )
+
+      tests = Fastlane::Actions::MultiScanAction.xctestrun_tests('path/to/fake.xctestrun')
+      expect(tests).to contain_exactly(
+        'AtomicBoyTests/AtomicBoyTests/testUnit1',
+        'AtomicBoyTests/AtomicBoyTests/testUnit2',
+        'AtomicBoyTests/AtomicBoyTests/testUnit3',
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      )
+    end
+
+    it 'returns the :only_testing test in the scan options' do
+      scan_options = {
+        only_testing: [
+          'AtomicBoyTests/AtomicBoyTests/testUnit1',
+          'AtomicBoyUITests/AtomicBoyTests/testUI1'
+        ]
+      }
+      tests_to_batch = Fastlane::Actions::MultiScanAction.tests_to_batch(scan_options)
+      expect(tests_to_batch).to contain_exactly(
+        'AtomicBoyTests/AtomicBoyTests/testUnit1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI1'
+      )
+    end
+
+    it 'returns the tests in the xctestrun file' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(Fastlane::Actions::MultiScanAction).to receive(:xctestrun_tests)
+        .and_return(
+          [
+            'AtomicBoyTests/AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/AtomicBoyTests/testUnit3',
+            'AtomicBoyUITests/AtomicBoyTests/testUI1',
+            'AtomicBoyUITests/AtomicBoyTests/testUI2',
+            'AtomicBoyUITests/AtomicBoyTests/testUI3'
+          ]
+        )
+      scan_options = {
+        xctestrun: 'path/to/fake.xctestrun'
+      }
+      tests_to_batch = Fastlane::Actions::MultiScanAction.tests_to_batch(scan_options)
+      expect(tests_to_batch).to contain_exactly(
+        'AtomicBoyTests/AtomicBoyTests/testUnit1',
+        'AtomicBoyTests/AtomicBoyTests/testUnit2',
+        'AtomicBoyTests/AtomicBoyTests/testUnit3',
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      )
+    end
+
+    it 'returns the tests in the xctestrun file without specific skipped tests' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(Fastlane::Actions::MultiScanAction).to receive(:xctestrun_tests)
+        .and_return(
+          [
+            'AtomicBoyTests/AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/AtomicBoyTests/testUnit3',
+            'AtomicBoyUITests/AtomicBoyTests/testUI1',
+            'AtomicBoyUITests/AtomicBoyTests/testUI2',
+            'AtomicBoyUITests/AtomicBoyTests/testUI3'
+          ]
+        )
+      scan_options = {
+        xctestrun: 'path/to/fake.xctestrun',
+        skip_testing: [
+          'AtomicBoyTests/AtomicBoyTests/testUnit1',
+          'AtomicBoyTests/AtomicBoyTests/testUnit2',
+          'AtomicBoyTests/AtomicBoyTests/testUnit3'
+        ]
+      }
+      tests_to_batch = Fastlane::Actions::MultiScanAction.tests_to_batch(scan_options)
+      expect(tests_to_batch).to contain_exactly(
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      )
+    end
+
+    it 'returns the tests in the xctestrun file without tests in a skipped suite' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(Fastlane::Actions::MultiScanAction).to receive(:xctestrun_tests)
+        .and_return(
+          [
+            'AtomicBoyTests/AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/AtomicBoyTests/testUnit3',
+            'AtomicBoyUITests/AtomicBoyTests/testUI1',
+            'AtomicBoyUITests/AtomicBoyTests/testUI2',
+            'AtomicBoyUITests/AtomicBoyTests/testUI3'
+          ]
+        )
+      scan_options = {
+        xctestrun: 'path/to/fake.xctestrun',
+        skip_testing: [
+          'AtomicBoyTests/AtomicBoyTests'
+        ]
+      }
+      tests_to_batch = Fastlane::Actions::MultiScanAction.tests_to_batch(scan_options)
+      expect(tests_to_batch).to contain_exactly(
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      )
+    end
+
+    it 'returns the tests in the xctestrun file without tests in a skipped suite and an individual skipped test' do
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(Fastlane::Actions::MultiScanAction).to receive(:xctestrun_tests)
+        .and_return(
+          [
+            'AtomicBoyTests/AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/AtomicBoyTests/testUnit3',
+            'AtomicBoyUITests/AtomicBoyTests/testUI1',
+            'AtomicBoyUITests/AtomicBoyTests/testUI2',
+            'AtomicBoyUITests/AtomicBoyTests/testUI3'
+          ]
+        )
+      scan_options = {
+        xctestrun: 'path/to/fake.xctestrun',
+        skip_testing: [
+          'AtomicBoyUITests/AtomicBoyTests/testUI3',
+          'AtomicBoyTests/AtomicBoyTests'
+        ]
+      }
+      tests_to_batch = Fastlane::Actions::MultiScanAction.tests_to_batch(scan_options)
+      expect(tests_to_batch).to contain_exactly(
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2'
+      )
+    end
+
+    it 'given an even number of tests, runs try_scan_with_retry with batches of tests' do
+      non_existent_project = "lane :test do
+        multi_scan(
+          project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'AtomicBoy',
+          try_count: 2,
+          test_without_building: true,
+          batch_count: 2
+        )
+      end"
+
+      allow(Fastlane::Actions::MultiScanAction)
+        .to receive(:tests_to_batch)
+        .and_return(
+          [
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3',
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2',
+            'AtomicBoyTests/testUI3'
+          ]
+        )
+      expect(Fastlane::Actions::MultiScanAction)
+        .to receive(:try_scan_with_retry)
+        .once
+        .ordered do |scan_options, maximum_try_count|
+          expect(scan_options[:only_testing]).to contain_exactly(
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3'
+          )
+          expect(maximum_try_count).to be(2)
+        end
+
+      expect(Fastlane::Actions::MultiScanAction)
+        .to receive(:try_scan_with_retry)
+        .once
+        .ordered do |scan_options, maximum_try_count|
+          expect(scan_options[:only_testing]).to contain_exactly(
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2',
+            'AtomicBoyTests/testUI3'
+          )
+          expect(maximum_try_count).to be(2)
+        end
+
+      Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
+    end
+
+    it 'given an odd number of tests, runs try_scan_with_retry with batches of tests' do
+      non_existent_project = "lane :test do
+        multi_scan(
+          project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'AtomicBoy',
+          try_count: 2,
+          test_without_building: true,
+          batch_count: 2
+        )
+      end"
+
+      allow(Fastlane::Actions::MultiScanAction)
+        .to receive(:tests_to_batch)
+        .and_return(
+          [
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3',
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2'
+          ]
+        )
+      expect(Fastlane::Actions::MultiScanAction)
+        .to receive(:try_scan_with_retry)
+        .once
+        .ordered do |scan_options, maximum_try_count|
+          expect(scan_options[:only_testing]).to contain_exactly(
+            'AtomicBoyTests/testUnit1',
+            'AtomicBoyTests/testUnit2',
+            'AtomicBoyTests/testUnit3'
+          )
+          expect(maximum_try_count).to be(2)
+        end
+
+      expect(Fastlane::Actions::MultiScanAction)
+        .to receive(:try_scan_with_retry)
+        .once
+        .ordered do |scan_options, maximum_try_count|
+          expect(scan_options[:only_testing]).to contain_exactly(
+            'AtomicBoyTests/testUI1',
+            'AtomicBoyTests/testUI2'
+          )
+          expect(maximum_try_count).to be(2)
+        end
+
+      Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
     end
   end
 end

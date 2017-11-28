@@ -24,6 +24,8 @@ module Fastlane
                   if target_testcase
                     target_testcase.parent.insert_after(target_testcase, testcase)
                     target_testcase.parent.delete_element(target_testcase)
+                  else
+                    target_testsuite << testcase
                   end
                 end
               else

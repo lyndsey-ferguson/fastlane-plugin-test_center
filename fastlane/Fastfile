@@ -39,6 +39,15 @@ lane :test_multiscan do
   )
 end
 
+lane :test_multiscan_batch do
+  multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    batch_count: 2
+  )
+end
+
 lane :test_multiscan_workspace do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),

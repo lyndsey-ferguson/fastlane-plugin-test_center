@@ -8,7 +8,7 @@ Gemfile.lock
 /doc/
 /rdoc/
 fastlane/README.md
-fastlane/**/report*.xml
-fastlane/**/report*.junit
-fastlane/**/report*.html
 coverage
+report*.html
+report*.xml
+report*.junit
