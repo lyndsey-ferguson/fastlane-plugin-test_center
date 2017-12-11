@@ -27,7 +27,7 @@ describe Fastlane::Actions::TestsFromJunitAction do
     allow(File).to receive(:open).with('path/to/fake_junit_report.xml').and_yield(File.open('./spec/fixtures/junit.xml'))
 
     result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
-    expect(result[:failed]).to eq(['CoinTossingUITests/testResultIsTails'])
-    expect(result[:passing]).to eq(['CoinTossingUITests/testResultIsHeads'])
+    expect(result[:failed]).to contain_exactly('BagOfTests/CoinTossingUITests/testResultIsTails', 'BagOfTests/AtomicBoy/testWristMissles')
+    expect(result[:passing]).to contain_exactly('BagOfTests/CoinTossingUITests/testResultIsHeads', 'BagOfTests/AtomicBoy/testRocketBoots')
   end
 end

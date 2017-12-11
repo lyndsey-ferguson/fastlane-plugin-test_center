@@ -11,14 +11,20 @@ module Fastlane
           UI.user_error!("Error: cannot find any schemes in the Xcode project")
         end
 
-        report_file = File.open(params[:junit]) { |f| REXML::Document.new(f) }
-        UI.user_error!("Malformed XML test report file given") if report_file.root.nil?
-        UI.user_error!("Valid XML file is not an Xcode test report") if report_file.get_elements('testsuites').empty?
+        testables = Hash.new([])
+        desired_passed_status = (params[:suppress_type] == :passing)
 
-        if params[:suppress_type] == :failed
-          tests_per_target_to_suppress = failing_tests(report_file)
-        else
-          tests_per_target_to_suppress = passing_tests(report_file)
+        report = ::TestCenter::Helper::XcodeJunit::Report.new(params[:junit])
+
+        report.testables.each do |testable|
+          testables[testable.name] = []
+          testable.testsuites.each do |testsuite|
+            testsuite.testcases.each do |testcase|
+              if testcase.passed? == desired_passed_status
+                testables[testable.name] << testcase.skipped_test
+              end
+            end
+          end
         end
 
         scheme_filepaths.each do |scheme_filepath|
@@ -27,59 +33,13 @@ module Fastlane
 
           xcscheme.test_action.testables.each do |testable|
             buildable_name = testable.buildable_references[0].buildable_name
-
-            tests_per_target_to_suppress[buildable_name].each do |test_to_skip|
-              skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
-              skipped_test.identifier = test_to_skip
+            testables[buildable_name].each do |skipped_test|
               testable.add_skipped_test(skipped_test)
               is_dirty = true
             end
           end
           xcscheme.save! if is_dirty
         end
-      end
-
-      def self.failing_tests(report_file)
-        tests = Hash.new { |hash, key| hash[key] = [] }
-
-        report_file.elements.each('*/testsuite/testcase/failure') do |failure_element|
-          testcase = failure_element.parent
-          testsuite_element = testcase.parent
-          buildable_name = buildable_name_from_testcase(testcase)
-
-          tests[buildable_name] << xctest_identifier(testcase)
-          # Remove all the failures from this in-memory xml file to make
-          # it easier to find the passing tests below
-          testsuite_element.delete_element testcase
-        end
-        tests
-      end
-
-      def self.passing_tests(report_file)
-        tests = Hash.new { |hash, key| hash[key] = [] }
-
-        report_file.elements.each('*/testsuite/testcase') do |testcase|
-          buildable_name = buildable_name_from_testcase(testcase)
-
-          tests[buildable_name] << xctest_identifier(testcase)
-        end
-        tests
-      end
-
-      def self.buildable_name_from_testcase(testcase)
-        testsuite_element = testcase.parent
-        buildable_element = testsuite_element.parent
-        buildable_element.attributes['name']
-      end
-
-      def self.xctest_identifier(testcase)
-        testcase_class = testcase.attributes['classname']
-        testcase_testmethod = testcase.attributes['name']
-
-        is_swift = testcase_class.include?('.')
-        testcase_class.gsub!(/.*\./, '')
-        testcase_testmethod << '()' if is_swift
-        "#{testcase_class}/#{testcase_testmethod}"
       end
 
       #####################################################

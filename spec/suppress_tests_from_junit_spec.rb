@@ -37,7 +37,7 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
       xcscheme = OpenStruct.new
       @xcschemes[scheme] = xcscheme
       xcscheme.test_action = OpenStruct.new
-      builable_reference = [OpenStruct.new(buildable_name: 'CoinTossingUITests.xctest')]
+      builable_reference = [OpenStruct.new(buildable_name: 'BagOfTests.xctest')]
       xcscheme.test_action.testables = [
         OpenStruct.new(buildable_references: builable_reference)
       ]

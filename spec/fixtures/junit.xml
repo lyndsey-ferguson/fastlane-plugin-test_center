@@ -1,9 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
-  <testsuites name='CoinTossingUITests.xctest' tests='2' failures='1'>
+  <testsuites name='BagOfTests.xctest' tests='2' failures='1'>
     <testsuite name='CoinTossingUITests.CoinTossingUITests' tests='2' failures='1'>
       <testcase classname='CoinTossingUITests.CoinTossingUITests' name='testResultIsHeads' time='6.362'/>
       <testcase classname='CoinTossingUITests.CoinTossingUITests' name='testResultIsTails'>
         <failure message='XCTAssertEqual failed: (&quot;Heads&quot;) is not equal to (&quot;Tails&quot;) - '>CoinTossingUITests.swift:38</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='AtomicBoy' tests='2' failures='1'>
+    <testcase classname='AtomicBoy' name='testRocketBoots' time='6.362'/>
+    <testcase classname='AtomicBoy' name='testWristMissles'>
+      <failure message='XCTAssertEqual failed: (&quot;3&quot;) is not equal to (&quot;0&quot;) - '>AtomicBoy.m:38</failure>
     </testcase>
   </testsuite>
 </testsuites>

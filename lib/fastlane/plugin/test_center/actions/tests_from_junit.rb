@@ -2,41 +2,24 @@ module Fastlane
   module Actions
     class TestsFromJunitAction < Action
       def self.run(params)
-        report_file = File.open(params[:junit]) { |f| REXML::Document.new(f) }
-        UI.user_error!("Malformed XML test report file given") if report_file.root.nil?
-        UI.user_error!("Valid XML file is not an Xcode test report") if report_file.get_elements('testsuites').empty?
-
+        report = ::TestCenter::Helper::XcodeJunit::Report.new(params[:junit])
+        passing = []
+        failed = []
+        report.testables.each do |testable|
+          testable.testsuites.each do |testsuite|
+            testsuite.testcases.each do |testcase|
+              if testcase.passed?
+                passing << testcase.identifier
+              else
+                failed << testcase.identifier
+              end
+            end
+          end
+        end
         {
-          passing: passing_tests(report_file).to_a,
-          failed: failing_tests(report_file).to_a
+          failed: failed,
+          passing: passing
         }
-      end
-
-      def self.failing_tests(report_file)
-        tests = Set.new
-
-        report_file.elements.each('*/testsuite/testcase/failure') do |failure_element|
-          testcase = failure_element.parent
-          tests << xctest_identifier(testcase)
-        end
-        tests
-      end
-
-      def self.passing_tests(report_file)
-        tests = Set.new
-
-        report_file.elements.each('*/testsuite/testcase[not(failure)]') do |testcase|
-          tests << xctest_identifier(testcase)
-        end
-        tests
-      end
-
-      def self.xctest_identifier(testcase)
-        testcase_class = testcase.attributes['classname']
-        testcase_testmethod = testcase.attributes['name']
-
-        testcase_class.gsub!(/.*\./, '')
-        "#{testcase_class}/#{testcase_testmethod}"
       end
 
       #####################################################

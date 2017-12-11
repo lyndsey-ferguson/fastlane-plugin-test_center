@@ -26,6 +26,8 @@ Gem::Specification.new do |spec|
     5) tests_from_junit: retrieves the failing and passing tests as reported in a junit xml file.
   SUMMARY
 
+  spec.add_dependency 'xcodeproj'
+
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'fastlane', '>= 2.56.0'
   spec.add_development_dependency 'pry'
