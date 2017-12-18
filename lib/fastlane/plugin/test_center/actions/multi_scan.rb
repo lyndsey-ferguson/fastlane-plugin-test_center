@@ -21,10 +21,12 @@ module Fastlane
           Fastlane::Actions::ScanAction.run(config)
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           UI.verbose("Scan failed with #{e}")
+          if try_count < params[:try_count]
           report_filepath = junit_report_filepath(scan_options)
           scan_options[:only_testing] = other_action.tests_from_junit(junit: report_filepath)[:failed]
           increment_junit_report_filename(scan_options)
-          retry if try_count < params[:try_count]
+            retry
+          end
         end
       end
 
@@ -70,7 +72,7 @@ module Fastlane
       end
 
       def self.junit_report_filepath(config)
-        File.join(config[:output_directory], junit_report_filename(config))
+        File.absolute_path(File.join(config[:output_directory], junit_report_filename(config)))
       end
 
       def self.increment_junit_report_filename(config)
