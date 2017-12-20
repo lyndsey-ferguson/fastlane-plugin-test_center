@@ -5,7 +5,7 @@ module Fastlane
 
       def self.run(params)
         project_path = params[:xcodeproj]
-        tests_to_skip = params[:tests]
+        all_tests_to_skip = params[:tests]
         scheme = params[:scheme]
 
         scheme_filepaths = Dir.glob("#{project_path}/{xcshareddata,xcuserdata}/**/xcschemes/#{scheme || '*'}.xcscheme")
@@ -18,6 +18,11 @@ module Fastlane
           is_dirty = false
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
           xcscheme.test_action.testables.each do |testable|
+            buildable_name = File.basename(testable.buildable_references[0].buildable_name, '.xctest')
+
+            tests_to_skip = all_tests_to_skip.select { |test| test.start_with?(buildable_name) }
+                                             .map { |test| test.sub("#{buildable_name}/", '') }
+
             tests_to_skip.each do |test_to_skip|
               skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
               skipped_test.identifier = test_to_skip
@@ -55,9 +60,9 @@ module Fastlane
             verify_block: proc do |tests|
               UI.user_error!("Error: no tests were given to suppress!") unless tests and !tests.empty?
               tests.each do |test_identifier|
-                is_valid_test_identifier = %r{^[a-zA-Z][a-zA-Z0-9]+(\/test[a-zA-Z0-9]+)?$} =~ test_identifier
+                is_valid_test_identifier = %r{^[a-zA-Z][a-zA-Z0-9]+\/[a-zA-Z][a-zA-Z0-9]+(\/test[a-zA-Z0-9]+)?$} =~ test_identifier
                 unless is_valid_test_identifier
-                  UI.user_error!("Error: invalid test identifier '#{test_identifier}'. It must be in the format of 'TestSuiteToSuppress' or 'TestSuiteToSuppress/testToSuppress'")
+                  UI.user_error!("Error: invalid test identifier '#{test_identifier}'. It must be in the format of 'Testable/TestSuiteToSuppress' or 'Testable/TestSuiteToSuppress/testToSuppress'")
                 end
               end
             end,

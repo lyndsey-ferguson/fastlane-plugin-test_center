@@ -1,14 +1,14 @@
 lane :suppress_all do
   suppress_tests(
     xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
-    tests: ['HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests']
+    tests: ['AtomicBoyUITests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'AtomicBoyUITests/GrumpyWorkerTests']
   )
 end
 
 lane :suppress_one do
   suppress_tests(
     xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
-    tests: ['HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests'],
+    tests: ['AtomicBoyUITests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'AtomicBoyUITests/GrumpyWorkerTests'],
     scheme: 'Professor'
   )
 end

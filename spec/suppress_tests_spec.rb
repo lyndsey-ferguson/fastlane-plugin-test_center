@@ -37,8 +37,9 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
       xcscheme = OpenStruct.new
       @xcschemes[scheme] = xcscheme
       xcscheme.test_action = OpenStruct.new
+      builable_reference = [OpenStruct.new(buildable_name: 'BagOfTests.xctest')]
       xcscheme.test_action.testables = [
-        OpenStruct.new
+        OpenStruct.new(buildable_references: builable_reference)
       ]
       allow(xcscheme.test_action.testables[0]).to receive(:add_skipped_test) do |skipped_test|
         @actual_skipped_tests << skipped_test.identifier
@@ -60,7 +61,7 @@ describe Fastlane::Actions::SuppressTestsAction do
         non_existent_project = "lane :test do
           suppress_tests(
             xcodeproj: 'path/to/non_existent_project.xcodeproj',
-            tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
           )
         end"
 
@@ -75,7 +76,7 @@ describe Fastlane::Actions::SuppressTestsAction do
         non_existent_project = "lane :test do
           suppress_tests(
             xcodeproj: '',
-            tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
           )
         end"
 
@@ -91,7 +92,7 @@ describe Fastlane::Actions::SuppressTestsAction do
           suppress_tests(
             xcodeproj: 'path/to/fake_project.xcodeproj',
             scheme: 'HolyGrail',
-            tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'BagOfTests/GrumpyWorkerTests' ]
           )
         end"
         allow(Dir).to receive(:exist?).with('path/to/fake_project.xcodeproj').and_return(true)
@@ -123,15 +124,15 @@ describe Fastlane::Actions::SuppressTestsAction do
 
       [
         '', # no test
-        '@invalidtestsuite1',
-        '#invalidtestsuite1',
-        '3invalidtestsuite1',
-        'validtestsuite/@testInvalid1',
-        'validtestsuite/#testInvalid2',
-        'validtestsuite/3testInvalid',
-        'validtestsuite/test4Invalid()',
-        'validtestsuite.testInvalid',
-        'validtestsuite.testInvalid()', # this is a pattern that people have tried to specify a test
+        'BagOfTests/@invalidtestsuite1',
+        'BagOfTests/#invalidtestsuite1',
+        'BagOfTests/3invalidtestsuite1',
+        'BagOfTests/validtestsuite/@testInvalid1',
+        'BagOfTests/validtestsuite/#testInvalid2',
+        'BagOfTests/validtestsuite/3testInvalid',
+        'BagOfTests/validtestsuite/test4Invalid()',
+        'BagOfTests/validtestsuite.testInvalid',
+        'BagOfTests/validtestsuite.testInvalid()', # this is a pattern that people have tried to specify a test
       ].each do |invalid_test_identifier|
         it "a failure occurs when given an invalid test: #{invalid_test_identifier}" do
           invalid_test_list = "lane :test do
@@ -145,7 +146,7 @@ describe Fastlane::Actions::SuppressTestsAction do
 
           expect { Fastlane::FastFile.new.parse(invalid_test_list).runner.execute(:test) }.to(
             raise_error(FastlaneCore::Interface::FastlaneError) do |error|
-              expect(error.message).to match("Error: invalid test identifier '#{invalid_test_identifier}'. It must be in the format of 'TestSuiteToSuppress' or 'TestSuiteToSuppress/testToSuppress'")
+              expect(error.message).to match("Error: invalid test identifier '#{invalid_test_identifier}'. It must be in the format of 'Testable/TestSuiteToSuppress' or 'Testable/TestSuiteToSuppress/testToSuppress'")
             end
           )
         end
@@ -156,10 +157,10 @@ describe Fastlane::Actions::SuppressTestsAction do
       include_context "mocked schemes context"
 
       [
-        'validtestsuite1',
-        'valid2TestSuite',
-        'validtestsuite/testValidEntries1',
-        'validtestsuite/test2ValidEntries'
+        'BagOfTests/validtestsuite1',
+        'BagOfTests/valid2TestSuite',
+        'BagOfTests/validtestsuite/testValidEntries1',
+        'BagOfTests/validtestsuite/test2ValidEntries'
       ].each do |valid_test_identifier|
         it "no failure occurs when given an valid test: #{valid_test_identifier}" do
           invalid_test_list = "lane :test do
@@ -177,7 +178,7 @@ describe Fastlane::Actions::SuppressTestsAction do
         fastfile = "lane :test do
           suppress_tests(
             xcodeproj: 'path/to/fake_project.xcodeproj',
-            tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'BagOfTests/GrumpyWorkerTests' ]
           )
         end"
 
@@ -197,7 +198,7 @@ describe Fastlane::Actions::SuppressTestsAction do
           suppress_tests(
             xcodeproj: 'path/to/fake_project.xcodeproj',
             scheme: 'Shared',
-            tests: [ 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'GrumpyWorkerTests' ]
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'BagOfTests/GrumpyWorkerTests' ]
           )
         end"
 

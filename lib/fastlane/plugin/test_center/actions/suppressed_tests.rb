@@ -17,8 +17,12 @@ module Fastlane
         scheme_filepaths.each do |scheme_filepath|
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
           xcscheme.test_action.testables.each do |testable|
+            buildable_name = testable.buildable_references[0]
+                                     .buildable_name
+
+            buildable_name = File.basename(buildable_name, '.xctest')
             testable.skipped_tests.map do |skipped_test|
-              skipped_tests.add(skipped_test.identifier)
+              skipped_tests.add("#{buildable_name}/#{skipped_test.identifier}")
             end
           end
         end

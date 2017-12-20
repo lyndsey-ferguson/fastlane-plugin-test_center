@@ -36,7 +36,13 @@ RSpec.shared_context "mocked schemes context", shared_context: :metadata do
       @xcschemes[scheme] = xcscheme
       xcscheme.test_action = OpenStruct.new
       xcscheme.test_action.testables = [
-        OpenStruct.new
+        OpenStruct.new(
+          buildable_references: [
+            OpenStruct.new(
+              buildable_name: 'BagOfTests.xctest'
+            )
+          ]
+        )
       ]
       xcscheme.test_action.testables[0].skipped_tests = [
         OpenStruct.new(identifier: 'HappyNapperTests/testBeepingNonExistentFriendDisplaysError'),
@@ -109,9 +115,9 @@ describe Fastlane::Actions::SuppressedTestsAction, yes: true do
       result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
       expect(result).to eq(
         [
-          'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
-          'GrumpyWorkerTests',
-          'HappyNapperTests/testClickSoundMadeWhenBucklingUp'
+          'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+          'BagOfTests/GrumpyWorkerTests',
+          'BagOfTests/HappyNapperTests/testClickSoundMadeWhenBucklingUp'
         ]
       )
     end
@@ -127,8 +133,8 @@ describe Fastlane::Actions::SuppressedTestsAction, yes: true do
       result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
       expect(result).to eq(
         [
-          'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
-          'GrumpyWorkerTests'
+          'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+          'BagOfTests/GrumpyWorkerTests'
         ]
       )
     end

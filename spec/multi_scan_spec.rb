@@ -9,10 +9,10 @@ end
 describe Fastlane::Actions::MultiScanAction do
   before(:each) do
     allow(File).to receive(:exist?).and_call_original
-    allow(File).to receive(:exist?).with('./test_output/report.xml').and_return(true)
+    allow(File).to receive(:exist?).with(%r{.*path/to/fake_junit_report.xml}).and_return(true)
 
     allow(File).to receive(:open).and_call_original
-    allow(File).to receive(:open).with('path/to/fake_junit_report.xml').and_yield(File.open('./spec/fixtures/junit.xml'))
+    allow(File).to receive(:open).with(%r{.*path/to/fake_junit_report.xml}).and_yield(File.open('./spec/fixtures/junit.xml'))
     allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: [], passing: [] })
   end
 
@@ -148,7 +148,7 @@ describe Fastlane::Actions::MultiScanAction do
       end"
       scan_count = 0
       allow(Fastlane::Actions::TestsFromJunitAction).to receive(:available_options).and_return([])
-      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['CoinTossingUITests/testResultIsTails'] })
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
       allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
         scan_count += 1
         fail FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count == 1
@@ -173,13 +173,13 @@ describe Fastlane::Actions::MultiScanAction do
       scan_count = 0
 
       allow(File).to receive(:exist?).and_call_original
-      allow(File).to receive(:exist?).with('path/to/fake_junit_report.xml').and_return(true)
-      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['CoinTossingUITests/testResultIsTails'] })
+      allow(File).to receive(:exist?).with(%r{.*path/to/fake_junit_report.xml}).and_return(true)
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
 
       allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
         scan_count += 1
         fail FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count == 1
-        expect(config[:only_testing]).to eq(['CoinTossingUITests/testResultIsTails'])
+        expect(config[:only_testing]).to eq(['BagOfTests/CoinTossingUITests/testResultIsTails'])
         0
       end
       Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
@@ -199,8 +199,8 @@ describe Fastlane::Actions::MultiScanAction do
       scan_count = 0
 
       allow(File).to receive(:exist?).and_call_original
-      allow(File).to receive(:exist?).with('path/to/fake_junit_report.xml').and_return(true)
-      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['CoinTossingUITests/testResultIsTails'] })
+      allow(File).to receive(:exist?).with(%r{.*path/to/fake_junit_report.xml}).and_return(true)
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails', 'Bag Of Tests/CoinTossingUITests/testResultIsMonkeys'] })
 
       allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
         scan_count += 1
@@ -216,7 +216,7 @@ describe Fastlane::Actions::MultiScanAction do
           expect(config[:custom_report_file_name]).to eq('fake_junit_report-2.xml')
           expect(config[:test_without_building]).to be(true)
           expect(config[:build_for_testing]).to be_falsey
-          expect(config[:only_testing]).to eq(['CoinTossingUITests/testResultIsTails'])
+          expect(config[:only_testing]).to eq(['BagOfTests/CoinTossingUITests/testResultIsTails', 'Bag\\ Of\\ Tests/CoinTossingUITests/testResultIsMonkeys'])
         end
         0
       end
