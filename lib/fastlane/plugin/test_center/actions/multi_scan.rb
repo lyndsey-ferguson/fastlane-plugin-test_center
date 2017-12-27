@@ -125,7 +125,7 @@ module Fastlane
       end
 
       def self.authors
-        ["lyndsey-ferguson/@ldferguson"]
+        ["lyndsey-ferguson/@lyndseydf"]
       end
 
       def self.is_supported?(platform)
