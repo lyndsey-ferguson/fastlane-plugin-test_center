@@ -8,6 +8,11 @@ module Fastlane
         try_count = 0
         scan_options = params.values.reject { |k| k == :try_count }
 
+        FastlaneCore::PrintTable.print_values(
+          config: params._values.reject { |k, v| scan_options.key?(k) },
+          title: "Summary for mult_scan (test_center v#{Fastlane::TestCenter::VERSION})"
+        )
+
         scan_options = config_with_junit_report(scan_options)
 
         unless scan_options[:test_without_building]

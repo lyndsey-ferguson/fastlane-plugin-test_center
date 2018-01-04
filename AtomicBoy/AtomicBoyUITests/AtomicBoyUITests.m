@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <stdlib.h>
 
 @interface AtomicBoyUITests : XCTestCase
 
@@ -35,11 +36,17 @@
 - (void)testExample {
     // Use recording to get started writing UI tests.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
 }
 
 - (void)testExample2 {
     // Use recording to get started writing UI tests.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
 }
 
 @end

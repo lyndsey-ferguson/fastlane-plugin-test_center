@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <stdlib.h>
 
 @interface AtomicBoyTests : XCTestCase
 
@@ -27,6 +28,9 @@
 - (void)testExample {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
 }
 
 - (void)testPerformanceExample {
