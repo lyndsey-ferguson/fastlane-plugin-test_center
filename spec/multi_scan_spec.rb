@@ -14,6 +14,11 @@ describe Fastlane::Actions::MultiScanAction do
     allow(File).to receive(:open).and_call_original
     allow(File).to receive(:open).with(%r{.*path/to/fake_junit_report.xml}).and_yield(File.open('./spec/fixtures/junit.xml'))
     allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: [], passing: [] })
+
+    allow(Dir).to receive(:glob).and_call_original
+    allow(Dir).to receive(:glob).with(%r{.*/*.junit}).and_return([File.absolute_path('./spec/fixtures/junit.xml')])
+    allow(Dir).to receive(:glob).with(%r{.*/*.xml}).and_return([File.absolute_path('./spec/fixtures/junit.xml')])
+    allow(Fastlane::Actions::MergeJunitReportAction).to receive(:run)
   end
 
   describe 'config methods' do
@@ -102,19 +107,19 @@ describe Fastlane::Actions::MultiScanAction do
         expect(File.basename(junit_report_filepath)).to eq(test_data[:desired_report_filepath])
       end
 
-      it "increment_junit_report_filename for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-2.xml" do
+      it "increment_report_filenames for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-2.xml" do
         config = Fastlane::Actions::MultiScanAction.config_with_junit_report(test_data[:config])
-        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        Fastlane::Actions::MultiScanAction.increment_report_filenames(config)
         junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
         expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-2.xml")
       end
 
-      it "increment_junit_report_filename x 3 for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-4.xml" do
+      it "increment_report_filenames x 3 for #{test_data[:config]} is #{File.basename(test_data[:desired_report_filepath], '.*')}-4.xml" do
         config = Fastlane::Actions::MultiScanAction.config_with_junit_report(test_data[:config])
-        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        Fastlane::Actions::MultiScanAction.increment_report_filenames(config)
         junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
         expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-3.xml")
-        Fastlane::Actions::MultiScanAction.increment_junit_report_filename(config)
+        Fastlane::Actions::MultiScanAction.increment_report_filenames(config)
         junit_report_filepath = Fastlane::Actions::MultiScanAction.junit_report_filepath(config)
         expect(File.basename(junit_report_filepath)).to eq("#{File.basename(test_data[:desired_report_filepath], '.*')}-4.xml")
       end
@@ -222,6 +227,76 @@ describe Fastlane::Actions::MultiScanAction do
       end
       Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
       expect(scan_count).to eq(3)
+    end
+
+    it 'it merges junit reports' do
+      non_existent_project = "lane :test do
+        multi_scan(
+          project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'AtomicBoy',
+          try_count: 2,
+          test_without_building: true,
+          derived_data_path: 'path/to/derived_data'
+        )
+      end"
+      scan_count = 0
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:available_options).and_return([])
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
+      allow(Dir).to receive(:glob).with(%r{.*/*.junit}).and_return([File.absolute_path('./spec/fixtures/junit.xml'), File.absolute_path('./spec/fixtures/junit.xml')])
+      allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
+        scan_count += 1
+        raise FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count == 1
+        0
+      end
+      expect(Fastlane::Actions::MergeJunitReportAction).to receive(:run)
+      Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
+    end
+
+    it 'it sends scan correct incremented report names for html, junit' do
+      non_existent_project_junit = "lane :test do
+        multi_scan(
+          project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'AtomicBoy',
+          try_count: 2,
+          test_without_building: true,
+          derived_data_path: 'path/to/derived_data'
+        )
+      end"
+      scan_count = 0
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:available_options).and_return([])
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
+      allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
+        suffix = scan_count == 0 ? '' : "-#{scan_count + 1}"
+        expect(config._values[:output_files]).to eq("report#{suffix}.html,report#{suffix}.junit")
+        scan_count += 1
+        raise FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count == 1
+        0
+      end
+      Fastlane::FastFile.new.parse(non_existent_project_junit).runner.execute(:test)
+    end
+
+    it 'it sends scan correct incremented report names for html, xml' do
+      non_existent_project_xml = "lane :test do
+        multi_scan(
+          project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'AtomicBoy',
+          try_count: 3,
+          test_without_building: true,
+          derived_data_path: 'path/to/derived_data',
+          output_files: 'report.html,report.xml'
+        )
+      end"
+      scan_count = 0
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:available_options).and_return([])
+      allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
+      allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
+        suffix = scan_count == 0 ? '' : "-#{scan_count + 1}"
+        expect(config._values[:output_files]).to eq("report#{suffix}.html,report#{suffix}.xml")
+        scan_count += 1
+        raise FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count < 4
+        0
+      end
+      Fastlane::FastFile.new.parse(non_existent_project_xml).runner.execute(:test)
     end
   end
 end

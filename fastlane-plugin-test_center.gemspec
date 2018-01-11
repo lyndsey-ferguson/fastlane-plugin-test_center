@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   SUMMARY
 
   spec.add_dependency 'xcodeproj'
+  spec.add_dependency 'fastlane-plugin-merge_junit_report'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'fastlane', '>= 2.56.0'
