@@ -58,6 +58,7 @@ module Fastlane
             output_file: File.absolute_path(File.join(scan_options[:output_directory], final_report_name))
           )
         end
+        FileUtils.rm_f(Dir.glob("#{scan_options[:output_directory]}/*-[1-9]*#{extension}"))
       end
 
       def self.build_for_testing(scan_options)
