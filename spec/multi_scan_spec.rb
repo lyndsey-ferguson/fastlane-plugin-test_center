@@ -18,7 +18,8 @@ describe Fastlane::Actions::MultiScanAction do
     allow(Dir).to receive(:glob).and_call_original
     allow(Dir).to receive(:glob).with(%r{.*/*.junit}).and_return([File.absolute_path('./spec/fixtures/junit.xml')])
     allow(Dir).to receive(:glob).with(%r{.*/*.xml}).and_return([File.absolute_path('./spec/fixtures/junit.xml')])
-    allow(Fastlane::Actions::MergeJunitReportAction).to receive(:run)
+    allow(Fastlane::Actions::CollateJunitReportsAction).to receive(:run)
+    allow(FileUtils).to receive(:rm_f).with([%r{.*/*.xml}])
   end
 
   describe 'config methods' do
@@ -243,12 +244,13 @@ describe Fastlane::Actions::MultiScanAction do
       allow(Fastlane::Actions::TestsFromJunitAction).to receive(:available_options).and_return([])
       allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return({ failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] })
       allow(Dir).to receive(:glob).with(%r{.*/*.junit}).and_return([File.absolute_path('./spec/fixtures/junit.xml'), File.absolute_path('./spec/fixtures/junit.xml')])
+      allow(FileUtils).to receive(:rm_f).with([%r{.*/*.xml}, %r{.*/*.xml}])
       allow(Fastlane::Actions::ScanAction).to receive(:run) do |config|
         scan_count += 1
         raise FastlaneCore::Interface::FastlaneTestFailure, 'Fake test failure' if scan_count == 1
         0
       end
-      expect(Fastlane::Actions::MergeJunitReportAction).to receive(:run)
+      expect(Fastlane::Actions::CollateJunitReportsAction).to receive(:run)
       Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
     end
 

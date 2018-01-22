@@ -1,7 +1,6 @@
 module Fastlane
   module Actions
     require 'fastlane/actions/scan'
-    require 'fastlane/plugin/merge_junit_report'
     require 'shellwords'
 
     class MultiScanAction < Action
@@ -53,9 +52,9 @@ module Fastlane
           if match
             final_report_name = "#{match[:filename]}#{extension}"
           end
-          other_action.merge_junit_report(
-            input_files: report_files.reverse,
-            output_file: File.absolute_path(File.join(scan_options[:output_directory], final_report_name))
+          other_action.collate_junit_reports(
+            reports: report_files.reverse,
+            collated_report: File.absolute_path(File.join(scan_options[:output_directory], final_report_name))
           )
         end
         FileUtils.rm_f(Dir.glob("#{scan_options[:output_directory]}/*-[1-9]*#{extension}"))

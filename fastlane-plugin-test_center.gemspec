@@ -24,10 +24,10 @@ Gem::Specification.new do |spec|
     3) suppress_tests: suppresses specific tests in a specific or all Xcode Schemes in a given project.
     4) suppressed_tests: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project.
     5) tests_from_junit: retrieves the failing and passing tests as reported in a junit xml file.
+    6) collate_junit_reports: collects and correctly organizes junit reports from multiple test passes.
   SUMMARY
 
   spec.add_dependency 'xcodeproj'
-  spec.add_dependency 'fastlane-plugin-merge_junit_report'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'fastlane', '>= 2.56.0'
