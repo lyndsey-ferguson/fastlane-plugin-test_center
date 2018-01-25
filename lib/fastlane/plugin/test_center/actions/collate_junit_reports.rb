@@ -1,4 +1,3 @@
-require 'pry-byebug'
 module Fastlane
   module Actions
     class CollateJunitReportsAction < Action
