@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   SUMMARY
 
   spec.add_dependency 'xcodeproj'
-  spec.add_dependency 'xctest_list', '>= 1.1.1'
+  spec.add_dependency 'xctest_list', '>= 1.1.2'
   spec.add_dependency 'plist'
 
   spec.add_development_dependency 'bundler'
