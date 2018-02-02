@@ -1,5 +1,3 @@
-
-
 describe Fastlane::Actions::TestsFromJunitAction do
   describe 'it handles invalid data' do
     it 'a failure occurs when a non-existent Junit file is specified' do
