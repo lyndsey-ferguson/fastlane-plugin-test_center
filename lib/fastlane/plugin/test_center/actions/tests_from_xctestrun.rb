@@ -2,6 +2,29 @@ module Fastlane
   module Actions
     class TestsFromXctestrunAction < Action
       def self.run(params)
+        return xctestrun_tests(params[:xctestrun])
+      end
+
+      def self.xctestrun_tests(xctestrun_path)
+        xctestrun = Plist.parse_xml(xctestrun_path)
+        xctestrun_rootpath = File.dirname(xctestrun_path)
+        tests = Hash.new([])
+        xctestrun.each do |testable_name, xctestrun_config|
+          test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
+          if xctestrun_config.key?('SkipTestIdentifiers')
+            test_identifiers.reject! { |test_identifier| xctestrun_config['SkipTestIdentifiers'].include?(test_identifier) }
+          end
+          tests[testable_name] = test_identifiers.map do |test_identifier|
+            "#{testable_name.shellescape}/#{test_identifier}"
+          end
+        end
+        tests
+      end
+
+      def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
+        xctest_host_path = xctestrun_config['TestHostPath'].sub('__TESTROOT__', xctestrun_rootpath)
+        xctestrun_config['TestBundlePath'].sub!('__TESTHOST__', xctest_host_path)
+        xctestrun_config['TestBundlePath'].sub('__TESTROOT__', xctestrun_rootpath)
       end
 
       #####################################################
@@ -9,7 +32,7 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Collects all of the tests that are part of the xctestrun file"
+        "Retrieves all of the tests from xctest bundles referenced by the xctestrun file"
       end
 
       def self.available_options
@@ -23,6 +46,10 @@ module Fastlane
             end
           )
         ]
+      end
+
+      def self.return_value
+        "A Hash of testable => tests, where testable is the name of the test target and tests is an array of test identifiers"
       end
 
       def self.authors

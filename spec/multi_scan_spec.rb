@@ -304,7 +304,7 @@ describe Fastlane::Actions::MultiScanAction do
     end
   end
 
-  describe ':batch_count' do
+  describe ':batch_count', batch: true do
     it 'gets the xctest_bundle_path from a xctestrun hash' do
       xctestrun_config = {
         'TestBundlePath' => '__TESTHOST__/PlugIns/AtomicBoyTests.xctest',

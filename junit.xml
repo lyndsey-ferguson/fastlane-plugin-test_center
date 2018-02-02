@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-  <testsuites name='AtomicBoyUITests.xctest' tests='2' failures='1'>
-    <testsuite name='AtomicBoyUITests' tests='2' failures='1'>
-      <testcase classname='AtomicBoyUITests' name='testExample2' time='6.362'/>
-      <testcase classname='AtomicBoyUITests' name='testExample'>
-        <failure message='XCTAssertEqual failed: (&quot;Heads&quot;) is not equal to (&quot;Tails&quot;) - '>AtomicBoyUITests.m:35</failure>
-    </testcase>
-  </testsuite>
-</testsuites>

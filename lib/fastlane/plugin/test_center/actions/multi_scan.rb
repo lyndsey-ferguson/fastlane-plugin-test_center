@@ -4,6 +4,7 @@ module Fastlane
     require 'shellwords'
     require 'xctest_list'
     require 'plist'
+    require 'pry-byebug'
 
     class MultiScanAction < Action
       def self.run(params)
@@ -129,19 +130,8 @@ module Fastlane
       end
 
       def self.xctestrun_tests(xctestrun_path)
-        xctestrun = Plist.parse_xml(xctestrun_path)
-        xctestrun_rootpath = File.dirname(xctestrun_path)
-        tests = []
-        xctestrun.each do |testable_name, xctestrun_config|
-          test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
-          if xctestrun_config.key?('SkipTestIdentifiers')
-            test_identifiers.reject! { |test_identifier| xctestrun_config['SkipTestIdentifiers'].include?(test_identifier) }
-          end
-          tests += test_identifiers.map do |test_identifier|
-            "#{testable_name.shellescape}/#{test_identifier}"
-          end
-        end
-        tests
+        tests_across_testables = other_action.tests_from_xctestrun(xctestrun: xctestrun_path)
+        tests_across_testables.values.flatten
       end
 
       def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
@@ -151,7 +141,7 @@ module Fastlane
       end
 
       def self.testrun_path(scan_options)
-        Dir.glob("#{scan_options[:derived_data_path]}/Build/Products/#{scan_options[:scheme]}*.xctestrun").first
+        Dir.glob("#{scan_options[:derived_data_path]}/Build/Products/*.xctestrun").first
       end
 
       def self.test_products_path(derived_data_path)

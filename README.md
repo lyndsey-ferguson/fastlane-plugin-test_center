@@ -23,6 +23,7 @@ This fastlane plugin includes the following actions:
 - `suppress_tests`: suppresses specific tests in a specific or all Xcode Schemes in a given project
 - `suppressed_tests`: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project
 - `tests_from_junit`: retrieves the failing and passing tests as reported in a junit xml file
+- `tests_from_xctestrun`: retrieves all of the tests from xctest bundles referenced by the xctestrun file
 - `collate_junit_reports`: collects and correctly organizes junit reports from multiple test passes
 
 ## Example

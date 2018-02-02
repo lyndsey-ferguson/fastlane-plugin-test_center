@@ -13,4 +13,50 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
       )
     end
   end
+
+  it 'returns all tests in a xctestrun' do
+    allow(File).to receive(:exist?).and_call_original
+    allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+    allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/fake.xctestrun'))
+    allow(XCTestList)
+      .to receive(:tests)
+      .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+      .and_return(
+        [
+          'AtomicBoyTests/testUnit1',
+          'AtomicBoyTests/testUnit2',
+          'AtomicBoyTests/testUnit3'
+        ]
+      )
+
+    allow(XCTestList)
+      .to receive(:tests)
+      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
+      .and_return(
+        [
+          'AtomicBoyTests/testUI1',
+          'AtomicBoyTests/testUI2',
+          'AtomicBoyTests/testUI3'
+        ]
+      )
+
+    fastfile = "lane :test do
+      tests_from_xctestrun(
+        xctestrun: 'path/to/fake.xctestrun'
+      )
+    end"
+    tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    expect(tests).to include(
+      'AtomicBoyTests' => [
+        'AtomicBoyTests/AtomicBoyTests/testUnit1',
+        'AtomicBoyTests/AtomicBoyTests/testUnit2',
+        'AtomicBoyTests/AtomicBoyTests/testUnit3'
+      ],
+      'AtomicBoyUITests' => [
+        'AtomicBoyUITests/AtomicBoyTests/testUI1',
+        'AtomicBoyUITests/AtomicBoyTests/testUI2',
+        'AtomicBoyUITests/AtomicBoyTests/testUI3'
+      ]
+    )
+  end
 end

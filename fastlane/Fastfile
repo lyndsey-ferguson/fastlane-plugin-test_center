@@ -1,3 +1,5 @@
+require 'fastlane/actions/scan'
+
 lane :suppress_all do
   suppress_tests(
     xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
@@ -56,6 +58,19 @@ lane :test_multiscan_workspace do
   )
 end
 
+lane :xctestrun_tests do
+  scan(
+    build_for_testing: true,
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy'
+  )
+
+  derived_data_path = Scan.config[:derived_data_path]
+  xctestrun_file = Dir.glob("#{derived_data_path}/Build/Products/*.xctestrun").first
+  tests = tests_from_xctestrun(xctestrun: xctestrun_file)
+  tests.values.flatten.each { |test_identifier| puts test_identifier }
+end
+
 lane :test do
   suppress_all
   suppress_one
@@ -64,4 +79,5 @@ lane :test do
   suppressed_junits_for_all
   junit_tests
   test_multiscan
+  xctestrun_tests
 end
