@@ -2,6 +2,13 @@ module Fastlane
   module Actions
     class TestsFromJunitAction < Action
       def self.run(params)
+        unless Helper.test?
+          FastlaneCore::PrintTable.print_values(
+            config: params._values,
+            title: "Summary for tests_from_junit (test_center v#{Fastlane::TestCenter::VERSION})"
+          )
+        end
+
         report = ::TestCenter::Helper::XcodeJunit::Report.new(params[:junit])
         passing = []
         failed = []

@@ -1,4 +1,4 @@
-describe Fastlane::Actions::SuppressedTestsAction, yes: true do
+describe Fastlane::Actions::SuppressedTestsAction do
   describe 'it handles invalid data' do
     it 'a failure occurs when a non-existent project is given' do
       non_existent_project = "lane :test do

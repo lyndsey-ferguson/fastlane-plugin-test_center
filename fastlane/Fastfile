@@ -24,7 +24,7 @@ lane :suppressed_for_one do
 end
 
 lane :suppressed_junits_for_all do
-  UI.message("Suppressed tests for project: #{suppress_tests_from_junit(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', junit: 'junit.xml', suppress_type: :failed)}")
+  UI.message("Suppressed tests for project: #{suppress_tests_from_junit(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj', junit: './spec/fixtures/junit.xml', suppress_type: :failed)}")
 end
 
 lane :junit_tests do
@@ -33,10 +33,18 @@ lane :junit_tests do
   UI.message("Failed tests: #{result[:failed]}")
 end
 
-lane :test_multiscan do
+lane :test_multiscan_two_testables do
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'AtomicBoy',
+    try_count: 3
+  )
+end
+
+lane :test_multiscan_one_testable do
+  multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'Professor',
     try_count: 3
   )
 end
@@ -78,6 +86,7 @@ lane :test do
   suppressed_for_one
   suppressed_junits_for_all
   junit_tests
-  test_multiscan
+  test_multiscan_two_testables
+  test_multiscan_one_testable
   xctestrun_tests
 end

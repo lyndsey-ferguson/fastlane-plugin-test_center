@@ -39,16 +39,6 @@
                ReferencedContainer = "container:AtomicBoy.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "26DB0F781FA12D4B0023C31D"
-               BuildableName = "AtomicBoyUITests.xctest"
-               BlueprintName = "AtomicBoyUITests"
-               ReferencedContainer = "container:AtomicBoy.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

@@ -1,7 +1,7 @@
 
 describe TestCenter do
   describe TestCenter::Helper do
-    describe TestCenter::Helper::XcodeJunit, junit: true do
+    describe TestCenter::Helper::XcodeJunit do
       before (:each) do
         @report = TestCenter::Helper::XcodeJunit::Report.new('./spec/fixtures/junit.xml')
       end

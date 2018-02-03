@@ -1,3 +1,5 @@
+require 'plist'
+
 module Fastlane
   module Actions
     class TestsFromXctestrunAction < Action
@@ -23,8 +25,7 @@ module Fastlane
 
       def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
         xctest_host_path = xctestrun_config['TestHostPath'].sub('__TESTROOT__', xctestrun_rootpath)
-        xctestrun_config['TestBundlePath'].sub!('__TESTHOST__', xctest_host_path)
-        xctestrun_config['TestBundlePath'].sub('__TESTROOT__', xctestrun_rootpath)
+        xctestrun_config['TestBundlePath'].sub('__TESTHOST__', xctest_host_path).sub('__TESTROOT__', xctestrun_rootpath)
       end
 
       #####################################################
