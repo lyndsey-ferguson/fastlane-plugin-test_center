@@ -4,7 +4,6 @@ module Fastlane
     require 'shellwords'
     require 'xctest_list'
     require 'plist'
-    require 'pry-byebug'
 
     class MultiScanAction < Action
       def self.run(params)
