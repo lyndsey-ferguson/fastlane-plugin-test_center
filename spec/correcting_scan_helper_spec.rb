@@ -16,16 +16,18 @@ describe TestCenter do
           scanner = CorrectingScanHelper.new(
             xctestrun: 'path/to/fake.xctestrun'
           )
-          expect(scanner).to receive(:scan_testable).with('AtomicBoyTests').once
-          scanner.scan
+          expect(scanner).to receive(:scan_testable).with('AtomicBoyTests').and_return(true).once
+          results = scanner.scan
+          expect(results).to eq(true)
 
           allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests', 'AtomicBoyUITests'])
           scanner = CorrectingScanHelper.new(
             xctestrun: 'path/to/fake.xctestrun'
           )
-          expect(scanner).to receive(:scan_testable).with('AtomicBoyTests').ordered.once
-          expect(scanner).to receive(:scan_testable).with('AtomicBoyUITests').ordered.once
-          scanner.scan
+          expect(scanner).to receive(:scan_testable).with('AtomicBoyTests').and_return(false).ordered.once
+          expect(scanner).to receive(:scan_testable).with('AtomicBoyUITests').and_return(true).ordered.once
+          results = scanner.scan
+          expect(results).to eq(false)
         end
 
         it 'scan calls correcting_scan once for one testable' do
@@ -75,7 +77,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -89,10 +93,13 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(false)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports).twice
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(false)
         end
 
         it 'scan calls correcting_scan twice for each batch in one testable' do
@@ -122,7 +129,9 @@ describe TestCenter do
                 output_directory: '.'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -134,10 +143,13 @@ describe TestCenter do
                 output_directory: '.'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports)
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(true)
         end
 
         it 'scan calls correcting_scan twice for each batch in two testables' do
@@ -173,7 +185,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -185,7 +199,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(false)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -197,7 +213,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -209,10 +227,13 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports).twice
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(false)
         end
 
         it 'scan calls correcting_scan with :skip_testing with two testables' do
@@ -250,7 +271,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(false)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -263,10 +286,13 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports).twice
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(false)
         end
 
         it 'scan calls correcting_scan twice each with one batch of tests minus :skipped_testing items for one testable' do
@@ -299,7 +325,9 @@ describe TestCenter do
                 output_directory: '.'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -310,10 +338,13 @@ describe TestCenter do
                 output_directory: '.'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports)
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(true)
         end
 
         it 'scan calls correcting_scan twice each with one batch of tests minus :skipped_testing items for two testables' do
@@ -350,7 +381,8 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            ).and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -361,7 +393,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyTests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -373,7 +407,9 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(true)
+            .ordered
             .once
           expect(scanner).to receive(:correcting_scan)
             .with(
@@ -384,11 +420,14 @@ describe TestCenter do
                 output_directory: './results-AtomicBoyUITests'
               },
               @mock_reportnamer
-            ).ordered
+            )
+            .and_return(false)
+            .ordered
             .once
           expect(scanner).to receive(:collate_reports).twice
           expect(@mock_reportnamer).to receive(:increment).exactly(4).times
-          scanner.scan
+          results = scanner.scan
+          expect(results).to eq(false)
         end
       end
 
@@ -413,12 +452,13 @@ describe TestCenter do
                 expect(config._values).not_to have_key(:custom_report_file_name)
                 expect(config._values[:output_files]).to eq('report.html,report.junit')
               end
-              scanner.correcting_scan(
+              result = scanner.correcting_scan(
                 {
                   output_directory: '.'
                 },
                 ReportNameHelper.new('html,junit')
               )
+              expect(result).to eq(true)
             end
             it 'calls scan twice when one run has failures' do
               scanner = CorrectingScanHelper.new(
@@ -449,13 +489,15 @@ describe TestCenter do
                 expect(config._values[:output_files]).to eq('report-3.html,report-3.junit')
                 expect(config._values).to have_key(:only_testing)
                 expect(config._values[:only_testing]).to eq(['BagOfTests/CoinTossingUITests/testResultIsTails'])
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
               end
-              scanner.correcting_scan(
+              result = scanner.correcting_scan(
                 {
                   output_directory: '.'
                 },
                 ReportNameHelper.new('html,junit')
               )
+              expect(result).to eq(false)
             end
           end
         end

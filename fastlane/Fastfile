@@ -41,14 +41,30 @@ lane :test_multiscan_two_testables do
   )
 end
 
+lane :test_multiscan_two_testables_failing do
+  begin
+    multi_scan(
+      project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+      scheme: 'AtomicBoy',
+      try_count: 1,
+      fail_build: true
+    )
+  rescue FastlaneCore::Interface::FastlaneTestFailure => e
+    UI.success('failed successfully')
+  else
+    raise 'This should have failed'
+  end
+end
+
 lane :test_multiscan_one_testable do
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'Professor',
     try_count: 3,
     custom_report_file_name: 'atomic_report.xml',
-    output_types: 'junit'
-  )
+    output_types: 'junit',
+    fail_build: false
+  )  
 end
 
 lane :test_multiscan_batch do
@@ -88,6 +104,7 @@ lane :test do
   suppressed_for_one
   suppressed_junits_for_all
   junit_tests
+  test_multiscan_two_testables_failing
   test_multiscan_two_testables
   test_multiscan_one_testable
   xctestrun_tests

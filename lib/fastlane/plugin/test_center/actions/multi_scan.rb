@@ -1,5 +1,6 @@
 module Fastlane
   module Actions
+    require 'fastlane_core/ui/errors/fastlane_common_error'
     require 'fastlane/actions/scan'
     require 'shellwords'
     require 'xctest_list'
@@ -9,7 +10,7 @@ module Fastlane
       def self.run(params)
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
-            config: params._values.select { |k, _| %i[try_count batch_count].include?(k) },
+            config: params._values.select { |k, _| %i[try_count batch_count fail_build].include?(k) },
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
@@ -20,7 +21,10 @@ module Fastlane
         end
 
         smart_scanner = ::TestCenter::Helper::CorrectingScanHelper.new(params._values)
-        smart_scanner.scan
+        tests_passed = smart_scanner.scan
+        if params[:fail_build] && !tests_passed
+          raise UI.test_failure!('Tests have failed')
+        end
       end
 
       def self.build_for_testing(scan_options)

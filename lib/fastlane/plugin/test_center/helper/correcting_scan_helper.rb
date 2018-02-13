@@ -12,19 +12,22 @@ module TestCenter
         @given_output_types = multi_scan_options[:output_types]
         @given_output_files = multi_scan_options[:output_files]
         @scan_options = multi_scan_options.reject do |option, _|
-          %i[output_directory only_testing skip_testing try_count batch_count custom_report_file_name].include?(option)
+          %i[output_directory only_testing skip_testing try_count batch_count custom_report_file_name fail_build].include?(option)
         end
         @test_collector = TestCollector.new(multi_scan_options)
       end
 
       def scan
+        tests_passed = true
         @testables_count = @test_collector.testables.size
         @test_collector.testables.each do |testable|
-          scan_testable(testable)
+          tests_passed = scan_testable(testable) && tests_passed
         end
+        tests_passed
       end
 
       def scan_testable(testable)
+        tests_passed = true
         reportnamer = ReportNameHelper.new(
           @given_output_types,
           @given_output_files,
@@ -38,13 +41,13 @@ module TestCenter
               output_directory = File.join(@output_directory, "results-#{testable}")
             end
             FastlaneCore::UI.header("Starting test run on testable '#{testable}'")
-            correcting_scan(
+            tests_passed = correcting_scan(
               {
                 only_testing: tests_batch,
                 output_directory: output_directory
               },
               reportnamer
-            )
+            ) && tests_passed
             reportnamer.increment
           end
         else
@@ -52,9 +55,10 @@ module TestCenter
             output_directory: output_directory
           }
           options[:skip_testing] = @skip_testing if @skip_testing
-          correcting_scan(options, reportnamer)
+          tests_passed = correcting_scan(options, reportnamer) && tests_passed
         end
         collate_reports(output_directory, reportnamer)
+        tests_passed
       end
 
       def collate_reports(output_directory, reportnamer)
@@ -77,6 +81,7 @@ module TestCenter
       def correcting_scan(scan_run_options, reportnamer)
         scan_options = @scan_options.merge(scan_run_options)
         try_count = 0
+        tests_passed = true
         begin
           try_count += 1
           config = FastlaneCore::Configuration.create(
@@ -101,7 +106,9 @@ module TestCenter
             reportnamer.increment
             retry
           end
+          tests_passed = false
         end
+        tests_passed
       end
 
       def quit_simulators
