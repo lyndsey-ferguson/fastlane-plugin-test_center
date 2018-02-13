@@ -8,6 +8,9 @@ module TestCenter
         @batch_count = multi_scan_options[:batch_count] || 1
         @output_directory = multi_scan_options[:output_directory] || 'test_results'
         @try_count = multi_scan_options[:try_count]
+        @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
+        @given_output_types = multi_scan_options[:output_types]
+        @given_output_files = multi_scan_options[:output_files]
         @scan_options = multi_scan_options.reject do |option, _|
           %i[output_directory only_testing skip_testing try_count batch_count custom_report_file_name].include?(option)
         end
@@ -23,9 +26,9 @@ module TestCenter
 
       def scan_testable(testable)
         reportnamer = ReportNameHelper.new(
-          @scan_options[:output_types],
-          @scan_options[:output_files],
-          @scan_options[:custom_report_file_name]
+          @given_output_types,
+          @given_output_files,
+          @given_custom_report_file_name
         )
         output_directory = @output_directory
         if @batch_count > 1 || @testables_count > 1
