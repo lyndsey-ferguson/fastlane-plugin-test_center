@@ -34,12 +34,13 @@ lane :junit_tests do
 end
 
 lane :test_multiscan_two_testables do
-  multi_scan(
+  summary = multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'AtomicBoy',
     try_count: 3,
     fail_build: false
   )
+  UI.success("multi_scan passed? #{summary[:result]}")
 end
 
 lane :test_multiscan_two_testables_failing do

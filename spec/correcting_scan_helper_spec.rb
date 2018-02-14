@@ -475,8 +475,10 @@ describe TestCenter do
                 1,
                 ReportNameHelper.new('html,junit')
               )
+              expect(scanner.retry_total_count).to eq(0)
               expect(result).to eq(true)
             end
+
             it 'calls scan three times when two runs have failures' do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
@@ -515,6 +517,7 @@ describe TestCenter do
                 1,
                 ReportNameHelper.new('html,junit')
               )
+              expect(scanner.retry_total_count).to eq(2)
               expect(result).to eq(false)
             end
 
@@ -577,6 +580,7 @@ describe TestCenter do
                 try_count: 2,
                 report_filepath: "./report-2.junit"
               )
+              expect(scanner.retry_total_count).to eq(1)
               expect(result).to eq(true)
             end
           end

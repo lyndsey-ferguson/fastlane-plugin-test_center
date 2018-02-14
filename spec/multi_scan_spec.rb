@@ -18,6 +18,7 @@ describe Fastlane::Actions::MultiScanAction do
     mocked_scanner = OpenStruct.new
     allow(::TestCenter::Helper::CorrectingScanHelper).to receive(:new).and_return(mocked_scanner)
     expect(mocked_scanner).to receive(:scan).and_return(true)
+    expect(Fastlane::Actions::MultiScanAction).to receive(:run_summary)
     Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
   end
 
@@ -37,10 +38,70 @@ describe Fastlane::Actions::MultiScanAction do
     mocked_scanner = OpenStruct.new
     allow(::TestCenter::Helper::CorrectingScanHelper).to receive(:new).and_return(mocked_scanner)
     expect(mocked_scanner).to receive(:scan).and_return(false)
+    expect(mocked_scanner).not_to receive(:run_summary)
     expect { Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test) }.to(
       raise_error(FastlaneCore::Interface::FastlaneTestFailure) do |error|
         expect(error.message).to match('Tests have failed')
       end
     )
+  end
+
+  it 'provides a sensible run_summary for 1 retry' do
+    allow(Dir).to receive(:glob)
+      .with('../test_output/**/*.xml')
+      .and_return([File.absolute_path('./spec/fixtures/junit.xml')])
+
+    summary = Fastlane::Actions::MultiScanAction.run_summary(
+      {
+        output_types: 'html,junit',
+        output_files: 'report.html,report.xml',
+        output_directory: 'test_output'
+      },
+      true,
+      1
+    )
+    expect(summary).to include(
+      result: true,
+      total_tests: 4,
+      passing_testcount: 2,
+      failed_testcount: 2,
+      failed_tests: [
+        'BagOfTests/CoinTossingUITests/testResultIsTails',
+        'BagOfTests/AtomicBoy/testWristMissles'
+      ],
+      total_retry_count: 1
+    )
+    expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/junit.xml})
+  end
+
+  it 'provides a sensible run_summary for 2 retries' do
+    allow(Dir).to receive(:glob)
+      .with('../test_output/**/*.xml')
+      .and_return([File.absolute_path('./spec/fixtures/junit.xml'), File.absolute_path('./spec/fixtures/junit.xml')])
+
+    summary = Fastlane::Actions::MultiScanAction.run_summary(
+      {
+        output_types: 'html,junit',
+        output_files: 'report.html,report.xml',
+        output_directory: 'test_output'
+      },
+      false,
+      2
+    )
+    expect(summary).to include(
+      result: false,
+      total_tests: 8,
+      passing_testcount: 4,
+      failed_testcount: 4,
+      failed_tests: [
+        'BagOfTests/CoinTossingUITests/testResultIsTails',
+        'BagOfTests/AtomicBoy/testWristMissles',
+        'BagOfTests/CoinTossingUITests/testResultIsTails',
+        'BagOfTests/AtomicBoy/testWristMissles'
+      ],
+      total_retry_count: 2
+    )
+    expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/junit.xml})
+    expect(summary[:report_files][1]).to match(%r{.*/spec/fixtures/junit.xml})
   end
 end

@@ -4,10 +4,13 @@ module TestCenter
     require 'plist'
 
     class CorrectingScanHelper
+      attr_reader :retry_total_count
+
       def initialize(multi_scan_options)
         @batch_count = multi_scan_options[:batch_count] || 1
         @output_directory = multi_scan_options[:output_directory] || 'test_results'
         @try_count = multi_scan_options[:try_count]
+        @retry_total_count = 0
         @testrun_completed_block = multi_scan_options[:testrun_completed_block]
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
         @given_output_types = multi_scan_options[:output_types]
@@ -88,7 +91,8 @@ module TestCenter
           )
           Fastlane::Actions::CollateJunitReportsAction.run(config)
         end
-        FileUtils.rm_f(Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.junit_filextension}"))
+        retried_junit_reportfiles = Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.junit_filextension}")
+        FileUtils.rm_f(retried_junit_reportfiles)
       end
 
       def correcting_scan(scan_run_options, batch, reportnamer)
@@ -110,6 +114,8 @@ module TestCenter
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           FastlaneCore::UI.verbose("Scan failed with #{e}")
           if try_count < @try_count
+            @retry_total_count += 1
+
             info = testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
             @testrun_completed_block && @testrun_completed_block.call(
               info

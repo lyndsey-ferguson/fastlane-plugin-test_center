@@ -19,12 +19,46 @@ module Fastlane
             params._values
           )
         end
-
-        smart_scanner = ::TestCenter::Helper::CorrectingScanHelper.new(params._values)
+        smart_scanner = ::TestCenter::Helper::CorrectingScanHelper.new(params.values)
         tests_passed = smart_scanner.scan
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
+        summary = run_summary(params, tests_passed, smart_scanner.retry_total_count)
+        unless Helper.test?
+          FastlaneCore::PrintTable.print_values(
+            config: summary,
+            title: "multi_scan results"
+          )
+        end
+        summary
+      end
+
+      def self.run_summary(scan_options, tests_passed, retry_total_count)
+        reportnamer = ::TestCenter::Helper::ReportNameHelper.new(
+          scan_options[:output_types],
+          scan_options[:output_files],
+          scan_options[:custom_report_file_name]
+        )
+        passing_testcount = 0
+        failed_tests = []
+        report_files = Dir.glob("#{scan_options[:output_directory]}/**/*#{reportnamer.junit_filextension}").map do |relative_filepath|
+          File.absolute_path(relative_filepath)
+        end
+        report_files.each do |report_file|
+          junit_results = other_action.tests_from_junit(junit: report_file)
+          failed_tests.concat(junit_results[:failed])
+          passing_testcount += junit_results[:passing].size
+        end
+        {
+          result: tests_passed,
+          total_tests: passing_testcount + failed_tests.size,
+          passing_testcount: passing_testcount,
+          failed_testcount: failed_tests.size,
+          failed_tests: failed_tests,
+          total_retry_count: retry_total_count,
+          report_files: report_files
+        }
       end
 
       def self.build_for_testing(scan_options)
