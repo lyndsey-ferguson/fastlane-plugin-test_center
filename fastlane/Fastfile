@@ -37,7 +37,8 @@ lane :test_multiscan_two_testables do
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'AtomicBoy',
-    try_count: 3
+    try_count: 3,
+    fail_build: false
   )
 end
 
@@ -50,7 +51,7 @@ lane :test_multiscan_two_testables_failing do
       fail_build: true
     )
   rescue FastlaneCore::Interface::FastlaneTestFailure => e
-    UI.success('failed successfully')
+    UI.success("failed successfully with #{e.message}")
   else
     raise 'This should have failed'
   end
@@ -64,7 +65,7 @@ lane :test_multiscan_one_testable do
     custom_report_file_name: 'atomic_report.xml',
     output_types: 'junit',
     fail_build: false
-  )  
+  )
 end
 
 lane :test_multiscan_batch do

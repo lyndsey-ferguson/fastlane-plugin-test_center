@@ -8,7 +8,7 @@ module TestCenter
         @batch_count = multi_scan_options[:batch_count] || 1
         @output_directory = multi_scan_options[:output_directory] || 'test_results'
         @try_count = multi_scan_options[:try_count]
-        @testrun_failed_block = multi_scan_options[:testrun_failed_block]
+        @testrun_completed_block = multi_scan_options[:testrun_completed_block]
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
         @given_output_types = multi_scan_options[:output_types]
         @given_output_files = multi_scan_options[:output_files]
@@ -21,7 +21,7 @@ module TestCenter
             batch_count
             custom_report_file_name
             fail_build
-            testrun_failed_block
+            testrun_completed_block
           ].include?(option)
         end
         @test_collector = TestCollector.new(multi_scan_options)
@@ -46,6 +46,7 @@ module TestCenter
         output_directory = @output_directory
         if @batch_count > 1 || @testables_count > 1
           testable_tests = @test_collector.testables_tests[testable]
+          current_batch = 1
           testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
             if @testables_count > 1
               output_directory = File.join(@output_directory, "results-#{testable}")
@@ -56,8 +57,10 @@ module TestCenter
                 only_testing: tests_batch,
                 output_directory: output_directory
               },
+              current_batch,
               reportnamer
             ) && tests_passed
+            current_batch += 1
             reportnamer.increment
           end
         else
@@ -65,7 +68,7 @@ module TestCenter
             output_directory: output_directory
           }
           options[:skip_testing] = @skip_testing if @skip_testing
-          tests_passed = correcting_scan(options, reportnamer) && tests_passed
+          tests_passed = correcting_scan(options, 1, reportnamer) && tests_passed
         end
         collate_reports(output_directory, reportnamer)
         tests_passed
@@ -88,7 +91,7 @@ module TestCenter
         FileUtils.rm_f(Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.junit_filextension}"))
       end
 
-      def correcting_scan(scan_run_options, reportnamer)
+      def correcting_scan(scan_run_options, batch, reportnamer)
         scan_options = @scan_options.merge(scan_run_options)
         try_count = 0
         tests_passed = true
@@ -100,35 +103,44 @@ module TestCenter
           )
           quit_simulators
           Fastlane::Actions::ScanAction.run(config)
+          @testrun_completed_block && @testrun_completed_block.call(
+            testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
+          )
           tests_passed = true
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           FastlaneCore::UI.verbose("Scan failed with #{e}")
           if try_count < @try_count
-            report_filepath = File.join(scan_options[:output_directory], reportnamer.junit_last_reportname)
-            config = FastlaneCore::Configuration.create(
-              Fastlane::Actions::TestsFromJunitAction.available_options,
-              {
-                junit: File.absolute_path(report_filepath)
-              }
+            info = testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
+            @testrun_completed_block && @testrun_completed_block.call(
+              info
             )
-            junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
-            failed_tests = junit_results[:failed]
-            scan_options[:only_testing] = failed_tests.map(&:shellescape)
+            scan_options[:only_testing] = info[:failed].map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
-
-            still_wants_retry = true
-            if @testrun_failed_block
-              block_response = @testrun_failed_block && @testrun_failed_block.call({
-                failed_count: failed_tests.size
-              })
-              still_wants_retry = block_response.nil? || block_response
-            end
             reportnamer.increment
-            retry if still_wants_retry
+            retry
           end
           tests_passed = false
         end
         tests_passed
+      end
+
+      def testrun_info(batch, try_count, reportnamer, output_directory)
+        report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
+        config = FastlaneCore::Configuration.create(
+          Fastlane::Actions::TestsFromJunitAction.available_options,
+          {
+            junit: File.absolute_path(report_filepath)
+          }
+        )
+        junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
+
+        {
+          failed: junit_results[:failed],
+          passing: junit_results[:passing],
+          batch: batch,
+          try_count: try_count,
+          report_filepath: report_filepath
+        }
       end
 
       def quit_simulators

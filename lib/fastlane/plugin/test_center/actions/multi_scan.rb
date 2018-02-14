@@ -79,8 +79,8 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
-            key: :testrun_failed_block,
-            description: 'A block invoked each time a test run fails',
+            key: :testrun_completed_block,
+            description: 'A block invoked each time a test run completes',
             optional: true,
             is_string: false,
             default_value: nil
@@ -110,20 +110,16 @@ module Fastlane
             scheme: "Everything",
             try_count: 3,
             batch_count: 8, # splits the tests into 8 chunks to not overload the iOS Simulator
-            testrun_completion_block: lambda { |testrun_info|
-              passed_test_count = testrun_info[:failed_count]
-              failed_test_count = testrun_info[:passed_count]
-              try_attempt = testrun_info[:try_attempt]
+            testrun_completed_block: lambda { |testrun_info|
+              passed_test_count = testrun_info[:failed].size
+              failed_test_count = testrun_info[:passing].size
+              try_attempt = testrun_info[:try_count]
               batch = testrun_info[:batch]
 
               if failed_test_count > passed_test_count / 2
-                return false # the return value of this block indicates whether or not to exit early
-              else
-                UI.message("testrun_info: #{testrun_info}")
+                UI.abort_with_message!("Too many tests are failing")
               end
-
               UI.message("😊 everything is fine, let\'s continue try #{try_attempt} for batch #{batch}")
-              # nil or true lets the testing continue
             }
           )'
         ]

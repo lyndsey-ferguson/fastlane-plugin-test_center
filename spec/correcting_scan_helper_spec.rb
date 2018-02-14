@@ -37,8 +37,8 @@ describe TestCenter do
           )
           allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
           expect(@mock_testcollector).not_to receive(:testables_tests)
-          expect(scanner).to receive(:correcting_scan).with({ output_directory: '.' }, @mock_reportnamer)
-          expect(scanner).not_to receive(:correcting_scan).with(only_testing: anything)
+          expect(scanner).to receive(:correcting_scan).with({ output_directory: '.' }, 1, @mock_reportnamer)
+          expect(scanner).not_to receive(:correcting_scan).with({ only_testing: anything }, anything, anything)
           expect(scanner).to receive(:collate_reports)
           scanner.scan
         end
@@ -76,6 +76,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -92,6 +93,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(false)
@@ -128,6 +130,7 @@ describe TestCenter do
                 ],
                 output_directory: '.'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -142,6 +145,7 @@ describe TestCenter do
                 ],
                 output_directory: '.'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(true)
@@ -184,6 +188,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -198,6 +203,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(false)
@@ -212,6 +218,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -226,6 +233,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(true)
@@ -270,6 +278,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(false)
@@ -285,6 +294,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -324,6 +334,7 @@ describe TestCenter do
                 ],
                 output_directory: '.'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -337,6 +348,7 @@ describe TestCenter do
                 ],
                 output_directory: '.'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(true)
@@ -380,6 +392,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              1,
               @mock_reportnamer
             ).and_return(true)
             .ordered
@@ -392,6 +405,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyTests'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(true)
@@ -406,6 +420,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              1,
               @mock_reportnamer
             )
             .and_return(true)
@@ -419,6 +434,7 @@ describe TestCenter do
                 ],
                 output_directory: './results-AtomicBoyUITests'
               },
+              2,
               @mock_reportnamer
             )
             .and_return(false)
@@ -456,6 +472,7 @@ describe TestCenter do
                 {
                   output_directory: '.'
                 },
+                1,
                 ReportNameHelper.new('html,junit')
               )
               expect(result).to eq(true)
@@ -495,29 +512,39 @@ describe TestCenter do
                 {
                   output_directory: '.'
                 },
+                1,
                 ReportNameHelper.new('html,junit')
               )
               expect(result).to eq(false)
             end
 
-            it 'calls scan two times when there is a failure, and for the failure calls :testrun_failed_block', testrun_failed_block: true do
-              actual_failure_count = 0
+            it 'calls scan two times when there is a failure, and for the failure calls :testrun_completed_block' do
+              actualtestrun_completed_block_infos = []
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
-                try_count: 3,
-                testrun_failed_block: lambda { |info|
-                  actual_failure_count = info[:failed_count]
-                  true
+                try_count: 2,
+                testrun_completed_block: lambda { |info|
+                  actualtestrun_completed_block_infos << info
                 }
               )
               allow(File).to receive(:exist?).and_call_original
               allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
               expected_report_files = ['.*/report.junit', '.*/report-2.junit']
+              junit_results = [
+                {
+                  failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+                  passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
+                },
+                {
+                  failed: [],
+                  passing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+                }
+              ]
               allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
                 expect(config._values).to have_key(:junit)
                 expect(config._values[:junit]).to match(expected_report_files.shift)
-                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
+                junit_results.shift
               end
               expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
                 expect(config._values).to have_key(:output_files)
@@ -532,9 +559,24 @@ describe TestCenter do
                 {
                   output_directory: '.'
                 },
+                1,
                 ReportNameHelper.new('html,junit')
               )
-              expect(actual_failure_count).to eq(1)
+              expect(actualtestrun_completed_block_infos.size).to eq(2)
+              expect(actualtestrun_completed_block_infos[0]).to include(
+                failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+                passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads'],
+                batch: 1,
+                try_count: 1,
+                report_filepath: "./report.junit"
+              )
+              expect(actualtestrun_completed_block_infos[1]).to include(
+                failed: [],
+                passing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+                batch: 1,
+                try_count: 2,
+                report_filepath: "./report-2.junit"
+              )
               expect(result).to eq(true)
             end
           end
