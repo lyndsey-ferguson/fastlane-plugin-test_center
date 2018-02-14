@@ -77,7 +77,55 @@ module Fastlane
             verify_block: proc do |count|
               UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :testrun_failed_block,
+            description: 'A block invoked each time a test run fails',
+            optional: true,
+            is_string: false,
+            default_value: nil
           )
+        ]
+      end
+
+      def self.example_code
+        [
+          'multi_scan(
+            project: File.absolute_path("../AtomicBoy/AtomicBoy.xcodeproj"),
+            scheme: "Professor",
+            try_count: 3,
+            custom_report_file_name: "atomic_report.xml",
+            output_types: "junit"
+          )',
+          'multi_scan(
+            project: File.absolute_path("../GalaxyFamily/GalaxyFamily.xcodeproj"),
+            scheme: "Everything",
+            try_count: 3,
+            batch_count: 2, # splits the tests into two chunks to not overload the iOS Simulator
+            custom_report_file_name: "atomic_report.xml",
+            output_types: "junit"
+          )',
+          'multi_scan(
+            project: File.absolute_path("../GalaxyFamily/GalaxyFamily.xcodeproj"),
+            scheme: "Everything",
+            try_count: 3,
+            batch_count: 8, # splits the tests into 8 chunks to not overload the iOS Simulator
+            testrun_completion_block: lambda { |testrun_info|
+              passed_test_count = testrun_info[:failed_count]
+              failed_test_count = testrun_info[:passed_count]
+              try_attempt = testrun_info[:try_attempt]
+              batch = testrun_info[:batch]
+
+              if failed_test_count > passed_test_count / 2
+                return false # the return value of this block indicates whether or not to exit early
+              else
+                UI.message("testrun_info: #{testrun_info}")
+              end
+
+              UI.message("😊 everything is fine, let\'s continue try #{try_attempt} for batch #{batch}")
+              # nil or true lets the testing continue
+            }
+          )'
         ]
       end
 

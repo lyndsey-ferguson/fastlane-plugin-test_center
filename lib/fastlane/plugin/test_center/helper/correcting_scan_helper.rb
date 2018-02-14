@@ -8,11 +8,21 @@ module TestCenter
         @batch_count = multi_scan_options[:batch_count] || 1
         @output_directory = multi_scan_options[:output_directory] || 'test_results'
         @try_count = multi_scan_options[:try_count]
+        @testrun_failed_block = multi_scan_options[:testrun_failed_block]
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
         @given_output_types = multi_scan_options[:output_types]
         @given_output_files = multi_scan_options[:output_files]
         @scan_options = multi_scan_options.reject do |option, _|
-          %i[output_directory only_testing skip_testing try_count batch_count custom_report_file_name fail_build].include?(option)
+          %i[
+            output_directory
+            only_testing
+            skip_testing
+            try_count
+            batch_count
+            custom_report_file_name
+            fail_build
+            testrun_failed_block
+          ].include?(option)
         end
         @test_collector = TestCollector.new(multi_scan_options)
       end
@@ -90,6 +100,7 @@ module TestCenter
           )
           quit_simulators
           Fastlane::Actions::ScanAction.run(config)
+          tests_passed = true
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           FastlaneCore::UI.verbose("Scan failed with #{e}")
           if try_count < @try_count
@@ -100,11 +111,20 @@ module TestCenter
                 junit: File.absolute_path(report_filepath)
               }
             )
-            failed_tests = Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+            junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
+            failed_tests = junit_results[:failed]
             scan_options[:only_testing] = failed_tests.map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
+
+            still_wants_retry = true
+            if @testrun_failed_block
+              block_response = @testrun_failed_block && @testrun_failed_block.call({
+                failed_count: failed_tests.size
+              })
+              still_wants_retry = block_response.nil? || block_response
+            end
             reportnamer.increment
-            retry
+            retry if still_wants_retry
           end
           tests_passed = false
         end

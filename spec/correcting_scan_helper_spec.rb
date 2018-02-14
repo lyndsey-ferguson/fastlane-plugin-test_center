@@ -460,7 +460,7 @@ describe TestCenter do
               )
               expect(result).to eq(true)
             end
-            it 'calls scan twice when one run has failures' do
+            it 'calls scan three times when two runs have failures' do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
@@ -498,6 +498,44 @@ describe TestCenter do
                 ReportNameHelper.new('html,junit')
               )
               expect(result).to eq(false)
+            end
+
+            it 'calls scan two times when there is a failure, and for the failure calls :testrun_failed_block', testrun_failed_block: true do
+              actual_failure_count = 0
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                testrun_failed_block: lambda { |info|
+                  actual_failure_count = info[:failed_count]
+                  true
+                }
+              )
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
+              expected_report_files = ['.*/report.junit', '.*/report-2.junit']
+              allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
+                expect(config._values).to have_key(:junit)
+                expect(config._values[:junit]).to match(expected_report_files.shift)
+                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report.html,report.junit')
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report-2.html,report-2.junit')
+              end
+              result = scanner.correcting_scan(
+                {
+                  output_directory: '.'
+                },
+                ReportNameHelper.new('html,junit')
+              )
+              expect(actual_failure_count).to eq(1)
+              expect(result).to eq(true)
             end
           end
         end
