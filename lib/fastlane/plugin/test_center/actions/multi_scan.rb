@@ -79,11 +79,14 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Uses scan to run Xcode tests a given number of times: only re-testing failing tests."
+        "Uses scan to run Xcode tests a given number of times, with the option " \
+        "of batching them, only re-testing failing tests."
       end
 
       def self.details
-        "Use this action to run your tests if you have fragile tests that fail sporadically."
+        "Use this action to run your tests if you have fragile tests that fail" \
+        "sporadically, if you have a huge number of tests that should be " \
+        "batched, or have multiple test targets and need meaningful junit reports."
       end
 
       def self.scan_options
