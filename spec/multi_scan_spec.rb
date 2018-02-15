@@ -48,7 +48,7 @@ describe Fastlane::Actions::MultiScanAction do
 
   it 'provides a sensible run_summary for 1 retry' do
     allow(Dir).to receive(:glob)
-      .with('../test_output/**/*.xml')
+      .with('test_output/**/*.xml')
       .and_return([File.absolute_path('./spec/fixtures/junit.xml')])
 
     summary = Fastlane::Actions::MultiScanAction.run_summary(
@@ -76,7 +76,7 @@ describe Fastlane::Actions::MultiScanAction do
 
   it 'provides a sensible run_summary for 2 retries' do
     allow(Dir).to receive(:glob)
-      .with('../test_output/**/*.xml')
+      .with('test_output/**/*.xml')
       .and_return([File.absolute_path('./spec/fixtures/junit.xml'), File.absolute_path('./spec/fixtures/junit.xml')])
 
     summary = Fastlane::Actions::MultiScanAction.run_summary(

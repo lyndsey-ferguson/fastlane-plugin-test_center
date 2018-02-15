@@ -28,6 +28,6 @@ task :check_for_blacklisted_requires do
   end
 end
 
-Rake::Task[:release].enhance [:check_for_blacklisted_requires]
+Rake::Task[:release].enhance [:check_for_blacklisted_requires, :spec, :rubocop]
 
 task default: [:spec, :rubocop]
