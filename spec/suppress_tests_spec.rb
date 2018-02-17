@@ -114,7 +114,8 @@ describe Fastlane::Actions::SuppressTestsAction do
             )
           end"
 
-          Fastlane::FastFile.new.parse(invalid_test_list).runner.execute(:test)
+          result = Fastlane::FastFile.new.parse(invalid_test_list).runner.execute(:test)
+          expect(result).to be_nil
         end
       end
 
@@ -130,11 +131,12 @@ describe Fastlane::Actions::SuppressTestsAction do
           xcscheme = @xcschemes[scheme]
           expect(xcscheme).to receive(:save!)
         end
-        Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+        result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
         expect(@actual_skipped_tests).to include(
           'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
           'GrumpyWorkerTests'
         )
+        expect(result).to be_nil
       end
 
       it 'suppressed tests appear in the specified Xcode Scheme' do
@@ -148,11 +150,12 @@ describe Fastlane::Actions::SuppressTestsAction do
 
         expect(@xcschemes[:everyone]).to receive(:save!)
         expect(@xcschemes[:arthur]).not_to receive(:save!)
-        Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+        result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
         expect(@actual_skipped_tests).to include(
           'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
           'GrumpyWorkerTests'
         )
+        expect(result).to be_nil
       end
     end
   end

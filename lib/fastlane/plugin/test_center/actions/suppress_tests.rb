@@ -32,6 +32,7 @@ module Fastlane
           end
           xcscheme.save! if is_dirty
         end
+        nil
       end
 
       #####################################################
