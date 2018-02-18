@@ -168,15 +168,15 @@ module Fastlane
             try_count: 3,
             batch_count: 8, # splits the tests into 8 chunks to not overload the iOS Simulator
             testrun_completed_block: lambda { |testrun_info|
-              passed_test_count = testrun_info[:failed].size
-              failed_test_count = testrun_info[:passing].size
+              failed_test_count = testrun_info[:failed].size
+              passed_test_count = testrun_info[:passing].size
               try_attempt = testrun_info[:try_count]
               batch = testrun_info[:batch]
 
-              if failed_test_count > passed_test_count / 2
+              if passed_test_count > 0 && failed_test_count > passed_test_count / 2
                 UI.abort_with_message!("Too many tests are failing")
               end
-              UI.message("😊 everything is fine, let\'s continue try #{try_attempt} for batch #{batch}")
+              UI.message("😊 everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
             }
           )'
         ]

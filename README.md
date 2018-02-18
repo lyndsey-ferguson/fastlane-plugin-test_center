@@ -1,4 +1,4 @@
-# test_center plugin
+# test_center plugin 🎯
 
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-test_center)
 
@@ -12,19 +12,52 @@ fastlane add_plugin test_center
 
 ## About test_center
 
-This plugin makes testing your iOS app easier by providing you actions that allow
-you to run the fastlane `scan` action multiple times and retrying only failed
-tests, retrieve which tests failed during `scan`, and suppressing given tests in
-an Xcode project.
+This plugin makes testing your iOS app easier by providing you actions that give you greater control over everthing related to testing your app.
 
 This fastlane plugin includes the following actions:
-- `multi_scan`: uses scan to run Xcode tests a given number of times: only re-testing failing tests
-- `suppress_tests_from_junit`: uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme
-- `suppress_tests`: suppresses specific tests in a specific or all Xcode Schemes in a given project
-- `suppressed_tests`: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project
-- `tests_from_junit`: retrieves the failing and passing tests as reported in a junit xml file
-- `tests_from_xctestrun`: retrieves all of the tests from xctest bundles referenced by the xctestrun file
-- `collate_junit_reports`: collects and correctly organizes junit reports from multiple test passes
+- [`multi_scan`](#multi-scan): gives you control over how your tests are exercised.
+- [`suppress_tests_from_junit`](#suppress_tests_from_junit): from a test report, suppresses tests in your project.
+- [`suppress_tests`](#suppress_tests): from a provided list, suppresses tests in your project.
+- [`suppressed_tests`](#suppressed_tests): returns a list of the suppressed tests in your project.
+- [`tests_from_junit`](#tests_from_junit): from a test report, returns lists of passing and failed tests.
+- [`tests_from_xctestrun`](#tests_from_xctestrun): from an xctestrun file, returns a list of tests for each of its test targets.
+- [`collate_junit_reports`](#collate_junit_reports): combines multiple test reports into one.
+
+### multi-scan 🎉
+
+Is the fragile test infrastructure provided by `xcodebuild` failing tests inexplicably and getting you down 😢? Use the `:try_count` option to re-run those failed tests multiple times to ensure that any fragility is ironed out and only truly failing tests appear.
+
+Is the sheer number of UI tests overloading the iOS Simulator and causing it to become useless? Run your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
+
+Do you get frustrated when your automated test system keeps running after the fragile test infrastructure stops working halfway through your tests 😡? Use the `:testrun_completed_block` callback to bailout early or make adjustments on how your tests are exercised.
+
+Do you have multiple test targets and the normal operation of `scan` is providing you a test report that implies that all the tests ran in one test target? Don't worry, `multi_scan` has fixed that.
+
+### suppress_tests_from_junit
+
+No time to fix a failing test? Suppress the `:failed` tests in your project and create and prioritize a ticket in your bug tracking system. 
+
+Want to create a special CI job that only re-tries failing tests? Suppress the `:passing` tests in your project and exercise your fragile tests.
+
+### suppress_tests
+
+Have some tests that you want turned off? Give the list to this action in order to suppress them for your project.
+
+### suppressed_tests
+
+Do you have an automated process that requires the list of suppressed tests in your project? Use this action to get that.
+
+### tests_from_junit
+
+Performing analysis on a test report file? Get the lists of failing and passing tests using this action.
+
+### tests_from_xctestrun
+
+Do you have multiple test targets referenced by your `xctestrun` file and need to know all the tests? Use this action to go through each test target, collect the tests, and return them to you in a simple and usable structure.
+
+### collate_junit_reports
+
+Do you have multiple test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
 
 ## Example
 
