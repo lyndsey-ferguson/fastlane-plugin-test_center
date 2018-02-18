@@ -22,9 +22,9 @@ lane :test do
   xctestrun_tests
 end
 
-# after_each do |lane, options|
-#   `git checkout -- .`
-# end
+after_each do |lane, options|
+  `git checkout -- ..`
+end
 
 ### the individual lanes
 

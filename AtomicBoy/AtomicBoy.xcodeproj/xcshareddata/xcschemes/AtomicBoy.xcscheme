@@ -48,6 +48,26 @@
                BlueprintName = "AtomicBoyUITests"
                ReferencedContainer = "container:AtomicBoy.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>
