@@ -62,9 +62,15 @@ module Fastlane
       end
 
       def self.build_for_testing(scan_options)
+        options_to_remove = %i[
+          try_count
+          batch_count
+          testrun_completed_block
+          test_without_building
+        ]
         config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          scan_options.merge(build_for_testing: true).reject { |k, _| %i[try_count batch_count test_without_building].include?(k) }
+          scan_options.merge(build_for_testing: true).reject { |k, _| options_to_remove.include?(k) }
         )
         Fastlane::Actions::ScanAction.run(config)
 
