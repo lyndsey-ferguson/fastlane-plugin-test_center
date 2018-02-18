@@ -182,4 +182,3 @@ lane :xctestrun_tests do
   tests = tests_from_xctestrun(xctestrun: xctestrun_file)
   tests.values.flatten.each { |test_identifier| puts test_identifier }
 end
-
