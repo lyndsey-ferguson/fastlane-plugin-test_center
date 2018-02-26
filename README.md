@@ -12,7 +12,51 @@ fastlane add_plugin test_center
 
 ## About test_center
 
-This plugin makes testing your iOS app easier by providing you actions that give you greater control over everthing related to testing your app.
+This plugin makes testing your iOS app easier by providing you actions that give you greater control over everthing related to testing your app. 
+
+The `test_center` plugin started with a problem when working on automated iOS tests:
+
+```
+😘 - code is done, time to run the automated tests
+
+✅✅✅✅✅❌❌✅❌✅✅❌❌✅✅✅✅✅❌✅✅✅✅✅✅✅✅❌✅✅✅✅❌❌✅✅❌❌❌✅✅✅✅✅✅❌✅✅
+
+😕 - bummer, maybe if I re-run the tests?
+
+✅✅✅✅✅❌✅✅✅❌✅❌✅✅✅❌✅✅✅❌❌✅✅✅✅✅✅✅✅❌❌✅✅❌✅✅✅❌✅✅✅✅❌✅✅✅✅✅
+
+☹️ - aw man, still failing? One more time? 🤞
+
+✅✅✅✅❌❌✅✅✅✅✅✅✅✅✅✅✅❌✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅❌✅✅✅
+
+😡 - this is terrible, my tests keep failing randomly!
+
+🤔 - maybe there is a better way?
+
+🕐 🕡 🕚
+
+> enter multi_scan
+
+😘 - code is done, time to run the automated tests
+
+✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
+
+😕 - bummer, maybe if I re-run multi_scan again?
+
+✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
+
+😕 - hmmm, maybe these are real test failures?
+
+✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
+
+😛 - okay, these are real test failures, time to fix them!
+
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+😍 - green is joy!
+```
+
+`multi_scan` began when I engineered an action to only re-run the failed tests in order to determine which ones were truly failing, or just failing randomly due to a fragile infrastructure. This action morphed into an entire plugin with many actions related to tests.
 
 This fastlane plugin includes the following actions:
 - [`multi_scan`](#multi-scan): gives you control over how your tests are exercised.
