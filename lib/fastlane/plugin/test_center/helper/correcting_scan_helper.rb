@@ -20,6 +20,7 @@ module TestCenter
             output_directory
             only_testing
             skip_testing
+            clean
             try_count
             batch_count
             custom_report_file_name

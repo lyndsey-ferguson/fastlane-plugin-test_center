@@ -459,12 +459,14 @@ describe TestCenter do
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
                 try_count: 2,
-                batch_count: 2
+                batch_count: 2,
+                clean: true
               )
               expect(Fastlane::Actions::ScanAction).to receive(:run).once do |config|
                 expect(config._values).to have_key(:output_files)
                 expect(config._values).not_to have_key(:try_count)
                 expect(config._values).not_to have_key(:batch_count)
+                expect(config._values).not_to have_key(:clean)
                 expect(config._values).not_to have_key(:custom_report_file_name)
                 expect(config._values[:output_files]).to eq('report.html,report.junit')
               end
