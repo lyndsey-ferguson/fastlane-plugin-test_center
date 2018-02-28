@@ -21,6 +21,8 @@ The `test_center` plugin started with a problem when working on automated iOS te
 
 ✅✅✅✅✅❌❌✅❌✅✅❌❌✅✅✅✅✅❌✅✅✅✅✅✅✅✅❌✅✅✅✅❌❌✅✅❌❌❌✅✅✅✅✅✅❌✅✅
 
+🤓 - most of these tests run fine locally and I do not know how to fix them...
+
 😕 - bummer, maybe if I re-run the tests?
 
 ✅✅✅✅✅❌✅✅✅❌✅❌✅✅✅❌✅✅✅❌❌✅✅✅✅✅✅✅✅❌❌✅✅❌✅✅✅❌✅✅✅✅❌✅✅✅✅✅
