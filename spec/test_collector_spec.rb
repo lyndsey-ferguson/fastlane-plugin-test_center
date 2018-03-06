@@ -57,6 +57,18 @@ describe TestCenter do
         )
       end
 
+      it 'calls to testables_tests returns Hash of only_testing' do
+        expect(Fastlane::Actions::TestsFromXctestrunAction).not_to receive(:run)
+        test_collector = TestCollector.new(
+          xctestrun: 'path/to/fake.xctestrun',
+          only_testing: ['AtomicBoyTests']
+        )
+        result = test_collector.testables_tests
+        expect(result).to include(
+          'AtomicBoyTests' => ['AtomicBoyTests']
+        )
+      end
+
       it 'calls to testables_tests returns Hash of without tests from :skip_testing' do
         allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
         expect(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)

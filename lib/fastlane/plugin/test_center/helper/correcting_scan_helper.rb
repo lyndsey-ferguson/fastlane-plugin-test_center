@@ -48,8 +48,8 @@ module TestCenter
           @given_custom_report_file_name
         )
         output_directory = @output_directory
+        testable_tests = @test_collector.testables_tests[testable]
         if @batch_count > 1 || @testables_count > 1
-          testable_tests = @test_collector.testables_tests[testable]
           current_batch = 1
           testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
             if @testables_count > 1
@@ -69,9 +69,9 @@ module TestCenter
           end
         else
           options = {
-            output_directory: output_directory
+            output_directory: output_directory,
+            only_testing: testable_tests
           }
-          options[:skip_testing] = @skip_testing if @skip_testing
           tests_passed = correcting_scan(options, 1, reportnamer) && tests_passed
         end
         collate_reports(output_directory, reportnamer)

@@ -36,9 +36,30 @@ describe TestCenter do
             output_directory: '.'
           )
           allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
-          expect(@mock_testcollector).not_to receive(:testables_tests)
-          expect(scanner).to receive(:correcting_scan).with({ output_directory: '.' }, 1, @mock_reportnamer)
-          expect(scanner).not_to receive(:correcting_scan).with({ only_testing: anything }, anything, anything)
+          expect(@mock_testcollector).to receive(:testables_tests).and_return(
+            {
+              'AtomicBoyTests' => [
+                'AtomicBoyTests/AtomicBoyTests/testExample1',
+                'AtomicBoyTests/AtomicBoyTests/testExample2',
+                'AtomicBoyTests/AtomicBoyTests/testExample3',
+                'AtomicBoyTests/AtomicBoyTests/testExample4'
+              ]
+            }
+          )
+          expect(scanner).to receive(:correcting_scan)
+            .with(
+              {
+                only_testing: [
+                  'AtomicBoyTests/AtomicBoyTests/testExample1',
+                  'AtomicBoyTests/AtomicBoyTests/testExample2',
+                  'AtomicBoyTests/AtomicBoyTests/testExample3',
+                  'AtomicBoyTests/AtomicBoyTests/testExample4'
+                ],
+                output_directory: '.'
+              },
+              1,
+              @mock_reportnamer
+            )
           expect(scanner).to receive(:collate_reports)
           scanner.scan
         end

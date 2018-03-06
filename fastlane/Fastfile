@@ -22,10 +22,6 @@ lane :test do
   xctestrun_tests
 end
 
-after_each do |lane, options|
-  `git checkout -- ..`
-end
-
 ### the individual lanes
 
 lane :suppress_all do
@@ -146,6 +142,7 @@ lane :test_multiscan_batch_callback do
     scheme: 'AtomicBoy',
     try_count: 3,
     batch_count: 2,
+    fail_build: false,
     testrun_completed_block: lambda { |testrun_info|
       failed_test_count = testrun_info[:failed].size
       passed_test_count = testrun_info[:passing].size
@@ -166,6 +163,15 @@ lane :test_multiscan_workspace do
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
     try_count: 3
+  )
+end
+
+lane :test_multiscan_only_testing do
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    only_testing: ['AtomicBoyTests']
   )
 end
 
