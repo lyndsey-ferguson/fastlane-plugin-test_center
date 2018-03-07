@@ -28,6 +28,7 @@ module TestCenter
             testrun_completed_block
           ].include?(option)
         end
+        @scan_options[:clean] = false
         @test_collector = TestCollector.new(multi_scan_options)
       end
 
