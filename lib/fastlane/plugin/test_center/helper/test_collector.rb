@@ -2,7 +2,6 @@ module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
     require 'plist'
-    require 'pry-byebug'
 
     class TestCollector
       def initialize(options)
