@@ -8,8 +8,8 @@ module TestCenter
       class Report
         def initialize(junit_report_filepath)
           report_file = File.open(junit_report_filepath) { |f| REXML::Document.new(f) }
-          UI.user_error!("Malformed XML test report file given") if report_file.root.nil?
-          UI.user_error!("Valid XML file is not an Xcode test report") if report_file.get_elements('testsuites').empty?
+          FastlaneCore::UI.user_error!("Malformed XML test report file given") if report_file.root.nil?
+          FastlaneCore::UI.user_error!("Valid XML file is not an Xcode test report") if report_file.get_elements('testsuites').empty?
 
           @testables = []
           report_file.elements.each('testsuites') do |testsuites_element|

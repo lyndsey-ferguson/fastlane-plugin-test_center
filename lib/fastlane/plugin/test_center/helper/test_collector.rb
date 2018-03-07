@@ -2,10 +2,14 @@ module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
     require 'plist'
+    require 'pry-byebug'
 
     class TestCollector
       def initialize(options)
         @xctestrun_path = options[:xctestrun] || derived_testrun_path(options[:derived_data_path], options[:scheme])
+        unless @xctestrun_path && File.exist?(@xctestrun_path)
+          FastlaneCore::UI.user_error!("Error: cannot find xctestrun file '#{@xctestrun_path}'")
+        end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
       end

@@ -2,6 +2,19 @@ TestCollector = TestCenter::Helper::TestCollector
 describe TestCenter do
   describe TestCenter::Helper do
     describe TestCollector do
+      before (:each) do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      end
+
+      it 'throws an exception for a non-existent xctestrun' do
+        expect { TestCollector.new(derived_data_path: 'path/to/fake/derived_data', scheme: 'Professor') }.to(
+          raise_error(FastlaneCore::Interface::FastlaneError) do |error|
+            expect(error.message).to match(%r{Error: cannot find xctestrun file})
+          end
+        )
+      end
+
       it 'finds testable from given xctestrun' do
         allow(Plist).to receive(:parse_xml).with('path/to/fake.xctestrun').and_return({ 'AtomicBoyTests' => [] })
         test_collector = TestCollector.new(
@@ -11,6 +24,7 @@ describe TestCenter do
       end
 
       it 'finds testables from derived xctestrun' do
+        allow(File).to receive(:exist?).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return(true)
         allow(Dir).to receive(:glob).with("path/to/fake/derived_data/Build/Products/Professor*.xctestrun").and_return(['path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun'])
         allow(Plist).to receive(:parse_xml).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
         test_collector = TestCollector.new(
