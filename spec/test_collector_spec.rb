@@ -10,7 +10,7 @@ describe TestCenter do
       it 'throws an exception for a non-existent xctestrun' do
         expect { TestCollector.new(derived_data_path: 'path/to/fake/derived_data', scheme: 'Professor') }.to(
           raise_error(FastlaneCore::Interface::FastlaneError) do |error|
-            expect(error.message).to match(%r{Error: cannot find xctestrun file})
+            expect(error.message).to match(/Error: cannot find xctestrun file/)
           end
         )
       end

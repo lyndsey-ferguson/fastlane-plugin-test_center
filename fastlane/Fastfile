@@ -137,23 +137,25 @@ end
 lane :test_multiscan_batch_callback do
   # provide better control over your tests with the :testrun_completed_block
   # callback
+  test_run_block = lambda do |testrun_info|
+    failed_test_count = testrun_info[:failed].size
+    passed_test_count = testrun_info[:passing].size
+    try_attempt = testrun_info[:try_count]
+    batch = testrun_info[:batch]
+
+    if passed_test_count > 0 && failed_test_count > passed_test_count / 2
+      UI.abort_with_message!("Too many tests are failing")
+    end
+    UI.message("😊 everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
+  end
+
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'AtomicBoy',
     try_count: 3,
     batch_count: 2,
     fail_build: false,
-    testrun_completed_block: lambda { |testrun_info|
-      failed_test_count = testrun_info[:failed].size
-      passed_test_count = testrun_info[:passing].size
-      try_attempt = testrun_info[:try_count]
-      batch = testrun_info[:batch]
-
-      if passed_test_count > 0 && failed_test_count > passed_test_count / 2
-        UI.abort_with_message!("Too many tests are failing")
-      end
-      UI.message("😊 everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
-    }
+    testrun_completed_block: test_run_block
   )
 end
 

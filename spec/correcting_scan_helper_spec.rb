@@ -9,6 +9,8 @@ describe TestCenter do
 
           @mock_testcollector = OpenStruct.new
           allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_testcollector)
+
+          allow(File).to receive(:exist?).and_call_original
         end
 
         it 'calls scan_testable for each testable' do
@@ -475,6 +477,11 @@ describe TestCenter do
         end
         describe 'one testable' do
           describe 'no batches' do
+            before(:each) do
+              allow(File).to receive(:exist?).and_return(true)
+              allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
+            end
+
             it 'calls scan once with no failures' do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
@@ -487,7 +494,7 @@ describe TestCenter do
                 expect(config._values).to have_key(:output_files)
                 expect(config._values).not_to have_key(:try_count)
                 expect(config._values).not_to have_key(:batch_count)
-                expect(config._values).not_to have_key(:clean)
+                expect(config._values[:clean]).to be(false)
                 expect(config._values).not_to have_key(:custom_report_file_name)
                 expect(config._values[:output_files]).to eq('report.html,report.junit')
               end

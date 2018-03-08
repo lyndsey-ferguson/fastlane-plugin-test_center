@@ -1,3 +1,5 @@
+require 'scan'
+
 describe Fastlane::Actions::MultiScanAction do
   before(:each) do
   end
