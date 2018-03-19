@@ -5,6 +5,7 @@ module Fastlane
         report = ::TestCenter::Helper::XcodeJunit::Report.new(params[:junit])
         passing = []
         failed = []
+        failure_details = {}
         report.testables.each do |testable|
           testable.testsuites.each do |testsuite|
             testsuite.testcases.each do |testcase|
@@ -12,13 +13,18 @@ module Fastlane
                 passing << testcase.identifier
               else
                 failed << testcase.identifier
+                failure_details[testcase.identifier] = {
+                  message: testcase.message,
+                  location: testcase.location
+                }
               end
             end
           end
         end
         {
           failed: failed,
-          passing: passing
+          passing: passing,
+          failure_details: failure_details
         }
       end
 
@@ -44,7 +50,11 @@ module Fastlane
       end
 
       def self.return_value
-        "A Hash with an Array of :passing and :failed tests"
+        "A Hash with information about the test results:\r\n" \
+        "failed: an Array of the failed test identifiers\r\n" \
+        "passing: an Array of the passing test identifiers\r\n" \
+        "failure_details: a Hash with failed test identifiers as the key, and " \
+        "a Hash with :message and :location details for the failed test"
       end
 
       def self.authors

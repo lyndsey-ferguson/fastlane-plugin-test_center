@@ -71,6 +71,16 @@ describe Fastlane::Actions::MultiScanAction do
         'BagOfTests/CoinTossingUITests/testResultIsTails',
         'BagOfTests/AtomicBoy/testWristMissles'
       ],
+      failure_details: {
+        'BagOfTests/CoinTossingUITests/testResultIsTails' => {
+          message: 'XCTAssertEqual failed: ("Heads") is not equal to ("Tails") - ',
+          location: 'CoinTossingUITests.swift:38'
+        },
+        'BagOfTests/AtomicBoy/testWristMissles' => {
+          message: 'XCTAssertEqual failed: ("3") is not equal to ("0") - ',
+          location: 'AtomicBoy.m:38'
+        }
+      },
       total_retry_count: 1
     )
     expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/junit.xml})
@@ -101,6 +111,16 @@ describe Fastlane::Actions::MultiScanAction do
         'BagOfTests/CoinTossingUITests/testResultIsTails',
         'BagOfTests/AtomicBoy/testWristMissles'
       ],
+      failure_details: {
+        'BagOfTests/CoinTossingUITests/testResultIsTails' => {
+          message: 'XCTAssertEqual failed: ("Heads") is not equal to ("Tails") - ',
+          location: 'CoinTossingUITests.swift:38'
+        },
+        'BagOfTests/AtomicBoy/testWristMissles' => {
+          message: 'XCTAssertEqual failed: ("3") is not equal to ("0") - ',
+          location: 'AtomicBoy.m:38'
+        }
+      },
       total_retry_count: 2
     )
     expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/junit.xml})

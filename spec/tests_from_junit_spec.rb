@@ -27,5 +27,15 @@ describe Fastlane::Actions::TestsFromJunitAction do
     result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
     expect(result[:failed]).to contain_exactly('BagOfTests/CoinTossingUITests/testResultIsTails', 'BagOfTests/AtomicBoy/testWristMissles')
     expect(result[:passing]).to contain_exactly('BagOfTests/CoinTossingUITests/testResultIsHeads', 'BagOfTests/AtomicBoy/testRocketBoots')
+    expect(result[:failure_details]).to include({
+      'BagOfTests/CoinTossingUITests/testResultIsTails' => {
+        message: 'XCTAssertEqual failed: ("Heads") is not equal to ("Tails") - ',
+        location: 'CoinTossingUITests.swift:38'
+      },
+      'BagOfTests/AtomicBoy/testWristMissles' => {
+        message: 'XCTAssertEqual failed: ("3") is not equal to ("0") - ',
+        location: 'AtomicBoy.m:38'
+      }
+    })
   end
 end

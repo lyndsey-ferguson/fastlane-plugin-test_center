@@ -81,7 +81,7 @@ describe TestCenter do
           )
         end
 
-        it 'finds the failed tests' do
+        it 'finds the failed tests in skipped_test format' do
           failed_tests = []
           @testcases.each do |testcase|
             failed_tests << testcase.skipped_test.identifier unless testcase.passed?
@@ -91,6 +91,32 @@ describe TestCenter do
           expect(failed_tests).to contain_exactly(
             'CoinTossingUITests/testResultIsTails()',
             'AtomicBoy/testWristMissles'
+          )
+        end
+
+        it 'provides the correct failure detail message' do
+          failed_test_messages = []
+          @testcases.each do |testcase|
+            failed_test_messages << testcase.message unless testcase.passed?
+          end
+          failed_test_messages.compact!
+
+          expect(failed_test_messages).to contain_exactly(
+            'XCTAssertEqual failed: ("Heads") is not equal to ("Tails") - ',
+            'XCTAssertEqual failed: ("3") is not equal to ("0") - '
+          )
+        end
+
+        it 'provides the correct failure detail location' do
+          failed_test_locations = []
+          @testcases.each do |testcase|
+            failed_test_locations << testcase.location unless testcase.passed?
+          end
+          failed_test_locations.compact!
+
+          expect(failed_test_locations).to contain_exactly(
+            'CoinTossingUITests.swift:38',
+            'AtomicBoy.m:38'
           )
         end
       end

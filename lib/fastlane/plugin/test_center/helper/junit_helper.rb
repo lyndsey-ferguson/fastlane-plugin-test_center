@@ -69,10 +69,17 @@ module TestCenter
       class TestCase
         attr_reader :identifier
         attr_reader :skipped_test
+        attr_reader :message
+        attr_reader :location
 
         def initialize(xml_element)
           @root = xml_element
           name = xml_element.attributes['name']
+          failure_element = xml_element.elements['failure']
+          if failure_element
+            @message = failure_element.attributes['message'] || ''
+            @location = failure_element.text || ''
+          end
           full_testsuite = xml_element.parent.attributes['name']
           testsuite = full_testsuite.testsuite
           is_swift = full_testsuite.testsuite_swift?

@@ -42,6 +42,7 @@ module Fastlane
         )
         passing_testcount = 0
         failed_tests = []
+        failure_details = {}
         report_files = Dir.glob("#{scan_options[:output_directory]}/**/*#{reportnamer.junit_filextension}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
@@ -49,6 +50,7 @@ module Fastlane
           junit_results = other_action.tests_from_junit(junit: report_file)
           failed_tests.concat(junit_results[:failed])
           passing_testcount += junit_results[:passing].size
+          failure_details.merge!(junit_results[:failure_details])
         end
         {
           result: tests_passed,
@@ -56,6 +58,7 @@ module Fastlane
           passing_testcount: passing_testcount,
           failed_testcount: failed_tests.size,
           failed_tests: failed_tests,
+          failure_details: failure_details,
           total_retry_count: retry_total_count,
           report_files: report_files
         }
