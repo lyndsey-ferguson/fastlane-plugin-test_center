@@ -28,6 +28,6 @@ task :check_for_blacklisted_requires do
   end
 end
 
-Rake::Task['release:source_control_push'].enhance [:check_for_blacklisted_requires, :spec, :rubocop]
+Rake::Task[:build].enhance [:check_for_blacklisted_requires, :spec, :rubocop]
 
 task default: [:spec, :rubocop]
