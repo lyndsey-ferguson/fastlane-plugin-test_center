@@ -1,5 +1,7 @@
 CorrectingScanHelper = TestCenter::Helper::CorrectingScanHelper
 describe TestCenter do
+  require 'pry-byebug'
+
   describe TestCenter::Helper do
     describe CorrectingScanHelper do
       describe 'scan' do
@@ -474,10 +476,14 @@ describe TestCenter do
         before(:each) do
           allow(Fastlane::Actions).to receive(:sh)
           allow_any_instance_of(CorrectingScanHelper).to receive(:sleep)
+
+          @mock_testcollector = OpenStruct.new
+          allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_testcollector)
         end
         describe 'one testable' do
           describe 'no batches' do
             before(:each) do
+              allow(File).to receive(:exist?).and_call_original
               allow(File).to receive(:exist?).and_return(true)
               allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
             end
