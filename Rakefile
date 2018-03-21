@@ -17,7 +17,7 @@ task :check_for_blacklisted_requires do
 
   Dir["lib/**/*.rb"].each do |file|
     File.foreach(file) do |line|
-      if (m = /\s+require\s+#{gem_blacklist_regex}/.match(line))
+      if (m = /\s*require\s+#{gem_blacklist_regex}/.match(line))
         errors << "require '#{m[:blacklisted_gem]}' found in '#{file}'"
       end
     end
