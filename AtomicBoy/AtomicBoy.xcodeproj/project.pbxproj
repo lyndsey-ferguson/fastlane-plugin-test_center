@@ -18,6 +18,8 @@
 		26DB0F691FA12D4B0023C31D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 26DB0F681FA12D4B0023C31D /* main.m */; };
 		26DB0F731FA12D4B0023C31D /* AtomicBoyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 26DB0F721FA12D4B0023C31D /* AtomicBoyTests.m */; };
 		26DB0F7E1FA12D4B0023C31D /* AtomicBoyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 26DB0F7D1FA12D4B0023C31D /* AtomicBoyUITests.m */; };
+		26E17D392062D4F900928579 /* SwiftAtomicBoyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */; };
+		26E17D3B2062D50F00928579 /* TestObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E17D3A2062D50F00928579 /* TestObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +60,9 @@
 		26DB0F791FA12D4B0023C31D /* AtomicBoyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtomicBoyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		26DB0F7D1FA12D4B0023C31D /* AtomicBoyUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AtomicBoyUITests.m; sourceTree = "<group>"; };
 		26DB0F7F1FA12D4B0023C31D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		26E17D372062D4F900928579 /* AtomicBoyUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AtomicBoyUITests-Bridging-Header.h"; sourceTree = "<group>"; };
+		26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAtomicBoyUITests.swift; sourceTree = "<group>"; };
+		26E17D3A2062D50F00928579 /* TestObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +144,9 @@
 			children = (
 				26DB0F7D1FA12D4B0023C31D /* AtomicBoyUITests.m */,
 				26DB0F7F1FA12D4B0023C31D /* Info.plist */,
+				26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */,
+				26E17D3A2062D50F00928579 /* TestObject.swift */,
+				26E17D372062D4F900928579 /* AtomicBoyUITests-Bridging-Header.h */,
 			);
 			path = AtomicBoyUITests;
 			sourceTree = "<group>";
@@ -219,6 +227,7 @@
 					};
 					26DB0F781FA12D4B0023C31D = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 26DB0F4E1FA12D4B0023C31D;
 					};
@@ -297,7 +306,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26E17D3B2062D50F00928579 /* TestObject.swift in Sources */,
 				26DB0F7E1FA12D4B0023C31D /* AtomicBoyUITests.m in Sources */,
+				26E17D392062D4F900928579 /* SwiftAtomicBoyUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,12 +512,16 @@
 		26DB0F891FA12D4B0023C31D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = B9TT7Q5D57;
 				INFOPLIST_FILE = AtomicBoyUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appian.AtomicBoyUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AtomicBoyUITests/AtomicBoyUITests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = AtomicBoy;
 			};
@@ -515,12 +530,15 @@
 		26DB0F8A1FA12D4B0023C31D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = B9TT7Q5D57;
 				INFOPLIST_FILE = AtomicBoyUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appian.AtomicBoyUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AtomicBoyUITests/AtomicBoyUITests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = AtomicBoy;
 			};
