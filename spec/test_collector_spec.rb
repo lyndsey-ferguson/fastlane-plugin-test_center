@@ -34,6 +34,23 @@ describe TestCenter do
         expect(test_collector.testables).to eq(['AtomicBoyTests', 'AtomicBoyUITests'])
       end
 
+      it 'finds testables from default xctestrun when given :skip_build' do
+        FAKE_DEFAULT_DERIVED_DATA_PATH = 'path/to/fake/default_derived_data'
+        XCTEST_RUN_FILENAME = 'Professor_Blahblah.xctestrun'
+        allow(File).to receive(:exist?).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return(true)
+        allow(Dir).to receive(:glob).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/Professor*.xctestrun").and_return(["#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}"])
+        allow(Plist).to receive(:parse_xml).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
+        mocked_project = OpenStruct.new
+        allow(mocked_project).to receive(:build_settings).and_return("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/blah1/blah2/blah3")
+        allow(File).to receive(:expand_path).with('../../..', "#{FAKE_DEFAULT_DERIVED_DATA_PATH}/blah1/blah2/blah3").and_return(FAKE_DEFAULT_DERIVED_DATA_PATH)
+        allow(FastlaneCore::Project).to receive(:new).and_return(mocked_project)
+        test_collector = TestCollector.new(
+          skip_build: true,
+          scheme: 'Professor'
+        )
+        expect(test_collector.testables).to eq(['AtomicBoyTests', 'AtomicBoyUITests'])
+      end
+
       it 'calls to testables :only_testing returns those testables' do
         expect(Plist).not_to receive(:parse_xml)
         expect(Fastlane::Actions::TestsFromXctestrunAction).not_to receive(:run)

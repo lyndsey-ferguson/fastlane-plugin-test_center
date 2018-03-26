@@ -24,6 +24,26 @@ describe Fastlane::Actions::MultiScanAction do
     Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
   end
 
+  it 'the project is not built if given :skip_build true and _not_ given :test_without_building' do
+    non_existent_project = "lane :test do
+      multi_scan(
+        project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+        scheme: 'AtomicBoy',
+        try_count: 2,
+        output_directory: 'path/to',
+        fail_build: false,
+        skip_build: true
+      )
+    end"
+    expect(Fastlane::Actions::ScanAction).not_to receive(:run)
+
+    mocked_scanner = OpenStruct.new
+    allow(::TestCenter::Helper::CorrectingScanHelper).to receive(:new).and_return(mocked_scanner)
+    expect(mocked_scanner).to receive(:scan).and_return(true)
+    expect(Fastlane::Actions::MultiScanAction).to receive(:run_summary)
+    Fastlane::FastFile.new.parse(non_existent_project).runner.execute(:test)
+  end
+
   it 'raises FastlaneTestFailure if tests passed and :fail_build is true' do
     non_existent_project = "lane :test do
       multi_scan(

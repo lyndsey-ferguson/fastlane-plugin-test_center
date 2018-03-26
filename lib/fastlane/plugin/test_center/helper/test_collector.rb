@@ -1,16 +1,28 @@
 module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
+    require 'fastlane/actions/scan'
     require 'plist'
 
     class TestCollector
       def initialize(options)
+        unless options[:xctestrun] || options[:derived_data_path]
+          options[:derived_data_path] = default_derived_data_path(options)
+        end
         @xctestrun_path = options[:xctestrun] || derived_testrun_path(options[:derived_data_path], options[:scheme])
         unless @xctestrun_path && File.exist?(@xctestrun_path)
           FastlaneCore::UI.user_error!("Error: cannot find xctestrun file '#{@xctestrun_path}'")
         end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
+      end
+
+      def default_derived_data_path(options)
+        Scan.project = FastlaneCore::Project.new(
+          options.select { |k, v| %i[workspace project].include?(k) }
+        )
+        project_derived_data_path = Scan.project.build_settings(key: "BUILT_PRODUCTS_DIR")
+        File.expand_path("../../..", project_derived_data_path)
       end
 
       def derived_testrun_path(derived_data_path, scheme)

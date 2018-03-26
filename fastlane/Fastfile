@@ -168,6 +168,18 @@ lane :test_multiscan_workspace do
   )
 end
 
+
+lane :test_multiscan_workspace_skip_build do
+  # use the workspace parameter instead of the project param
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    skip_build: true,
+    clean: true,
+    try_count: 3
+  )
+end
+
 lane :test_multiscan_only_testing do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),

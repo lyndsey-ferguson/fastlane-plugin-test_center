@@ -14,7 +14,7 @@ module Fastlane
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
-        unless params[:test_without_building]
+        unless params[:test_without_building] || params[:skip_build]
           build_for_testing(
             params._values
           )
