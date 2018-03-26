@@ -168,7 +168,6 @@ lane :test_multiscan_workspace do
   )
 end
 
-
 lane :test_multiscan_workspace_skip_build do
   # use the workspace parameter instead of the project param
   multi_scan(
