@@ -3,6 +3,8 @@ module TestCenter
     require 'fastlane_core/ui/ui.rb'
 
     class ReportNameHelper
+      attr_reader :report_count
+
       def initialize(output_types = nil, output_files = nil, custom_report_file_name = nil)
         @output_types = output_types || 'junit'
         @output_files = output_files || custom_report_file_name

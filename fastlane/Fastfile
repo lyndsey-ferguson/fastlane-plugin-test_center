@@ -175,7 +175,8 @@ lane :test_multiscan_workspace_skip_build do
     scheme: 'AtomicBoy',
     skip_build: true,
     clean: true,
-    try_count: 3
+    try_count: 3,
+    result_bundle: true
   )
 end
 

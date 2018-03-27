@@ -57,6 +57,11 @@ module TestCenter
               output_directory = File.join(@output_directory, "results-#{testable}")
             end
             FastlaneCore::UI.header("Starting test run on testable '#{testable}'")
+            if @scan_options[:result_bundle]
+              FastlaneCore::UI.message("Clearing out previous test_result bundles in #{output_directory}")
+              FileUtils.rm_rf(Dir.glob("#{output_directory}/*.test_result"))
+            end
+
             tests_passed = correcting_scan(
               {
                 only_testing: tests_batch,
@@ -77,6 +82,13 @@ module TestCenter
         end
         collate_reports(output_directory, reportnamer)
         tests_passed
+      end
+
+      def test_result_bundlepaths(output_directory, reportnamer)
+        [
+          File.join(output_directory, @scan_options[:scheme]) + '.test_result',
+          File.join(output_directory, @scan_options[:scheme]) + "_#{reportnamer.report_count}.test_result"
+        ]
       end
 
       def collate_reports(output_directory, reportnamer)
@@ -124,6 +136,12 @@ module TestCenter
             )
             scan_options[:only_testing] = info[:failed].map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
+            if @scan_options[:result_bundle]
+              built_test_result, moved_test_result = test_result_bundlepaths(
+                scan_options[:output_directory], reportnamer
+              )
+              FileUtils.mv(built_test_result, moved_test_result)
+            end
             reportnamer.increment
             retry
           end

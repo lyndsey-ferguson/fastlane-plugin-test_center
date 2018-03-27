@@ -12,3 +12,4 @@ coverage
 report*.html
 report*.xml
 report*.junit
+*.test_result/

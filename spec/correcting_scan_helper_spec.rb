@@ -1,7 +1,5 @@
 CorrectingScanHelper = TestCenter::Helper::CorrectingScanHelper
 describe TestCenter do
-  require 'pry-byebug'
-
   describe TestCenter::Helper do
     describe CorrectingScanHelper do
       describe 'scan' do
@@ -32,6 +30,48 @@ describe TestCenter do
           expect(scanner).to receive(:scan_testable).with('AtomicBoyUITests').and_return(true).ordered.once
           results = scanner.scan
           expect(results).to eq(false)
+        end
+
+        it 'clears out test_rest bundles before calling correcting_scan' do
+          allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests', 'AtomicBoyUITests'])
+          scanner = CorrectingScanHelper.new(
+            xctestrun: 'path/to/fake.xctestrun',
+            result_bundle: true,
+            output_directory: '.',
+            scheme: 'AtomicBoy'
+          )
+          allow(@mock_testcollector).to receive(:testables_tests).and_return(
+            {
+              'AtomicBoyTests' => [
+                'AtomicBoyTests/AtomicBoyTests/testExample1',
+                'AtomicBoyTests/AtomicBoyTests/testExample2',
+                'AtomicBoyTests/AtomicBoyTests/testExample3',
+                'AtomicBoyTests/AtomicBoyTests/testExample4'
+              ],
+              'AtomicBoyUITests' => [
+                'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+              ]
+            }
+          )
+
+          expected_calls = []
+          allow(Dir).to receive(:glob).and_call_original
+          expect(Dir).to receive(:glob).with(/.*\.test_result/) do
+            expected_calls << :glob
+            ['./AtomicDragon.test_result']
+          end
+          allow(FileUtils).to receive(:rm_rf).and_call_original
+          expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result']) do
+            expected_calls << :rm_rf
+          end
+          expect(scanner).to receive(:correcting_scan).twice do
+            expected_calls << :correcting_scan
+          end
+          scanner.scan
+          expect(expected_calls).to eq([:glob, :rm_rf, :correcting_scan, :correcting_scan])
         end
 
         it 'scan calls correcting_scan once for one testable' do
@@ -618,6 +658,71 @@ describe TestCenter do
               )
               expect(scanner.retry_total_count).to eq(1)
               expect(result).to eq(true)
+            end
+
+            it 'calls scan three times when two runs have failures and copies the test_result bundle to a numbered bundle' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                result_bundle: true,
+                scheme: 'AtomicBoy'
+              )
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
+              allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
+                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expected_fileutils_mv_params_list = [
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_0.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_1.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_2.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_0.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_1.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_2.test_result'
+                }
+              ]
+              expect(FileUtils).to receive(:mv) do |src, dest|
+                expected_fileutils_mv_params = expected_fileutils_mv_params_list.shift
+                expect(expected_fileutils_mv_params[:src]).to eq(src)
+                expect(expected_fileutils_mv_params[:dest]).to eq(dest)
+              end.twice
+              result = scanner.correcting_scan(
+                {
+                  output_directory: '.',
+                  scheme: 'AtomicBoy'
+                },
+                1,
+                ReportNameHelper.new('html,junit')
+              )
+              expect(scanner.retry_total_count).to eq(2)
+              expect(result).to eq(false)
             end
           end
         end
