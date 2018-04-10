@@ -107,6 +107,24 @@ module TestCenter
         end
         retried_junit_reportfiles = Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.junit_filextension}")
         FileUtils.rm_f(retried_junit_reportfiles)
+
+        if reportnamer.includes_html?
+          report_files = Dir.glob("#{output_directory}/*#{reportnamer.html_filextension}").map do |relative_filepath|
+            File.absolute_path(relative_filepath)
+          end
+          if report_files.size > 1
+            config = FastlaneCore::Configuration.create(
+              Fastlane::Actions::CollateHtmlReportsAction.available_options,
+              {
+                reports: report_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
+                collated_report: File.absolute_path(File.join(output_directory, reportnamer.html_reportname))
+              }
+            )
+            Fastlane::Actions::CollateHtmlReportsAction.run(config)
+          end
+          retried_html_reportfiles = Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.html_filextension}")
+          FileUtils.rm_f(retried_html_reportfiles)
+        end
       end
 
       def correcting_scan(scan_run_options, batch, reportnamer)

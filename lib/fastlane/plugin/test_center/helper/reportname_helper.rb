@@ -64,6 +64,26 @@ module TestCenter
         File.extname(junit_reportname)
       end
 
+      # --- HTML ---
+      # TODO: what to do when there are no html output types?
+      def includes_html?
+        @output_types.split(',').find_index('html') != nil
+      end
+
+      def html_last_reportname
+        html_index = @output_types.split(',').find_index('html')
+        numbered_filename(@output_files.to_s.split(',')[html_index])
+      end
+
+      def html_reportname
+        html_index = @output_types.split(',').find_index('html')
+        @output_files.to_s.split(',')[html_index]
+      end
+
+      def html_filextension
+        File.extname(html_reportname)
+      end
+
       def increment
         @report_count += 1
       end

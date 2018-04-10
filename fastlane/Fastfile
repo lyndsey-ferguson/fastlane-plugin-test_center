@@ -90,7 +90,9 @@ lane :test_multiscan_two_testables do
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
     scheme: 'AtomicBoy',
     try_count: 3,
-    fail_build: false
+    fail_build: false,
+    output_files: 'report.html',
+    output_types: 'html'
   )
   UI.success("multi_scan passed? #{summary[:result]}")
 end
@@ -119,7 +121,7 @@ lane :test_multiscan_one_testable do
     scheme: 'Professor',
     try_count: 3,
     custom_report_file_name: 'atomic_report.xml',
-    output_types: 'junit',
+    output_types: 'junit,html',
     fail_build: false
   )
 end

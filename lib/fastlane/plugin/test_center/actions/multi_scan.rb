@@ -52,6 +52,12 @@ module Fastlane
           passing_testcount += junit_results[:passing].size
           failure_details.merge!(junit_results[:failure_details])
         end
+
+        if reportnamer.includes_html?
+          report_files += Dir.glob("#{scan_options[:output_directory]}/**/*#{reportnamer.html_filextension}").map do |relative_filepath|
+            File.absolute_path(relative_filepath)
+          end
+        end
         {
           result: tests_passed,
           total_tests: passing_testcount + failed_tests.size,

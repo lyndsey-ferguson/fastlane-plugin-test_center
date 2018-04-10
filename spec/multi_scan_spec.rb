@@ -75,8 +75,8 @@ describe Fastlane::Actions::MultiScanAction do
 
     summary = Fastlane::Actions::MultiScanAction.run_summary(
       {
-        output_types: 'html,junit',
-        output_files: 'report.html,report.xml',
+        output_types: 'junit',
+        output_files: 'report.xml',
         output_directory: 'test_output'
       },
       true,
@@ -111,6 +111,10 @@ describe Fastlane::Actions::MultiScanAction do
       .with('test_output/**/*.xml')
       .and_return([File.absolute_path('./spec/fixtures/junit.xml'), File.absolute_path('./spec/fixtures/junit.xml')])
 
+    allow(Dir).to receive(:glob)
+      .with('test_output/**/*.html')
+      .and_return([File.absolute_path('./spec/fixtures/report.html'), File.absolute_path('./spec/fixtures/report.html')])
+
     summary = Fastlane::Actions::MultiScanAction.run_summary(
       {
         output_types: 'html,junit',
@@ -143,7 +147,7 @@ describe Fastlane::Actions::MultiScanAction do
       },
       total_retry_count: 2
     )
-    expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/junit.xml})
-    expect(summary[:report_files][1]).to match(%r{.*/spec/fixtures/junit.xml})
+    expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/(junit|html).xml})
+    expect(summary[:report_files][1]).to match(%r{.*/spec/fixtures/(junit|html).xml})
   end
 end
