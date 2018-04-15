@@ -67,7 +67,8 @@ This fastlane plugin includes the following actions:
 - [`suppressed_tests`](#suppressed_tests): returns a list of the suppressed tests in your project.
 - [`tests_from_junit`](#tests_from_junit): from a test report, returns lists of passing and failed tests.
 - [`tests_from_xctestrun`](#tests_from_xctestrun): from an xctestrun file, returns a list of tests for each of its test targets.
-- [`collate_junit_reports`](#collate_junit_reports): combines multiple test reports into one.
+- [`collate_junit_reports`](#collate_junit_reports): combines multiple junit test reports into one report.
+- [`collate_html_reports`](#collate_html_reports): combines multiple html test reports into one report.
 
 ### multi-scan 🎉
 
@@ -103,7 +104,11 @@ Do you have multiple test targets referenced by your `xctestrun` file and need t
 
 ### collate_junit_reports
 
-Do you have multiple test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
+Do you have multiple junit test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
+
+### collate_html_reports
+
+Do you have multiple html test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
 
 ## Example
 
