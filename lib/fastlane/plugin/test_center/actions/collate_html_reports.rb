@@ -45,7 +45,7 @@ module Fastlane
           testcases.each do |testcase|
             testresult = testcase.parent.parent
             target_testresult = testcase_from_testsuite(target_testsuite, testcase.text)
-            collate_testresults(target_testresult, testresult)
+            collate_testresults(target_testsuite, target_testresult, testresult)
           end
         else
           testable = testsuite.parent
@@ -53,12 +53,12 @@ module Fastlane
         end
       end
 
-      def self.collate_testresults(target_testresult, testresult)
+      def self.collate_testresults(target_testsuite, target_testresult, testresult)
         if target_testresult
           collate_testresult_details(target_testresult, testresult)
           target_testresult.parent.replace_child(target_testresult, testresult)
         else
-          target_testresult << testresult
+          target_testsuite << testresult
         end
       end
 
@@ -97,8 +97,14 @@ module Fastlane
                 "contains(@class, 'failing')]"
 
         test_failures = REXML::XPath.match(report, failing_tests_xpath)
-        REXML::XPath.first(report, ".//*[@id='test-count']/span").text = tests.size
-        REXML::XPath.first(report, ".//*[@id='fail-count']/span").text = test_failures.size
+        test_count = REXML::XPath.first(report, ".//*[@id='test-count']/span")
+        if test_count
+          test_count.text = tests.size
+        end
+        fail_count = REXML::XPath.first(report, ".//*[@id='fail-count']/span")
+        if fail_count
+          fail_count.text = test_failures.size
+        end
       end
 
       def self.details_for_testresult(testresult)

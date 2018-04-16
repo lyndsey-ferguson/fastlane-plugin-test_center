@@ -64,8 +64,14 @@ module TestCenter
         File.extname(junit_reportname)
       end
 
-      # --- HTML ---
-      # TODO: what to do when there are no html output types?
+      def junit_fileglob
+        "#{File.basename(junit_reportname, '.*')}*#{junit_filextension}"
+      end
+
+      def junit_numbered_fileglob
+        "#{File.basename(junit_reportname, '.*')}-[1-9]*#{junit_filextension}"
+      end
+
       def includes_html?
         @output_types.split(',').find_index('html') != nil
       end
@@ -82,6 +88,14 @@ module TestCenter
 
       def html_filextension
         File.extname(html_reportname)
+      end
+
+      def html_fileglob
+        "#{File.basename(html_reportname, '.*')}*#{html_filextension}"
+      end
+
+      def html_numbered_fileglob
+        "#{File.basename(html_reportname, '.*')}-[1-9]*#{html_filextension}"
       end
 
       def increment

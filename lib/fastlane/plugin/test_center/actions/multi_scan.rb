@@ -43,7 +43,7 @@ module Fastlane
         passing_testcount = 0
         failed_tests = []
         failure_details = {}
-        report_files = Dir.glob("#{scan_options[:output_directory]}/**/*#{reportnamer.junit_filextension}").map do |relative_filepath|
+        report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
         report_files.each do |report_file|
@@ -54,7 +54,7 @@ module Fastlane
         end
 
         if reportnamer.includes_html?
-          report_files += Dir.glob("#{scan_options[:output_directory]}/**/*#{reportnamer.html_filextension}").map do |relative_filepath|
+          report_files += Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.html_fileglob}").map do |relative_filepath|
             File.absolute_path(relative_filepath)
           end
         end
@@ -99,7 +99,7 @@ module Fastlane
       end
 
       def self.details
-        "Use this action to run your tests if you have fragile tests that fail" \
+        "Use this action to run your tests if you have fragile tests that fail " \
         "sporadically, if you have a huge number of tests that should be " \
         "batched, or have multiple test targets and need meaningful junit reports."
       end
@@ -185,7 +185,7 @@ module Fastlane
               if passed_test_count > 0 && failed_test_count > passed_test_count / 2
                 UI.abort_with_message!("Too many tests are failing")
               end
-              UI.message("😊 everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
+              UI.message("\u{1f60a}  everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
             }
           )'
         ]

@@ -92,7 +92,7 @@ module TestCenter
       end
 
       def collate_reports(output_directory, reportnamer)
-        report_files = Dir.glob("#{output_directory}/*#{reportnamer.junit_filextension}").map do |relative_filepath|
+        report_files = Dir.glob("#{output_directory}/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
         if report_files.size > 1
@@ -105,11 +105,11 @@ module TestCenter
           )
           Fastlane::Actions::CollateJunitReportsAction.run(config)
         end
-        retried_junit_reportfiles = Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.junit_filextension}")
+        retried_junit_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.junit_numbered_fileglob}")
         FileUtils.rm_f(retried_junit_reportfiles)
 
         if reportnamer.includes_html?
-          report_files = Dir.glob("#{output_directory}/*#{reportnamer.html_filextension}").map do |relative_filepath|
+          report_files = Dir.glob("#{output_directory}/#{reportnamer.html_fileglob}").map do |relative_filepath|
             File.absolute_path(relative_filepath)
           end
           if report_files.size > 1
@@ -122,7 +122,7 @@ module TestCenter
             )
             Fastlane::Actions::CollateHtmlReportsAction.run(config)
           end
-          retried_html_reportfiles = Dir.glob("#{output_directory}/**/*-[1-9]*#{reportnamer.html_filextension}")
+          retried_html_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.html_numbered_fileglob}")
           FileUtils.rm_f(retried_html_reportfiles)
         end
       end
