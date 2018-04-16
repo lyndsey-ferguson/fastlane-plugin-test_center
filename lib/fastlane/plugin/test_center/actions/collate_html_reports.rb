@@ -48,7 +48,7 @@ module Fastlane
             collate_testresults(target_testresult, testresult)
           end
         else
-          testable = REXML::XPath.first(target_report, "//section[@id='test-suites']")
+          testable = testsuite.parent
           testable << testsuite
         end
       end
