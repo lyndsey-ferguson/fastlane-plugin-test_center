@@ -53,6 +53,34 @@ module Fastlane
         "A Hash of testable => tests, where testable is the name of the test target and tests is an array of test identifiers"
       end
 
+      def self.example_code
+        [
+          "
+          require 'fastlane/actions/scan'
+
+          UI.important(
+            'example: ' \\
+            'get list of tests that are referenced from an xctestrun file'
+          )
+          # build the tests so that we have a xctestrun file to parse
+          scan(
+            build_for_testing: true,
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy'
+          )
+
+          # find the xctestrun file
+          derived_data_path = Scan.config[:derived_data_path]
+          xctestrun_file = Dir.glob(\"\#{derived_data_path}/Build/Products/*.xctestrun\").first
+
+          # get the tests from the xctestrun file
+          tests = tests_from_xctestrun(xctestrun: xctestrun_file)
+          UI.header('xctestrun file contains the following tests')
+          tests.values.flatten.each { |test_identifier| puts test_identifier }
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/lyndseydf"]
       end

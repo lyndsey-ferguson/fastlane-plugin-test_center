@@ -57,6 +57,20 @@ module Fastlane
         "a Hash with :message and :location details for the failed test"
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'get the failed and passing tests from the junit test report file'
+          )
+          result = tests_from_junit(junit: './spec/fixtures/junit.xml')
+          UI.message(\"Passing tests: \#{result[:passing]}\")
+          UI.message(\"Failed tests: \#{result[:failed]}\")
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/lyndseydf"]
       end

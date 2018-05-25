@@ -60,6 +60,31 @@ module Fastlane
         ]
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'get the tests that are suppressed in a Scheme in the Project'
+          )
+          tests = suppressed_tests(
+            xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+            scheme: 'AtomicBoy'
+          )
+          UI.message(\"Suppressed tests for scheme: \#{tests}\")
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'get the tests that are suppressed in all Schemes in the Project'
+          )
+          UI.message(
+            \"Suppressed tests for project: \#{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj')}\"
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end

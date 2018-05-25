@@ -81,6 +81,38 @@ module Fastlane
         ]
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'suppress some tests in all Schemes for a Project'
+          )
+          suppress_tests(
+            xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+            tests: [
+              'AtomicBoyUITests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+              'AtomicBoyUITests/GrumpyWorkerTests'
+            ]
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'suppress some tests in one Scheme for a Project'
+          )
+          suppress_tests(
+            xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+            tests: [
+              'AtomicBoyUITests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+              'AtomicBoyUITests/GrumpyWorkerTests'
+            ],
+            scheme: 'Professor'
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end

@@ -90,6 +90,40 @@ module Fastlane
         ]
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'suppress the tests that failed in the junit report for _all_ Schemes'
+          )
+          suppress_tests_from_junit(
+            xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+            junit: './spec/fixtures/junit.xml',
+            suppress_type: :failed
+          )
+          UI.message(
+            \"Suppressed tests for project: \#{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj')}\"
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'suppress the tests that failed in the junit report for _one_ Scheme'
+          )
+          suppress_tests_from_junit(
+            xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj',
+            junit: './spec/fixtures/junit.xml',
+            scheme: 'Professor',
+            suppress_type: :failed
+          )
+          UI.message(
+            \"Suppressed tests for the 'Professor' scheme: \#{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj')}\"
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end

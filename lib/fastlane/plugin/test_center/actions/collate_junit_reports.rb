@@ -123,6 +123,21 @@ module Fastlane
         ]
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'collate the xml reports to a temporary file \'result.xml\''
+          )
+          collate_junit_reports(
+            reports: Dir['./spec/fixtures/*.xml'],
+            collated_report: File.join(Dir.mktmpdir, 'result.xml')
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end

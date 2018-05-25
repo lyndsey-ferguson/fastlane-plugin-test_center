@@ -163,6 +163,21 @@ module Fastlane
         ]
       end
 
+      def self.example_code
+        [
+          "
+          UI.important(
+            'example: ' \\
+            'collate the html reports to a temporary file \'result.html\''
+          )
+          collate_html_reports(
+            reports: Dir['./spec/fixtures/*.html'],
+            collated_report: File.join(Dir.mktmpdir, 'result.html')
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end

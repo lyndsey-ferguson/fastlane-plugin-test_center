@@ -156,38 +156,138 @@ module Fastlane
 
       def self.example_code
         [
-          'multi_scan(
-            project: File.absolute_path("../AtomicBoy/AtomicBoy.xcodeproj"),
-            scheme: "Professor",
+          "
+          UI.important(
+            'example: ' \\
+            'run tests for a scheme that has two test targets, re-trying up to 2 times if ' \\
+            'tests fail. Turn off the default behavior of failing the build if, at the ' \\
+            'end of the action, there were 1 or more failing tests.'
+          )
+          summary = multi_scan(
+            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+            scheme: 'AtomicBoy',
             try_count: 3,
-            custom_report_file_name: "atomic_report.xml",
-            output_types: "junit"
-          )',
-          'multi_scan(
-            project: File.absolute_path("../GalaxyFamily/GalaxyFamily.xcodeproj"),
-            scheme: "Everything",
+            fail_build: false,
+            output_files: 'report.html',
+            output_types: 'html'
+          )
+          UI.success(\"multi_scan passed? \#{summary[:result]}\")
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'run tests for a scheme that has two test targets, re-trying up to 2 times if ' \\
+            'tests fail. Make sure that the default behavior of failing the build works.'
+          )
+          begin
+            multi_scan(
+              project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+              scheme: 'AtomicBoy',
+              try_count: 2
+            )
+          rescue FastlaneCore::Interface::FastlaneTestFailure => e
+            UI.success(\"failed successfully with \#{e.message}\")
+          else
+            raise 'This should have failed'
+          end
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'split the tests into 2 batches and run each batch of tests up to 3 ' \\
+            'times if tests fail. Do not fail the build.'
+          )
+          multi_scan(
+            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+            scheme: 'AtomicBoy',
             try_count: 3,
-            batch_count: 2, # splits the tests into two chunks to not overload the iOS Simulator
-            custom_report_file_name: "atomic_report.xml",
-            output_types: "junit"
-          )',
-          'multi_scan(
-            project: File.absolute_path("../GalaxyFamily/GalaxyFamily.xcodeproj"),
-            scheme: "Everything",
-            try_count: 3,
-            batch_count: 8, # splits the tests into 8 chunks to not overload the iOS Simulator
-            testrun_completed_block: lambda { |testrun_info|
-              failed_test_count = testrun_info[:failed].size
-              passed_test_count = testrun_info[:passing].size
-              try_attempt = testrun_info[:try_count]
-              batch = testrun_info[:batch]
+            batch_count: 2,
+            fail_build: false
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'split the tests into 2 batches and run each batch of tests up to 3 ' \\
+            'times if tests fail. Abort the testing early if there are too many ' \\
+            'failing tests by passing in a :testrun_completed_block that is called ' \\
+            'by :multi_scan after each run of tests.'
+          )
+          test_run_block = lambda do |testrun_info|
+            failed_test_count = testrun_info[:failed].size
+            passed_test_count = testrun_info[:passing].size
+            try_attempt = testrun_info[:try_count]
+            batch = testrun_info[:batch]
 
-              if passed_test_count > 0 && failed_test_count > passed_test_count / 2
-                UI.abort_with_message!("Too many tests are failing")
-              end
-              UI.message("\u{1f60a}  everything is fine, let\'s continue try #{try_attempt + 1} for batch #{batch}")
-            }
-          )'
+            if passed_test_count > 0 && failed_test_count > passed_test_count / 2
+              UI.abort_with_message!(\"Too many tests are failing\")
+            end
+            UI.message(\"\\\u1F60A everything is fine, let's continue try \#{try_attempt + 1} for batch \#{batch}\")
+          end
+
+          multi_scan(
+            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+            scheme: 'AtomicBoy',
+            try_count: 3,
+            batch_count: 2,
+            fail_build: false,
+            testrun_completed_block: test_run_block
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'use the :workspace parameter instead of the :project parameter to find, ' \\
+            'build, and test the iOS app.'
+          )
+           multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            try_count: 3
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'use the :workspace parameter instead of the :project parameter to find, ' \\
+            'build, and test the iOS app. Use the :skip_build parameter to not rebuild.'
+          )
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            skip_build: true,
+            clean: true,
+            try_count: 3,
+            result_bundle: true
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'multi_scan also works with just one test target in the Scheme.'
+          )
+          multi_scan(
+            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+            scheme: 'Professor',
+            try_count: 3,
+            custom_report_file_name: 'atomic_report.xml',
+            output_types: 'junit,html',
+            fail_build: false
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'multi_scan also can also run just the tests passed in the ' \\
+            ':only_testing option.'
+          )
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            try_count: 3,
+            only_testing: ['AtomicBoyTests']
+          )
+          "
         ]
       end
 
