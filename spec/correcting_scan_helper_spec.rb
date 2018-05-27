@@ -647,14 +647,16 @@ describe TestCenter do
                 passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads'],
                 batch: 1,
                 try_count: 1,
-                report_filepath: "./report.junit"
+                report_filepath: "./report.junit",
+                html_report_filepath: "./report.html"
               )
               expect(actualtestrun_completed_block_infos[1]).to include(
                 failed: [],
                 passing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
                 batch: 1,
                 try_count: 2,
-                report_filepath: "./report-2.junit"
+                report_filepath: "./report-2.junit",
+                html_report_filepath: "./report-2.html"
               )
               expect(scanner.retry_total_count).to eq(1)
               expect(result).to eq(true)

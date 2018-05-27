@@ -170,6 +170,7 @@ module TestCenter
 
       def testrun_info(batch, try_count, reportnamer, output_directory)
         report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
+        html_report_filepath = File.join(output_directory, reportnamer.html_last_reportname)
         config = FastlaneCore::Configuration.create(
           Fastlane::Actions::TestsFromJunitAction.available_options,
           {
@@ -183,7 +184,8 @@ module TestCenter
           passing: junit_results[:passing],
           batch: batch,
           try_count: try_count,
-          report_filepath: report_filepath
+          report_filepath: report_filepath,
+          html_report_filepath: html_report_filepath
         }
       end
 
