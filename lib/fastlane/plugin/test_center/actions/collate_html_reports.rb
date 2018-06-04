@@ -201,10 +201,11 @@ module Fastlane
           "
           UI.important(
             'example: ' \\
-            'collate the html reports to a temporary file \'result.html\''
+            'collate the html reports to a temporary file \"result.html\"'
           )
+          reports = Dir['../spec/fixtures/*.html'].map { |relpath| File.absolute_path(relpath) }
           collate_html_reports(
-            reports: Dir['./spec/fixtures/*.html'],
+            reports: reports,
             collated_report: File.join(Dir.mktmpdir, 'result.html')
           )
           "

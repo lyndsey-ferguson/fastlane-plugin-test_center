@@ -128,10 +128,11 @@ module Fastlane
           "
           UI.important(
             'example: ' \\
-            'collate the xml reports to a temporary file \'result.xml\''
+            'collate the xml reports to a temporary file \"result.xml\"'
           )
+          reports = Dir['../spec/fixtures/*.xml'].map { |relpath| File.absolute_path(relpath) }
           collate_junit_reports(
-            reports: Dir['./spec/fixtures/*.xml'],
+            reports: reports,
             collated_report: File.join(Dir.mktmpdir, 'result.xml')
           )
           "
