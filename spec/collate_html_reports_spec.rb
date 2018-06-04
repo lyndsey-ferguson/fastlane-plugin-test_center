@@ -1,7 +1,6 @@
 
 html_report_1 = File.open('./spec/fixtures/report.html')
 html_report_2 = File.open('./spec/fixtures/report-2.html')
-html_report_3 = File.open('./spec/fixtures/report-3.html')
 
 def testidentifiers_from_xmlreport(report)
   testable = REXML::XPath.first(report, "//section[@id='test-suites']")
@@ -97,6 +96,40 @@ describe Fastlane::Actions::CollateHtmlReportsAction do
       expect(failing_testsuites.size).to eq(1)
       passing_testsuites = REXML::XPath.match(report, "//*[contains(@class, 'test-suite') and contains(@class, 'passing')]")
       expect(passing_testsuites.size).to eq(1)
+    end
+  end
+
+  describe 'it handles malformed data' do
+    it 'fixes and merges malformed html files' do
+      malformed_report = File.open('./spec/fixtures/malformed-report.html')
+      allow(File).to receive(:exist?).with('path/to/fake_html_report_1.html').and_return(true)
+      allow(File).to receive(:new).with('path/to/fake_html_report_1.html').and_return(html_report_1)
+      allow(File).to receive(:exist?).with('path/to/malformed-report.html').and_return(true)
+
+      second_reports = [
+        malformed_report,
+        html_report_1
+      ]
+      allow(File).to receive(:new).with('path/to/malformed-report.html') do
+        second_reports.shift
+      end
+
+      expect(Fastlane::Actions::CollateHtmlReportsAction).to receive(:repair_malformed_html).with('path/to/malformed-report.html')
+      Fastlane::Actions::CollateHtmlReportsAction.opened_reports(
+        [
+          'path/to/fake_html_report_1.html',
+          'path/to/malformed-report.html'
+        ]
+      )
+    end
+
+    it 'finds and fixes unescaped less-than or greater-than characters' do
+      malformed_report = File.open('./spec/fixtures/malformed-report.html')
+      allow(File).to receive(:read).with('path/to/malformed-report.html').and_return(malformed_report.read)
+      patched_file = StringIO.new
+      allow(File).to receive(:open).with('path/to/malformed-report.html', 'w').and_yield(patched_file)
+      Fastlane::Actions::CollateHtmlReportsAction.repair_malformed_html('path/to/malformed-report.html')
+      expect(patched_file.string).to include('&lt;unknown&gt;')
     end
   end
 end

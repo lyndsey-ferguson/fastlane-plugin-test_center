@@ -29,12 +29,16 @@ module Fastlane
       def self.opened_reports(report_filepaths)
         report_filepaths.map do |report_filepath|
           report = nil
-          repair_attempt = 0
+          repair_attempted = false
           begin
             report = REXML::Document.new(File.new(report_filepath))
-          rescue REXML::ParseException
-            repair_attempt += 1
-            if repair_attempt < 2
+          rescue REXML::ParseException => e
+            if repair_attempted
+              UI.important("'#{report_filepath}' is malformed and :collate_html_reports cannot repair it")
+              raise e
+            else
+              UI.important("'#{report_filepath}' is malformed. Attempting to repair it")
+              repair_attempted = true
               repair_malformed_html(report_filepath)
               retry
             end
