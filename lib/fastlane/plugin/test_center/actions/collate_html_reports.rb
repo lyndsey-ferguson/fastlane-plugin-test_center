@@ -6,7 +6,7 @@ module Fastlane
         if report_filepaths.size == 1
           FileUtils.cp(report_filepaths[0], params[:collated_report])
         else
-          reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
+          reports = opened_reports(report_filepaths)
 
           # copy any missing testsuites
           target_report = reports.shift
@@ -22,6 +22,39 @@ module Fastlane
 
           File.open(params[:collated_report], 'w') do |f|
             target_report.write(f, 2)
+          end
+        end
+      end
+
+      def self.opened_reports(report_filepaths)
+        report_filepaths.map do |report_filepath|
+          report = nil
+          repair_attempt = 0
+          begin
+            report = REXML::Document.new(File.new(report_filepath))
+          rescue REXML::ParseException
+            repair_attempt += 1
+            if repair_attempt < 2
+              repair_malformed_html(report_filepath)
+              retry
+            end
+          end
+          report
+        end
+      end
+
+      def self.repair_malformed_html(html_report_filepath)
+        html_file_contents = File.read(html_report_filepath)
+        File.open(html_report_filepath, 'w') do |file|
+          html_file_contents.each_line do |line|
+            m = /(<section class="test-detail[^"]*">)(.*(<|>).*)(<\/section>)/.match(line)
+            if m
+              test_details = m[2]
+              test_details.gsub!('<', '&lt;')
+              test_details.gsub!('>', '&gt;')
+              line = m[1] + test_details + m[4]
+            end
+            file.puts line
           end
         end
       end

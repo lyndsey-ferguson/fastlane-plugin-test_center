@@ -145,13 +145,13 @@ module TestCenter
           tests_passed = true
         rescue FastlaneCore::Interface::FastlaneTestFailure => e
           FastlaneCore::UI.verbose("Scan failed with #{e}")
+          info = testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
+          @testrun_completed_block && @testrun_completed_block.call(
+            info
+          )
           if try_count < @try_count
             @retry_total_count += 1
 
-            info = testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
-            @testrun_completed_block && @testrun_completed_block.call(
-              info
-            )
             scan_options[:only_testing] = info[:failed].map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
             if @scan_options[:result_bundle]
