@@ -562,8 +562,8 @@ describe TestCenter do
                 try_count: 3
               )
               allow(File).to receive(:exist?).and_call_original
-              allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
-              expected_report_files = ['.*/report.junit', '.*/report-2.junit']
+              allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
+              expected_report_files = ['.*/report.junit', '.*/report-2.junit', '.*/report-3.junit']
               allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
                 expect(config._values).to have_key(:junit)
                 expect(config._values[:junit]).to match(expected_report_files.shift)
@@ -671,7 +671,7 @@ describe TestCenter do
                 scheme: 'AtomicBoy'
               )
               allow(File).to receive(:exist?).and_call_original
-              allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
+              allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
               allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
                 { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
               end
