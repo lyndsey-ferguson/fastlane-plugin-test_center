@@ -258,7 +258,8 @@ module Fastlane
             skip_build: true,
             clean: true,
             try_count: 3,
-            result_bundle: true
+            result_bundle: true,
+            fail_build: false
           )
           ",
           "
