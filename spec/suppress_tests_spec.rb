@@ -157,6 +157,25 @@ describe Fastlane::Actions::SuppressTestsAction do
         )
         expect(result).to be_nil
       end
+
+      it 'suppressed tests appear in the specified Xcode Scheme' do
+        fastfile = "lane :test do
+          suppress_tests(
+            workspace: 'path/to/fake_workspace.xcworkspace',
+            scheme: 'Shared',
+            tests: [ 'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError', 'BagOfTests/GrumpyWorkerTests' ]
+          )
+        end"
+
+        expect(@xcschemes[:everyone]).to receive(:save!)
+        expect(@xcschemes[:arthur]).not_to receive(:save!)
+        result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+        expect(@actual_skipped_tests).to include(
+          'HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+          'GrumpyWorkerTests'
+        )
+        expect(result).to be_nil
+      end
     end
   end
 end

@@ -44,8 +44,24 @@ RSpec.shared_context "mocked project context", shared_context: :metadata do
   end
 end
 
+RSpec.shared_context "mocked workspace context", shared_context: :metadata do
+  before(:each) do
+    allow(File).to receive(:directory?).and_call_original
+    allow(File).to receive(:directory?).with(%r{.*path/to/fake_workspace.xcworkspace}).and_return(true)
+    allow(Dir).to receive(:exist?).with(%r{.*path/to/fake_workspace.xcworkspace}).and_return(true)
+    mocked_workspace = OpenStruct.new
+    mocked_workspace.file_references = [
+      OpenStruct.new(path: 'fake_project.xcodeproj'),
+      OpenStruct.new(path: 'Pods/Pods.xcodeproj')
+    ]
+    allow(mocked_workspace.file_references[0]).to receive(:absolute_path).and_return('path/to/fake_project.xcodeproj')
+    allow(Xcodeproj::Workspace).to receive(:new_from_xcworkspace).and_return(mocked_workspace)
+  end
+end
+
 RSpec.shared_context "mocked schemes context", shared_context: :metadata do
   include_context "mocked project context"
+  include_context "mocked workspace context"
 
   before(:each) do
     @xcschemes = {}

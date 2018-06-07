@@ -64,10 +64,27 @@ describe Fastlane::Actions::SuppressedTestsAction do
       )
     end
 
-    it "tests are retrieved from all schemes" do
+    it "tests are retrieved from all schemes from the project" do
       fastfile = "lane :test do
         suppressed_tests(
           xcodeproj: 'path/to/fake_project.xcodeproj',
+          scheme: 'MesaRedonda'
+        )
+      end"
+
+      result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+      expect(result).to eq(
+        [
+          'BagOfTests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+          'BagOfTests/GrumpyWorkerTests'
+        ]
+      )
+    end
+
+    it "tests are retrieved from all schemes from the workspace", test_now: true do
+      fastfile = "lane :test do
+        suppressed_tests(
+          workspace: 'path/to/fake_workspace.xcworkspace',
           scheme: 'MesaRedonda'
         )
       end"
