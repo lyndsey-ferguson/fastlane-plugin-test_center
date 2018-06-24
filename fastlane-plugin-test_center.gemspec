@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
     7) collate_junit_reports: collects and correctly organizes junit reports from multiple test passes.
   SUMMARY
 
+  spec.add_dependency 'json'
   spec.add_dependency 'plist'
   spec.add_dependency 'xcodeproj'
   spec.add_dependency 'xctest_list'
@@ -41,4 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'xcpretty-json-formatter'
 end

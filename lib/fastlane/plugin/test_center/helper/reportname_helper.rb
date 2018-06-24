@@ -39,15 +39,24 @@ module TestCenter
       end
 
       def scan_options
+        options = {}
+
+        types = @output_types.split(',').each(&:chomp)
         files = @output_files.split(',').each(&:chomp)
+        if (json_index = types.find_index('json'))
+          options[:formatter] = 'xcpretty-json-formatter'
+          files.delete_at(json_index)
+          types.delete_at(json_index)
+        end
         files.map! do |filename|
           filename.chomp
           numbered_filename(filename)
         end
-        {
-          output_types: @output_types,
+
+        options.merge(
+          output_types: types.join(','),
           output_files: files.join(',')
-        }
+        )
       end
 
       def junit_last_reportname
@@ -96,6 +105,32 @@ module TestCenter
 
       def html_numbered_fileglob
         "#{File.basename(html_reportname, '.*')}-[1-9]*#{html_filextension}"
+      end
+
+      def includes_json?
+        @output_types.split(',').find_index('json') != nil
+      end
+
+      def json_last_reportname
+        json_index = @output_types.split(',').find_index('json')
+        numbered_filename(@output_files.to_s.split(',')[json_index])
+      end
+
+      def json_reportname
+        json_index = @output_types.split(',').find_index('json')
+        @output_files.to_s.split(',')[json_index]
+      end
+
+      def json_filextension
+        File.extname(json_reportname)
+      end
+
+      def json_fileglob
+        "#{File.basename(json_reportname, '.*')}*#{json_filextension}"
+      end
+
+      def json_numbered_fileglob
+        "#{File.basename(json_reportname, '.*')}-[1-9]*#{json_filextension}"
       end
 
       def increment

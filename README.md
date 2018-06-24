@@ -69,6 +69,7 @@ This fastlane plugin includes the following actions:
 - [`tests_from_xctestrun`](#tests_from_xctestrun): from an xctestrun file, returns a list of tests for each of its test targets.
 - [`collate_junit_reports`](#collate_junit_reports): combines multiple junit test reports into one report.
 - [`collate_html_reports`](#collate_html_reports): combines multiple html test reports into one report.
+- [`collate_json_reports`](#collate_json_reports): combines multiple json test reports into one report.
 
 ### multi_scan 🎉
 
@@ -202,7 +203,8 @@ multi_scan(
   skip_build: true,
   clean: true,
   try_count: 3,
-  result_bundle: true
+  result_bundle: true,
+  fail_build: false
 )
 
 ```
@@ -235,7 +237,25 @@ multi_scan(
   workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
   scheme: 'AtomicBoy',
   try_count: 3,
-  only_testing: ['AtomicBoyTests']
+  only_testing: ['AtomicBoyTests'],
+  fail_build: false
+)
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'multi_scan also works with json.'
+)
+multi_scan(
+  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+  scheme: 'AtomicBoy',
+  try_count: 3,
+  output_types: 'json',
+  output_files: 'report.json',
+  fail_build: false
 )
 
 ```
@@ -329,6 +349,23 @@ suppress_tests(
 )
 
 ```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'suppress some tests in one Scheme from a workspace'
+)
+suppress_tests(
+  workspace: 'AtomicBoy/AtomicBoy.xcworkspace',
+  tests: [
+    'AtomicBoyUITests/HappyNapperTests/testBeepingNonExistentFriendDisplaysError',
+    'AtomicBoyUITests/GrumpyWorkerTests'
+  ],
+  scheme: 'Professor'
+)
+
+```
 <!-- suppress_tests examples: end -->
 </details>
 
@@ -363,6 +400,20 @@ UI.important(
 UI.message(
   "Suppressed tests for project: #{suppressed_tests(xcodeproj: 'AtomicBoy/AtomicBoy.xcodeproj')}"
 )
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'get the tests that are suppressed in all Schemes in a workspace'
+)
+tests = suppressed_tests(
+  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+  scheme: 'Professor'
+)
+UI.message("tests: #{tests}")
 
 ```
 <!-- suppressed_tests examples: end -->
@@ -438,10 +489,11 @@ Do you have multiple junit test reports coming in from different sources and nee
 
 UI.important(
   'example: ' \
-  'collate the xml reports to a temporary file 'result.xml''
+  'collate the xml reports to a temporary file "result.xml"'
 )
+reports = Dir['../spec/fixtures/*.xml'].map { |relpath| File.absolute_path(relpath) }
 collate_junit_reports(
-  reports: Dir['./spec/fixtures/*.xml'],
+  reports: reports,
   collated_report: File.join(Dir.mktmpdir, 'result.xml')
 )
 
@@ -461,15 +513,40 @@ Do you have multiple html test reports coming in from different sources and need
 
 UI.important(
   'example: ' \
-  'collate the html reports to a temporary file 'result.html''
+  'collate the html reports to a temporary file "result.html"'
 )
+reports = Dir['../spec/fixtures/*.html'].map { |relpath| File.absolute_path(relpath) }
 collate_html_reports(
-  reports: Dir['./spec/fixtures/*.html'],
+  reports: reports,
   collated_report: File.join(Dir.mktmpdir, 'result.html')
 )
 
 ```
 <!-- collate_html_reports examples: end -->
+</details>
+
+### collate_json_reports
+
+Do you have multiple json test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
+
+<details>
+    <summary>Example Code:</summary>
+<!-- collate_json_reports examples: begin -->
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'collate the json reports to a temporary file "result.json"'
+)
+reports = Dir['../spec/fixtures/report*.json'].map { |relpath| File.absolute_path(relpath) }
+collate_json_reports(
+  reports: reports,
+  collated_report: File.join(Dir.mktmpdir, 'result.json')
+)
+
+```
+<!-- collate_json_reports examples: end -->
 </details>
 
 ## Run tests for this plugin

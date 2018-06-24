@@ -58,6 +58,11 @@ module Fastlane
             File.absolute_path(relative_filepath)
           end
         end
+        if reportnamer.includes_json?
+          report_files += Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.json_fileglob}").map do |relative_filepath|
+            File.absolute_path(relative_filepath)
+          end
+        end
         {
           result: tests_passed,
           total_tests: passing_testcount + failed_tests.size,
@@ -76,6 +81,8 @@ module Fastlane
           batch_count
           testrun_completed_block
           test_without_building
+          output_types
+          output_files
         ]
         config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
@@ -118,7 +125,7 @@ module Fastlane
       end
 
       def self.scan_options
-        ScanAction.available_options
+        ScanAction.available_options.reject { |config| config.key == :output_types }
       end
 
       def self.available_options
@@ -142,6 +149,13 @@ module Fastlane
             verify_block: proc do |count|
               UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :output_types,
+            short_option: "-f",
+            env_name: "SCAN_OUTPUT_TYPES",
+            description: "Comma separated list of the output types (e.g. html, junit, json, json-compilation-database)",
+            default_value: "html,junit"
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
@@ -286,7 +300,22 @@ module Fastlane
             workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
             scheme: 'AtomicBoy',
             try_count: 3,
-            only_testing: ['AtomicBoyTests']
+            only_testing: ['AtomicBoyTests'],
+            fail_build: false
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'multi_scan also works with json.'
+          )
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            try_count: 3,
+            output_types: 'json',
+            output_files: 'report.json',
+            fail_build: false
           )
           "
         ]

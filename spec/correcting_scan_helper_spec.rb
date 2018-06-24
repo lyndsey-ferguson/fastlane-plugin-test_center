@@ -1,3 +1,4 @@
+require 'json'
 CorrectingScanHelper = TestCenter::Helper::CorrectingScanHelper
 describe TestCenter do
   describe TestCenter::Helper do
@@ -522,6 +523,13 @@ describe TestCenter do
         end
         describe 'one testable' do
           describe 'no batches' do
+            before(:all) do
+              @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
+            end
+            after(:all) do
+              ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
+            end
+
             before(:each) do
               allow(File).to receive(:exist?).and_call_original
               allow(File).to receive(:exist?).and_return(true)
@@ -715,6 +723,7 @@ describe TestCenter do
                 expect(expected_fileutils_mv_params[:src]).to eq(src)
                 expect(expected_fileutils_mv_params[:dest]).to eq(dest)
               end.twice
+              expect(scanner).not_to receive(:collate_json_reports)
               result = scanner.correcting_scan(
                 {
                   output_directory: '.',
@@ -725,6 +734,49 @@ describe TestCenter do
               )
               expect(scanner.retry_total_count).to eq(2)
               expect(result).to eq(false)
+            end
+
+            it 'updates the ENV["XCPRETTY_JSON_FILE_OUTPUT"] appropriately when given json' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                result_bundle: true,
+                scheme: 'AtomicBoy'
+              )
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
+              allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
+                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
+              end
+              allow(Fastlane::Actions::ScanAction).to receive(:run)
+              expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './report.json').ordered.once
+              expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', nil).ordered.once
+              scanner.correcting_scan(
+                {
+                  output_directory: '.',
+                  scheme: 'AtomicBoy'
+                },
+                1,
+                ReportNameHelper.new('json,junit')
+              )
+            end
+
+            it 'collates json files when given json in :output_types' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                result_bundle: true,
+                scheme: 'AtomicBoy'
+              )
+              allow(FileUtils).to receive(:rm_f)
+              allow(Dir).to receive(:glob).with(/.*\.junit/).and_return(['report.junit', 'report-2.junit'])
+              allow(File).to receive(:mtime).and_return(0)
+              expect(Fastlane::Actions::CollateJunitReportsAction).to receive(:run)
+              expect(Fastlane::Actions::CollateHtmlReportsAction).not_to receive(:run)
+              expect(scanner).to receive(:collate_json_reports)
+              scanner.collate_reports('.', ReportNameHelper.new('json,junit'))
             end
           end
         end

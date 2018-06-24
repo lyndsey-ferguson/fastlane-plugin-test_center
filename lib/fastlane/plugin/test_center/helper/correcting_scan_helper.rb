@@ -2,7 +2,7 @@ module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
     require 'plist'
-
+    require 'json'
     class CorrectingScanHelper
       attr_reader :retry_total_count
 
@@ -26,6 +26,8 @@ module TestCenter
             custom_report_file_name
             fail_build
             testrun_completed_block
+            output_types
+            output_files
           ].include?(option)
         end
         @scan_options[:clean] = false
@@ -92,6 +94,59 @@ module TestCenter
       end
 
       def collate_reports(output_directory, reportnamer)
+        collate_junit_reports(output_directory, reportnamer)
+
+        if reportnamer.includes_html?
+          collate_html_reports(output_directory, reportnamer)
+        end
+
+        if reportnamer.includes_json?
+          collate_json_reports(output_directory, reportnamer)
+        end
+      end
+
+      def passed_test_count_from_summary(summary)
+        /.*Executed (?<test_count>\d+) test, with (?<test_failures>\d+) failure/ =~ summary
+        test_count.to_i - test_failures.to_i
+      end
+
+      def collate_json_reports(output_directory, reportnamer)
+        report_filepaths = Dir.glob("#{output_directory}/#{reportnamer.json_fileglob}").map do |relative_filepath|
+          File.absolute_path(relative_filepath)
+        end
+        if report_filepaths.size > 1
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::CollateJsonReportsAction.available_options,
+            {
+              reports: report_filepaths.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
+              collated_report: File.absolute_path(File.join(output_directory, reportnamer.json_reportname))
+            }
+          )
+          Fastlane::Actions::CollateJsonReportsAction.run(config)
+        end
+        retried_json_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.json_numbered_fileglob}")
+        FileUtils.rm_f(retried_json_reportfiles)
+      end
+
+      def collate_html_reports(output_directory, reportnamer)
+        report_files = Dir.glob("#{output_directory}/#{reportnamer.html_fileglob}").map do |relative_filepath|
+          File.absolute_path(relative_filepath)
+        end
+        if report_files.size > 1
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::CollateHtmlReportsAction.available_options,
+            {
+              reports: report_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
+              collated_report: File.absolute_path(File.join(output_directory, reportnamer.html_reportname))
+            }
+          )
+          Fastlane::Actions::CollateHtmlReportsAction.run(config)
+        end
+        retried_html_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.html_numbered_fileglob}")
+        FileUtils.rm_f(retried_html_reportfiles)
+      end
+
+      def collate_junit_reports(output_directory, reportnamer)
         report_files = Dir.glob("#{output_directory}/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
@@ -107,30 +162,13 @@ module TestCenter
         end
         retried_junit_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.junit_numbered_fileglob}")
         FileUtils.rm_f(retried_junit_reportfiles)
-
-        if reportnamer.includes_html?
-          report_files = Dir.glob("#{output_directory}/#{reportnamer.html_fileglob}").map do |relative_filepath|
-            File.absolute_path(relative_filepath)
-          end
-          if report_files.size > 1
-            config = FastlaneCore::Configuration.create(
-              Fastlane::Actions::CollateHtmlReportsAction.available_options,
-              {
-                reports: report_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
-                collated_report: File.absolute_path(File.join(output_directory, reportnamer.html_reportname))
-              }
-            )
-            Fastlane::Actions::CollateHtmlReportsAction.run(config)
-          end
-          retried_html_reportfiles = Dir.glob("#{output_directory}/#{reportnamer.html_numbered_fileglob}")
-          FileUtils.rm_f(retried_html_reportfiles)
-        end
       end
 
       def correcting_scan(scan_run_options, batch, reportnamer)
         scan_options = @scan_options.merge(scan_run_options)
         try_count = 0
         tests_passed = true
+        xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
         begin
           try_count += 1
           config = FastlaneCore::Configuration.create(
@@ -138,6 +176,12 @@ module TestCenter
             scan_options.merge(reportnamer.scan_options)
           )
           quit_simulators
+          if reportnamer.includes_json?
+            ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
+              scan_options[:output_directory],
+              reportnamer.json_last_reportname
+            )
+          end
           Fastlane::Actions::ScanAction.run(config)
           @testrun_completed_block && @testrun_completed_block.call(
             testrun_info(batch, try_count, reportnamer, scan_options[:output_directory])
@@ -164,6 +208,8 @@ module TestCenter
             retry
           end
           tests_passed = false
+        ensure
+          ENV['XCPRETTY_JSON_FILE_OUTPUT'] = xcpretty_json_file_output
         end
         tests_passed
       end
@@ -188,6 +234,10 @@ module TestCenter
         if reportnamer.includes_html?
           html_report_filepath = File.join(output_directory, reportnamer.html_last_reportname)
           info[:html_report_filepath] = html_report_filepath
+        end
+        if reportnamer.includes_json?
+          json_report_filepath = File.join(output_directory, reportnamer.json_last_reportname)
+          info[:json_report_filepath] = json_report_filepath
         end
         info
       end

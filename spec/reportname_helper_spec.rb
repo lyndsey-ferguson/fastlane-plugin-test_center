@@ -16,7 +16,7 @@ describe TestCenter do
           output_files: 'report.xml'
         )
       end
-      it 'provides the correct scan options when given  :output_types, :output_files, and :custom_report_file_name' do
+      it 'provides the correct scan options when given :output_types, :output_files, and :custom_report_file_name' do
         helper = ReportNameHelper.new('junit', 'report.junit', 'report.xml')
         expect(helper.scan_options).to include(
           output_types: 'junit',
@@ -49,6 +49,20 @@ describe TestCenter do
         expect(helper.scan_options).to include(
           output_types: 'html,junit',
           output_files: 'report.html,report.xml'
+        )
+      end
+      it 'provides the correct scan options when given :output_types with json' do
+        helper = ReportNameHelper.new('json', nil, 'report.json')
+        expect(helper.scan_options).to include(
+          output_types: 'junit',
+          output_files: 'report.xml',
+          formatter: 'xcpretty-json-formatter'
+        )
+        helper = ReportNameHelper.new('json')
+        expect(helper.scan_options).to include(
+          output_types: 'junit',
+          output_files: 'report.xml',
+          formatter: 'xcpretty-json-formatter'
         )
       end
       it 'raises an exception when given multiple :output_types and only one :custom_report_file_name' do
@@ -134,6 +148,13 @@ describe TestCenter do
         expect(helper.junit_last_reportname).to eq('report.xml')
         helper.increment
         expect(helper.junit_last_reportname).to eq('report-2.xml')
+      end
+
+      it 'provides the last reportname for each iteration when specifying json as an output_type' do
+        helper = ReportNameHelper.new('junit,json', 'report.xml,report.json')
+        expect(helper.json_last_reportname).to eq('report.json')
+        helper.increment
+        expect(helper.json_last_reportname).to eq('report-2.json')
       end
     end
   end
