@@ -103,11 +103,33 @@ module TestCenter
         if reportnamer.includes_json?
           collate_json_reports(output_directory, reportnamer)
         end
+
+        if @scan_options[:result_bundle]
+          collate_test_result_bundles(output_directory, reportnamer)
+        end
       end
 
       def passed_test_count_from_summary(summary)
         /.*Executed (?<test_count>\d+) test, with (?<test_failures>\d+) failure/ =~ summary
         test_count.to_i - test_failures.to_i
+      end
+
+      def collate_test_result_bundles(output_directory, reportnamer)
+        test_result_bundlepaths = Dir.glob("#{output_directory}/#{@scan_options[:scheme]}*.test_result").map do |relative_test_result_bundle_filepath|
+          File.absolute_path(relative_test_result_bundle_filepath)
+        end
+        if test_result_bundlepaths.size > 1
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::CollateTestResultBundlesAction.available_options,
+            {
+              bundles: test_result_bundlepaths.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) },
+              collated_bundle: File.join(output_directory, @scan_options[:scheme]) + '.test_result'
+            }
+          )
+          Fastlane::Actions::CollateTestResultBundlesAction.run(config)
+        end
+        retried_test_result_bundlepaths = Dir.glob("#{output_directory}/#{@scan_options[:scheme]}_*.test_result")
+        FileUtils.rm_rf(retried_test_result_bundlepaths)
       end
 
       def collate_json_reports(output_directory, reportnamer)
@@ -198,13 +220,13 @@ module TestCenter
 
             scan_options[:only_testing] = info[:failed].map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
+            reportnamer.increment
             if @scan_options[:result_bundle]
               built_test_result, moved_test_result = test_result_bundlepaths(
                 scan_options[:output_directory], reportnamer
               )
               FileUtils.mv(built_test_result, moved_test_result)
             end
-            reportnamer.increment
             retry
           end
           tests_passed = false
@@ -238,6 +260,12 @@ module TestCenter
         if reportnamer.includes_json?
           json_report_filepath = File.join(output_directory, reportnamer.json_last_reportname)
           info[:json_report_filepath] = json_report_filepath
+        end
+        if @scan_options[:result_bundle]
+          test_result_suffix = '.test_result'
+          test_result_suffix.prepend("_#{reportnamer.report_count}") unless reportnamer.report_count.zero?
+          test_result_bundlepath = File.join(output_directory, @scan_options[:scheme]) + test_result_suffix
+          info[:test_result_bundlepath] = test_result_bundlepath
         end
         info
       end

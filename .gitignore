@@ -9,7 +9,8 @@ Gemfile.lock
 /rdoc/
 fastlane/README.md
 coverage
-report*.html
-report*.xml
-report*.junit
-*.test_result/
+reports/
+**/test_output/**/report*.html
+**/test_output/**/report*.xml
+**/test_output/**/report*.junit
+**/test_output/**/*.test_result/

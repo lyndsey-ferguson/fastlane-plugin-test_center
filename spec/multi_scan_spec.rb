@@ -115,11 +115,16 @@ describe Fastlane::Actions::MultiScanAction do
       .with('test_output/**/report*.html')
       .and_return([File.absolute_path('./spec/fixtures/report.html'), File.absolute_path('./spec/fixtures/report.html')])
 
+    allow(Dir).to receive(:glob)
+      .with('test_output/**/*.test_result')
+      .and_return([File.absolute_path('./spec/fixtures/report.test_result'), File.absolute_path('./spec/fixtures/report.test_result')])
+
     summary = Fastlane::Actions::MultiScanAction.run_summary(
       {
         output_types: 'html,junit',
         output_files: 'report.html,report.xml',
-        output_directory: 'test_output'
+        output_directory: 'test_output',
+        result_bundle: true
       },
       false,
       2

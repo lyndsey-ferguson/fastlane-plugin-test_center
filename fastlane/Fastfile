@@ -1,4 +1,3 @@
-
 require_relative 'test_center_utils'
 
 # Retrieves the example code from each action and runs it to ensure that everything

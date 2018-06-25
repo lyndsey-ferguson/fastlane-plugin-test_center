@@ -1,0 +1,40 @@
+2018-06-25 09:31:57.015135-0400 AtomicBoyUITests-Runner[28479:4200435] +[CATransaction synchronize] called within transaction
+2018-06-25 09:31:57.139860-0400 AtomicBoyUITests-Runner[28479:4200435] Running tests...
+2018-06-25 09:31:57.500106-0400 AtomicBoyUITests-Runner[28479:4200435] Continuing to run tests in the background with task ID 1
+Test Suite 'Selected tests' started at 2018-06-25 09:31:58.334
+Test Suite 'AtomicBoyUITests.xctest' started at 2018-06-25 09:31:58.335
+Test Suite 'AtomicBoyUITests' started at 2018-06-25 09:31:58.335
+Test Case '-[AtomicBoyUITests testExample]' started.
+    t =     0.00s Start Test at 2018-06-25 09:31:58.336
+    t =     0.06s Set Up
+    t =     0.06s     Open com.appian.AtomicBoy
+    t =     0.09s         Launch com.appian.AtomicBoy
+    t =     4.08s             Wait for com.appian.AtomicBoy to idle
+    t =     6.26s Assertion Failure: AtomicBoyUITests.m:40: ((false) is true) failed
+    t =     6.28s Tear Down
+Test Case '-[AtomicBoyUITests testExample]' failed (6.481 seconds).
+Test Case '-[AtomicBoyUITests testExample2]' started.
+    t =     0.00s Start Test at 2018-06-25 09:32:04.817
+    t =     0.01s Set Up
+    t =     0.11s     Open com.appian.AtomicBoy
+    t =     0.13s         Launch com.appian.AtomicBoy
+    t =     0.13s             Terminate com.appian.AtomicBoy:28603
+    t =     4.07s             Wait for com.appian.AtomicBoy to idle
+    t =     6.11s Assertion Failure: AtomicBoyUITests.m:48: ((false) is true) failed
+    t =     6.13s Tear Down
+Test Case '-[AtomicBoyUITests testExample2]' failed (6.329 seconds).
+Test Suite 'AtomicBoyUITests' failed at 2018-06-25 09:32:11.147.
+	 Executed 2 tests, with 2 failures (0 unexpected) in 12.810 (12.811) seconds
+Test Suite 'SwiftAtomicBoyUITests' started at 2018-06-25 09:32:11.147
+Test Case '-[AtomicBoyUITests.SwiftAtomicBoyUITests testExample]' started.
+    t =     0.00s Start Test at 2018-06-25 09:32:11.148
+    t =     0.01s Set Up
+    t =     0.03s Assertion Failure: SwiftAtomicBoyUITests.swift:14: XCTAssertTrue failed - 
+    t =     0.04s Tear Down
+Test Case '-[AtomicBoyUITests.SwiftAtomicBoyUITests testExample]' failed (0.040 seconds).
+Test Suite 'SwiftAtomicBoyUITests' failed at 2018-06-25 09:32:11.188.
+	 Executed 1 test, with 1 failure (0 unexpected) in 0.040 (0.041) seconds
+Test Suite 'AtomicBoyUITests.xctest' failed at 2018-06-25 09:32:11.189.
+	 Executed 3 tests, with 3 failures (0 unexpected) in 12.850 (12.854) seconds
+Test Suite 'Selected tests' failed at 2018-06-25 09:32:11.189.
+	 Executed 3 tests, with 3 failures (0 unexpected) in 12.850 (12.855) seconds

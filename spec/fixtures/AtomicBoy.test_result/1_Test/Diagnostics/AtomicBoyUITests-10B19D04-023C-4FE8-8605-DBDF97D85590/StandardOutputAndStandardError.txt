@@ -1,0 +1,37 @@
+2018-06-25 09:32:52.930609-0400 AtomicBoyUITests-Runner[28813:4203623] +[CATransaction synchronize] called within transaction
+2018-06-25 09:32:53.018922-0400 AtomicBoyUITests-Runner[28813:4203623] Running tests...
+2018-06-25 09:32:56.347061-0400 AtomicBoyUITests-Runner[28813:4203623] Continuing to run tests in the background with task ID 1
+Test Suite 'Selected tests' started at 2018-06-25 09:32:57.204
+Test Suite 'AtomicBoyUITests.xctest' started at 2018-06-25 09:32:57.205
+Test Suite 'AtomicBoyUITests' started at 2018-06-25 09:32:57.205
+Test Case '-[AtomicBoyUITests testExample]' started.
+    t =     0.00s Start Test at 2018-06-25 09:32:57.206
+    t =     0.04s Set Up
+    t =     0.04s     Open com.appian.AtomicBoy
+    t =     0.07s         Launch com.appian.AtomicBoy
+    t =     4.03s             Wait for com.appian.AtomicBoy to idle
+    t =     6.19s Tear Down
+Test Case '-[AtomicBoyUITests testExample]' passed (6.390 seconds).
+Test Case '-[AtomicBoyUITests testExample2]' started.
+    t =     0.00s Start Test at 2018-06-25 09:33:03.596
+    t =     0.01s Set Up
+    t =     0.11s     Open com.appian.AtomicBoy
+    t =     0.13s         Launch com.appian.AtomicBoy
+    t =     0.13s             Terminate com.appian.AtomicBoy:28818
+    t =     3.95s             Wait for com.appian.AtomicBoy to idle
+    t =     5.95s Tear Down
+Test Case '-[AtomicBoyUITests testExample2]' passed (6.150 seconds).
+Test Suite 'AtomicBoyUITests' passed at 2018-06-25 09:33:09.746.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 12.540 (12.541) seconds
+Test Suite 'SwiftAtomicBoyUITests' started at 2018-06-25 09:33:09.747
+Test Case '-[AtomicBoyUITests.SwiftAtomicBoyUITests testExample]' started.
+    t =     0.00s Start Test at 2018-06-25 09:33:09.747
+    t =     0.01s Set Up
+    t =     0.02s Tear Down
+Test Case '-[AtomicBoyUITests.SwiftAtomicBoyUITests testExample]' passed (0.016 seconds).
+Test Suite 'SwiftAtomicBoyUITests' passed at 2018-06-25 09:33:09.764.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.016 (0.017) seconds
+Test Suite 'AtomicBoyUITests.xctest' passed at 2018-06-25 09:33:09.765.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 12.556 (12.559) seconds
+Test Suite 'Selected tests' passed at 2018-06-25 09:33:09.765.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 12.556 (12.561) seconds

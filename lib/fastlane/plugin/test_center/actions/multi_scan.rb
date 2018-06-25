@@ -63,6 +63,11 @@ module Fastlane
             File.absolute_path(relative_filepath)
           end
         end
+        if scan_options[:result_bundle]
+          report_files += Dir.glob("#{scan_options[:output_directory]}/**/*.test_result").map do |relative_test_result_bundle_filepath|
+            File.absolute_path(relative_test_result_bundle_filepath)
+          end
+        end
         {
           result: tests_passed,
           total_tests: passing_testcount + failed_tests.size,
@@ -190,24 +195,6 @@ module Fastlane
           "
           UI.important(
             'example: ' \\
-            'run tests for a scheme that has two test targets, re-trying up to 2 times if ' \\
-            'tests fail. Make sure that the default behavior of failing the build works.'
-          )
-          begin
-            multi_scan(
-              project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-              scheme: 'AtomicBoy',
-              try_count: 2
-            )
-          rescue FastlaneCore::Interface::FastlaneTestFailure => e
-            UI.success(\"failed successfully with \#{e.message}\")
-          else
-            raise 'This should have failed'
-          end
-          ",
-          "
-          UI.important(
-            'example: ' \\
             'split the tests into 2 batches and run each batch of tests up to 3 ' \\
             'times if tests fail. Do not fail the build.'
           )
@@ -233,9 +220,7 @@ module Fastlane
             try_attempt = testrun_info[:try_count]
             batch = testrun_info[:batch]
 
-            if passed_test_count > 0 && failed_test_count > passed_test_count / 2
-              UI.abort_with_message!(\"Too many tests are failing\")
-            end
+            # UI.abort_with_message!('You could conditionally abort')
             UI.message(\"\\\u1F60A everything is fine, let's continue try \#{try_attempt + 1} for batch \#{batch}\")
           end
 
@@ -286,7 +271,7 @@ module Fastlane
             scheme: 'Professor',
             try_count: 3,
             custom_report_file_name: 'atomic_report.xml',
-            output_types: 'junit,html',
+            output_types: 'junit',
             fail_build: false
           )
           ",

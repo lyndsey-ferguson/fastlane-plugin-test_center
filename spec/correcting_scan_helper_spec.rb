@@ -613,10 +613,17 @@ describe TestCenter do
                 try_count: 2,
                 testrun_completed_block: lambda { |info|
                   actualtestrun_completed_block_infos << info
-                }
+                },
+                result_bundle: true,
+                scheme: 'AtomicDog'
               )
               allow(File).to receive(:exist?).and_call_original
               allow(File).to receive(:exist?).with(%r{.*/report(-2)?.junit}).and_return(true)
+              allow(Dir).to receive(:exist?).with(%r{.*/AtomicDog(-2)?.test_result}).and_return(true)
+              allow(FileUtils).to receive(:mv).with(
+                './AtomicDog.test_result',
+                './AtomicDog_1.test_result'
+              )
               expected_report_files = ['.*/report.junit', '.*/report-2.junit']
               junit_results = [
                 {
@@ -695,7 +702,15 @@ describe TestCenter do
               expected_fileutils_mv_params_list = [
                 {
                   src: './AtomicBoy.test_result',
-                  dest: './AtomicBoy_0.test_result'
+                  dest: './AtomicBoy_1.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_2.test_result'
+                },
+                {
+                  src: './AtomicBoy.test_result',
+                  dest: './AtomicBoy_3.test_result'
                 },
                 {
                   src: './AtomicBoy.test_result',
@@ -707,15 +722,7 @@ describe TestCenter do
                 },
                 {
                   src: './AtomicBoy.test_result',
-                  dest: './AtomicBoy_0.test_result'
-                },
-                {
-                  src: './AtomicBoy.test_result',
-                  dest: './AtomicBoy_1.test_result'
-                },
-                {
-                  src: './AtomicBoy.test_result',
-                  dest: './AtomicBoy_2.test_result'
+                  dest: './AtomicBoy_3.test_result'
                 }
               ]
               expect(FileUtils).to receive(:mv) do |src, dest|
@@ -767,7 +774,6 @@ describe TestCenter do
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
                 try_count: 3,
-                result_bundle: true,
                 scheme: 'AtomicBoy'
               )
               allow(FileUtils).to receive(:rm_f)
@@ -777,6 +783,25 @@ describe TestCenter do
               expect(Fastlane::Actions::CollateHtmlReportsAction).not_to receive(:run)
               expect(scanner).to receive(:collate_json_reports)
               scanner.collate_reports('.', ReportNameHelper.new('json,junit'))
+            end
+
+            it 'collates test_result bundles when given :result_bundle as an option' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                result_bundle: true,
+                scheme: 'AtomicBoy'
+              )
+              allow(FileUtils).to receive(:rm_f)
+              allow(Dir).to receive(:glob).with(/.*\.test_result/).and_return(['report.test_result', 'report-2.test_result'])
+              allow(Dir).to receive(:exist?).with(%r{.*/report.*.test_result}).and_return(true)
+              allow(File).to receive(:mtime).and_return(0)
+              expect(Fastlane::Actions::CollateTestResultBundlesAction).to receive(:run)
+              expect(Fastlane::Actions::CollateHtmlReportsAction).not_to receive(:run)
+              expect(Fastlane::Actions::CollateJsonReportsAction).not_to receive(:run)
+              expect(scanner).to receive(:collate_junit_reports)
+              scanner.collate_reports('.', ReportNameHelper.new('junit'))
             end
           end
         end

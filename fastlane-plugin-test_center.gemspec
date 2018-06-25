@@ -18,14 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.description = <<-SUMMARY
-    This fastlane plugin includes the following actions:
-    1) multi_scan: uses scan to run Xcode tests, optionally in batches, a given number of times: only re-testing failing tests.
-    2) suppress_tests_from_junit: uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme.
-    3) suppress_tests: suppresses specific tests in a specific or all Xcode Schemes in a given project.
-    4) suppressed_tests: retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project.
-    5) tests_from_junit: retrieves the failing and passing tests as reported in a junit xml file.
-    6) tests_from_xctestrun: retrieves all of the tests from xctest bundles referenced by the xctestrun file
-    7) collate_junit_reports: collects and correctly organizes junit reports from multiple test passes.
+    This fastlane plugin includes the following many actions to better manage how you test, what you test, and the information you get from your tests
   SUMMARY
 
   spec.add_dependency 'json'

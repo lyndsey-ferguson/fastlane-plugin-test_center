@@ -70,6 +70,7 @@ This fastlane plugin includes the following actions:
 - [`collate_junit_reports`](#collate_junit_reports): combines multiple junit test reports into one report.
 - [`collate_html_reports`](#collate_html_reports): combines multiple html test reports into one report.
 - [`collate_json_reports`](#collate_json_reports): combines multiple json test reports into one report.
+- [`collate_test_result_bundles`](#collate_test_result_bundles): combines multiple test_result bundles into one test_result bundle.
 
 ### multi_scan 🎉
 
@@ -109,27 +110,6 @@ UI.success("multi_scan passed? #{summary[:result]}")
 
 UI.important(
   'example: ' \
-  'run tests for a scheme that has two test targets, re-trying up to 2 times if ' \
-  'tests fail. Make sure that the default behavior of failing the build works.'
-)
-begin
-  multi_scan(
-    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-    scheme: 'AtomicBoy',
-    try_count: 2
-  )
-rescue FastlaneCore::Interface::FastlaneTestFailure => e
-  UI.success("failed successfully with #{e.message}")
-else
-  raise 'This should have failed'
-end
-
-```
-
-```ruby
-
-UI.important(
-  'example: ' \
   'split the tests into 2 batches and run each batch of tests up to 3 ' \
   'times if tests fail. Do not fail the build.'
 )
@@ -158,9 +138,7 @@ test_run_block = lambda do |testrun_info|
   try_attempt = testrun_info[:try_count]
   batch = testrun_info[:batch]
 
-  if passed_test_count > 0 && failed_test_count > passed_test_count / 2
-    UI.abort_with_message!("Too many tests are failing")
-  end
+  # UI.abort_with_message!('You could conditionally abort')
   UI.message("\ὠA everything is fine, let's continue try #{try_attempt + 1} for batch #{batch}")
 end
 
@@ -220,7 +198,7 @@ multi_scan(
   scheme: 'Professor',
   try_count: 3,
   custom_report_file_name: 'atomic_report.xml',
-  output_types: 'junit,html',
+  output_types: 'junit',
   fail_build: false
 )
 
@@ -547,6 +525,30 @@ collate_json_reports(
 
 ```
 <!-- collate_json_reports examples: end -->
+</details>
+
+### collate_test_result_bundles
+
+Do you have multiple test_result bundles coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one test_result bundle.
+
+<details>
+    <summary>Example Code:</summary>
+<!-- collate_test_result_bundles examples: begin -->
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'collate the test_result bundles to a temporary bundle "result.test_result"'
+)
+bundles = Dir['../spec/fixtures/*.test_result'].map { |relpath| File.absolute_path(relpath) }
+collate_test_result_bundles(
+  bundles: bundles,
+  collated_bundle: File.join(Dir.mktmpdir, 'result.test_result')
+)
+
+```
+<!-- collate_test_result_bundles examples: end -->
 </details>
 
 ## Run tests for this plugin

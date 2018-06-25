@@ -29,6 +29,7 @@ task :check_for_blacklisted_requires do
     errors.each { |line| puts line }
     abort 'Error: blacklisted require(s) found'.red
   end
+  puts 'No blacklisted requires found'.green
 end
 
 desc 'Updates the README with the latest examples for each action'
