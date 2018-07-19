@@ -1,8 +1,23 @@
-# test_center plugin 🎯
 
+<!--
+<img src="docs/test_center_banner.png" />
+-->
+
+# test_center plugin 🎯
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-test_center)
 
-## Getting Started
+Have you ever spent too much time trying to fix fragile tests only to give up with nothing real to show? Use the `fastlane` actions from `test_center` to remove internal and external interference from your tests, so that you can focus on what makes 💰: features that customers love 😍.
+
+<p align="center">
+  <a href="#quick-start">Quick Start</a> |
+  <a href="#overview">Overview</a> |
+  <a href="#issues-and-feedback">Issues and Feedback</a> |
+  <a href="#license">License</a>
+</p>
+
+<img src="docs/multi_scan.gif" />
+
+## Quick Start
 
 This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-test_center`, add it to your project by running:
 
@@ -10,53 +25,51 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin test_center
 ```
 
-## About test_center
+Add this example 'lane' to your `Fastfile`:
+
+```ruby
+
+################################################################################
+# An example of how one can use the plugin's :multi_scan action to run tests
+# that have not yet passed (up to 3 times). If, after the 3 runs of the tests, there
+# are still failing tests, print out the number of tests that are still failing.
+#
+# For a walkthrough to write a lane that can run tests up to 3 times, suppress
+# the failing tests in the Xcode project, and create a Github Pull Request, see:
+# https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/walkthrough/docs/WALKTHROUGH.md
+################################################################################
+
+ATOMIC_BOY_XCODE_PROJECT_FILEPATH = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
+lane :sweep do
+  test_run_block = lambda do |testrun_info|
+    failed_test_count = testrun_info[:failed].size
+    
+    if testrun_info[:failed_testcount] > 0
+      UI.important('The run of tests would finish with failures due to fragile tests here.')
+
+      try_attempt = testrun_info[:try_count]
+      if try_attempt < 3
+        UI.header('Since we are using :multi_scan, we can re-run just those failing tests!')
+      end
+    end
+  end
+  
+  result = multi_scan(
+    project: ATOMIC_BOY_XCODE_PROJECT_FILEPATH,
+    try_count: 3,
+    fail_build: false,
+    scheme: 'AtomicBoy',
+    testrun_completed_block: test_run_block
+  )
+  unless result[:failed_testcount].zero?
+    UI.info("There are #{failed_tests.size} legitimate failing tests")
+  end
+end
+```
+
+## Overview
 
 This plugin makes testing your iOS app easier by providing you actions that give you greater control over everthing related to testing your app. 
-
-The `test_center` plugin started with a problem when working on automated iOS tests:
-
-```
-😘 - code is done, time to run the automated tests
-
-✅✅✅✅✅❌❌✅❌✅✅❌❌✅✅✅✅✅❌✅✅✅✅✅✅✅✅❌✅✅✅✅❌❌✅✅❌❌❌✅✅✅✅✅✅❌✅✅
-
-🤓 - most of these tests run fine locally and I do not know how to fix them...
-
-😕 - bummer, maybe if I re-run the tests?
-
-✅✅✅✅✅❌✅✅✅❌✅❌✅✅✅❌✅✅✅❌❌✅✅✅✅✅✅✅✅❌❌✅✅❌✅✅✅❌✅✅✅✅❌✅✅✅✅✅
-
-☹️ - aw man, still failing? One more time? 🤞
-
-✅✅✅✅❌❌✅✅✅✅✅✅✅✅✅✅✅❌✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅❌✅✅✅
-
-😡 - this is terrible, my tests keep failing randomly!
-
-🤔 - maybe there is a better way?
-
-🕐 🕡 🕚
-
-> enter multi_scan
-
-😘 - code is done, time to run the automated tests
-
-✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
-
-😕 - bummer, maybe if I re-run multi_scan again?
-
-✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
-
-😕 - hmmm, maybe these are real test failures?
-
-✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅❌✅✅✅✅✅✅✅✅✅✅
-
-😛 - okay, these are real test failures, time to fix them!
-
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
-
-😍 - green is joy!
-```
 
 `multi_scan` began when I engineered an action to only re-run the failed tests in order to determine which ones were truly failing, or just failing randomly due to a fragile infrastructure. This action morphed into an entire plugin with many actions related to tests.
 
@@ -74,16 +87,28 @@ This fastlane plugin includes the following actions:
 
 ### multi_scan 🎉
 
-Is the fragile test infrastructure provided by `xcodebuild` failing tests inexplicably and getting you down 😢? Use the `:try_count` option to re-run those failed tests multiple times to ensure that any fragility is ironed out and only truly failing tests appear.
+Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test results, inspect partial results periodically during a test run, and provide better results reporting. 
 
-Is the sheer number of UI tests overloading the iOS Simulator and causing it to become useless? Run your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
+#### Improving Usefulness
 
-Do you get frustrated when your automated test system keeps running after the fragile test infrastructure stops working halfway through your tests 😡? Use the `:testrun_completed_block` callback to bailout early or make adjustments on how your tests are exercised.
+Over time, your tests can change the state of your application in unexpected ways that cause other tests to fail randomly. Or, the tools and infrastructure for testing are the root causes of random test failures. The test results may not truly reflect how the product code is working.
 
-Do you have multiple test targets and the normal operation of `scan` is providing you a test report that implies that all the tests ran in one test target? Don't worry, `multi_scan` has fixed that.
+Rather than wasting time trying to account for instable tools, or trying to tweak your test code ad-nauseum to get a passing result reliably, just use the `:try_count` option to run `:scan` multiple times, running only the tests that failed each time. This ensures that any _fragility_ is ironed out over a number of "tries". The end result is that only the truly failing tests appear.
+
+Another issue that can cause tests to incorrectly fail comes from an issue with the iOS Simulator. If you provide a huge number of tests to the iOS Simulator, it can exhaust the available resources and cause it to fail large numbers of tests. You can get around this by running your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
+
+#### Inspect Partial Results
+
+If you have a large number of tests, and you want to inspect the overall status of how test runs are progressing, you can use the `:testrun_completed_block` callback to bailout early or make adjustments on how your tests are exercised.
+
+#### Better Results Reporting
+
+Do you have multiple test targets and the normal operation of `:scan` is providing you a test report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that. It will provide a separate test report for each test target. It can handle JUnit, HTML, JSON, and Apple's `test_result` bundles.
+
+`test_result` bundles are particularly useful because they contain screenshots of the UI when a UI test fails so you can review what was actually there compared to what you expected.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- multi_scan examples: begin -->
 
 ```ruby
@@ -242,12 +267,12 @@ multi_scan(
 
 ### suppress_tests_from_junit
 
-No time to fix a failing test? Suppress the `:failed` tests in your project and create and prioritize a ticket in your bug tracking system. 
+Do you not have time to fix a test and it can be tested manually? You can suppress the `:failed` tests in your project and create and prioritize a ticket in your bug tracking system. 
 
-Want to create a special CI job that only re-tries failing tests? Suppress the `:passing` tests in your project and exercise your fragile tests.
+Do you want to create a special CI job that only re-tries failing tests? Suppress the `:passing` tests in your project and exercise your fragile tests.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- suppress_tests_from_junit examples: begin -->
 
 ```ruby
@@ -292,7 +317,7 @@ UI.message(
 Have some tests that you want turned off? Give the list to this action in order to suppress them for your project.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- suppress_tests examples: begin -->
 
 ```ruby
@@ -352,7 +377,7 @@ suppress_tests(
 Do you have an automated process that requires the list of suppressed tests in your project? Use this action to get that.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- suppressed_tests examples: begin -->
 
 ```ruby
@@ -402,7 +427,7 @@ UI.message("tests: #{tests}")
 Performing analysis on a test report file? Get the lists of failing and passing tests using this action.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- tests_from_junit examples: begin -->
 
 ```ruby
@@ -424,7 +449,7 @@ UI.message("Failed tests: #{result[:failed]}")
 Do you have multiple test targets referenced by your `xctestrun` file and need to know all the tests? Use this action to go through each test target, collect the tests, and return them to you in a simple and usable structure.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- tests_from_xctestrun examples: begin -->
 
 ```ruby
@@ -460,7 +485,7 @@ tests.values.flatten.each { |test_identifier| puts test_identifier }
 Do you have multiple junit test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- collate_junit_reports examples: begin -->
 
 ```ruby
@@ -484,7 +509,7 @@ collate_junit_reports(
 Do you have multiple html test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- collate_html_reports examples: begin -->
 
 ```ruby
@@ -508,7 +533,7 @@ collate_html_reports(
 Do you have multiple json test reports coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one report file.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- collate_json_reports examples: begin -->
 
 ```ruby
@@ -532,7 +557,7 @@ collate_json_reports(
 Do you have multiple test_result bundles coming in from different sources and need it combined? Use this action to collate all the tests performed for a given test target into one test_result bundle.
 
 <details>
-    <summary>Example Code:</summary>
+    <summary>Example Code (expand to view):</summary>
 <!-- collate_test_result_bundles examples: begin -->
 
 ```ruby
@@ -566,7 +591,7 @@ rubocop -a
 
 ## Issues and Feedback
 
-For any other issues and feedback about this plugin, please submit it to this repository.
+For any other issues and feedback about this plugin, please [submit it](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues) to this repository.
 
 ## Troubleshooting
 
@@ -579,3 +604,7 @@ For more information about how the `fastlane` plugin system works, check out the
 ## About _fastlane_
 
 _fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
+
+## License
+
+MIT
