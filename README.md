@@ -25,7 +25,7 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin test_center
 ```
 
-Add this example 'lane' to your `Fastfile`:
+Add this example 'lane' to your `Fastfile`, change `MY_XCODE_PROJECT_FILEPATH` to point to your project path, and change the option `scheme: AtomicBoy` in the call to `multi_scan` to be the name of your Xcode projects Scheme:
 
 ```ruby
 
@@ -36,10 +36,10 @@ Add this example 'lane' to your `Fastfile`:
 #
 # For a walkthrough to write a lane that can run tests up to 3 times, suppress
 # the failing tests in the Xcode project, and create a Github Pull Request, see:
-# https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/walkthrough/docs/WALKTHROUGH.md
+# https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/master/docs/WALKTHROUGH.md
 ################################################################################
 
-ATOMIC_BOY_XCODE_PROJECT_FILEPATH = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
+MY_XCODE_PROJECT_FILEPATH = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
 lane :sweep do
   test_run_block = lambda do |testrun_info|
     failed_test_count = testrun_info[:failed].size
@@ -55,7 +55,7 @@ lane :sweep do
   end
   
   result = multi_scan(
-    project: ATOMIC_BOY_XCODE_PROJECT_FILEPATH,
+    project: MY_XCODE_PROJECT_FILEPATH,
     try_count: 3,
     fail_build: false,
     scheme: 'AtomicBoy',
