@@ -75,6 +75,10 @@ module Fastlane
         ["lyndsey-ferguson/lyndseydf"]
       end
 
+      def self.category
+        :testing
+      end
+
       def self.is_supported?(platform)
         platform == :ios
       end
