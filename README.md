@@ -12,6 +12,7 @@ Have you ever spent too much time trying to fix fragile tests only to give up wi
   <a href="#quick-start">Quick Start</a> |
   <a href="#overview">Overview</a> |
   <a href="#issues-and-feedback">Issues and Feedback</a> |
+  <a href="#contributing">Contributing</a> |
   <a href="#license">License</a>
 </p>
 
@@ -593,6 +594,10 @@ rubocop -a
 
 For any other issues and feedback about this plugin, please [submit it](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues) to this repository.
 
+## Contributing
+
+If you would like to contribute to this plugin, please review the [contributing document][contributing doc].
+
 ## Troubleshooting
 
 If you have trouble using plugins, check out the [Plugins Troubleshooting](https://docs.fastlane.tools/plugins/plugins-troubleshooting/) guide.
@@ -608,3 +613,6 @@ _fastlane_ is the easiest way to automate beta deployments and releases for your
 ## License
 
 MIT
+
+<!-- Links -->
+[contributing doc]: ./docs/CONTRIBUTING.md
