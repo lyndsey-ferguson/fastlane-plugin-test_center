@@ -35,5 +35,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'slather'
   spec.add_development_dependency 'xcpretty-json-formatter'
 end

@@ -1,4 +1,5 @@
 require_relative 'test_center_utils'
+require 'pry-byebug'
 
 # Retrieves the example code from each action and runs it to ensure that everything
 # is working as intended.

@@ -217,7 +217,7 @@ module TestCenter
           )
           if try_count < @try_count
             @retry_total_count += 1
-
+            scan_options.delete(:code_coverage)
             scan_options[:only_testing] = info[:failed].map(&:shellescape)
             FastlaneCore::UI.message('Re-running scan on only failed tests')
             reportnamer.increment

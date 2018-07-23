@@ -285,6 +285,7 @@ module Fastlane
             workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
             scheme: 'AtomicBoy',
             try_count: 3,
+            code_coverage: true,
             only_testing: ['AtomicBoyTests'],
             fail_build: false
           )

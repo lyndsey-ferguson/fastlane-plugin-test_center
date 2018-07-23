@@ -522,6 +522,41 @@ describe TestCenter do
           allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_testcollector)
         end
         describe 'one testable' do
+          describe 'code coverage' do
+            before(:each) do
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).and_return(true)
+              allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
+            end
+
+            it 'stops sending :code_coverage down after the first run' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 2,
+                batch_count: 2,
+                clean: true,
+                code_coverage: true
+              )
+              allow(scanner).to receive(:testrun_info).and_return({ failed: [] })
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:code_coverage)
+                expect(config._values[:code_coverage]).to eq(true)
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).not_to have_key(:code_coverage)
+              end
+              scanner.correcting_scan(
+                {
+                  output_directory: '.'
+                },
+                1,
+                ReportNameHelper.new('html,junit')
+              )
+            end
+          end
+
           describe 'no batches' do
             before(:all) do
               @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
