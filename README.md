@@ -45,7 +45,7 @@ lane :sweep do
   test_run_block = lambda do |testrun_info|
     failed_test_count = testrun_info[:failed].size
     
-    if testrun_info[:failed_testcount] > 0
+    if failed_test_count > 0
       UI.important('The run of tests would finish with failures due to fragile tests here.')
 
       try_attempt = testrun_info[:try_count]
@@ -63,7 +63,7 @@ lane :sweep do
     testrun_completed_block: test_run_block
   )
   unless result[:failed_testcount].zero?
-    UI.info("There are #{failed_tests.size} legitimate failing tests")
+    UI.info("There are #{result[:failed_testcount]} legitimate failing tests")
   end
 end
 ```
