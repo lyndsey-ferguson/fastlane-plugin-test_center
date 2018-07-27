@@ -74,7 +74,7 @@ This plugin makes testing your iOS app easier by providing you actions that give
 `multi_scan` began when I engineered an action to only re-run the failed tests in order to determine which ones were truly failing, or just failing randomly due to a fragile infrastructure. This action morphed into an entire plugin with many actions related to tests.
 
 This fastlane plugin includes the following actions:
-- [`multi_scan`](#multi_scan): gives you control over how your tests are exercised.
+- [`multi_scan`](#multi_scan-): gives you control over how your tests are exercised.
 - [`suppress_tests_from_junit`](#suppress_tests_from_junit): from a test report, suppresses tests in your project.
 - [`suppress_tests`](#suppress_tests): from a provided list, suppresses tests in your project.
 - [`suppressed_tests`](#suppressed_tests): returns a list of the suppressed tests in your project.
