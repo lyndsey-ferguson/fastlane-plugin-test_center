@@ -1,10 +1,9 @@
 require 'plist'
-require 'pry-byebug'
 
-info_plist_1 = Plist.parse_xml('./spec/fixtures/AtomicBoy.test_result/Info.plist')
-info_plist_2 = Plist.parse_xml('./spec/fixtures/AtomicBoy_0.test_result/Info.plist')
-test_summaries_plist_1 = Plist.parse_xml('./spec/fixtures/AtomicBoy.test_result/TestSummaries.plist')
-test_summaries_plist_2 = Plist.parse_xml('./spec/fixtures/AtomicBoy_0.test_result/TestSummaries.plist')
+info_plist_1 = Plist.parse_xml('./spec/fixtures/Atomic Boy.test_result/Info.plist')
+info_plist_2 = Plist.parse_xml('./spec/fixtures/Atomic Boy_0.test_result/Info.plist')
+test_summaries_plist_1 = Plist.parse_xml('./spec/fixtures/Atomic Boy.test_result/TestSummaries.plist')
+test_summaries_plist_2 = Plist.parse_xml('./spec/fixtures/Atomic Boy_0.test_result/TestSummaries.plist')
 
 describe Fastlane::Actions::CollateTestResultBundlesAction do
   describe 'skip handles invalid data' do
@@ -32,18 +31,6 @@ describe Fastlane::Actions::CollateTestResultBundlesAction do
       allow(FileUtils).to receive(:cp_r).with('path/to/fake1.test_bundle/.', '/tmp/path/to/fake.test_bundle')
       allow(FileUtils).to receive(:cp_r).with('/tmp/path/to/fake.test_bundle', 'path/to/report.test_bundle')
       allow(Dir).to receive(:foreach).and_call_original
-      # allow(Dir).to receive(:exist?).with('path/to/fake1.test_bundle').and_return(true)
-      # allow(Dir).to receive(:exist?).with('path/to/fake2.test_bundle').and_return(true)
-      # allow(File).to receive(:exist?).with('tmp/path/to/fake.test_bundle/Info.plist').and_return(true)
-      # allow(Plist).to receive(:parse_xml).with('tmp/path/to/fake.test_bundle/Info.plist').and_return(info_plist_1)
-      # allow(File).to receive(:exist?).with('path/to/fake2.test_bundle/Info.plist').and_return(true)
-      # allow(Plist).to receive(:parse_xml).with('path/to/fake2.test_bundle/Info.plist').and_return(info_plist_2)
-      # allow(File).to receive(:exist?).with('tmp/path/to/fake.test_bundle/TestSummaries.plist').and_return(true)
-      # allow(Plist).to receive(:parse_xml).with('tmp/path/to/fake.test_bundle/TestSummaries.plist').and_return(test_summaries_plist_1)
-      # allow(File).to receive(:exist?).with('path/to/fake2.test_bundle/TestSummaries.plist').and_return(true)
-      # allow(Plist).to receive(:parse_xml).with('path/to/fake2.test_bundle/TestSummaries.plist').and_return(test_summaries_plist_2)
-      # allow(FileUtils).to receive(:cp_r).with(%r{path/to/fake\d?\.test_bundle}, 'tmp/path/to/fake.test_bundle')
-      # allow(FileUtils).to receive(:cp_r).with('tmp/path/to/fake.test_bundle', %r{path/to/fake\d?\.test_bundle})
     end
 
     it 'simply copies a :bundles value containing one test_result bundle' do
@@ -205,11 +192,11 @@ describe Fastlane::Actions::CollateTestResultBundlesAction do
     end
 
     it 'concatenates zipped files in the expected manner' do
-      expect(Fastlane::Action).to receive(:sh).with('gunzip -k -S .xcactivitylog path/to/fake2.test_bundle/1_Test/action.xcactivitylog', print_command: false, print_command_output: false)
-      expect(Fastlane::Action).to receive(:sh).with('gunzip -S .xcactivitylog /tmp/path/to/fake.test_bundle/1_Test/action.xcactivitylog', print_command: false, print_command_output: false)
-      expect(Fastlane::Action).to receive(:sh).with('cat path/to/fake2.test_bundle/1_Test/action > /tmp/path/to/fake.test_bundle/1_Test/action', print_command: false, print_command_output: false)
+      expect(Fastlane::Action).to receive(:sh).with('gunzip -k -S .xcactivitylog \'path/to/fake2.test_bundle/1_Test/action.xcactivitylog\'', print_command: false, print_command_output: false)
+      expect(Fastlane::Action).to receive(:sh).with('gunzip -S .xcactivitylog \'/tmp/path/to/fake.test_bundle/1_Test/action.xcactivitylog\'', print_command: false, print_command_output: false)
+      expect(Fastlane::Action).to receive(:sh).with('cat \'path/to/fake2.test_bundle/1_Test/action\' > \'/tmp/path/to/fake.test_bundle/1_Test/action\'', print_command: false, print_command_output: false)
       expect(FileUtils).to receive(:rm).with('path/to/fake2.test_bundle/1_Test/action')
-      expect(Fastlane::Action).to receive(:sh).with('gzip -S .xcactivitylog /tmp/path/to/fake.test_bundle/1_Test/action', print_command: false, print_command_output: false)
+      expect(Fastlane::Action).to receive(:sh).with('gzip -S .xcactivitylog \'/tmp/path/to/fake.test_bundle/1_Test/action\'', print_command: false, print_command_output: false)
 
       Fastlane::Actions::CollateTestResultBundlesAction.concatenate_zipped_activitylogs(
         '/tmp/path/to/fake.test_bundle/1_Test/action.xcactivitylog',

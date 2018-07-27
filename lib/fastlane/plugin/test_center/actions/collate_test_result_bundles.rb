@@ -66,11 +66,11 @@ module Fastlane
           File.dirname(other_activity_log_path),
           File.basename(other_activity_log_path, '.*')
         )
-        sh("gunzip -k -S .xcactivitylog #{other_activity_log_path}", print_command: false, print_command_output: false)
-        sh("gunzip -S .xcactivitylog #{base_activity_log_path}", print_command: false, print_command_output: false)
-        sh("cat #{gunzipped_other_filepath} > #{gunzipped_base_filepath}", print_command: false, print_command_output: false)
+        sh("gunzip -k -S .xcactivitylog '#{other_activity_log_path}'", print_command: false, print_command_output: false)
+        sh("gunzip -S .xcactivitylog '#{base_activity_log_path}'", print_command: false, print_command_output: false)
+        sh("cat '#{gunzipped_other_filepath}' > '#{gunzipped_base_filepath}'", print_command: false, print_command_output: false)
         FileUtils.rm(gunzipped_other_filepath)
-        sh("gzip -S .xcactivitylog #{gunzipped_base_filepath}", print_command: false, print_command_output: false)
+        sh("gzip -S .xcactivitylog '#{gunzipped_base_filepath}'", print_command: false, print_command_output: false)
       end
 
       def self.collate_testsummaries_plist(base_testsummaries_plist_filepath, other_testsummaries_plist_filepath)
