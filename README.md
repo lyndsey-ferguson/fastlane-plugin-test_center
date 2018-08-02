@@ -93,7 +93,7 @@ Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test result
 
 Over time, your tests can change the state of your application in unexpected ways that cause other tests to fail randomly. Or, the tools and infrastructure for testing are the root causes of random test failures. The test results may not truly reflect how the product code is working.
 
-Rather than wasting time trying to account for instable tools, or trying to tweak your test code ad-nauseum to get a passing result reliably, just use the `:try_count` option to run `:scan` multiple times, running only the tests that failed each time. This ensures that any _fragility_ is ironed out over a number of "tries". The end result is that only the truly failing tests appear.
+Rather than wasting time trying to account for unstable tools, or trying to tweak your test code ad-nauseum to get a passing result reliably, just use the `:try_count` option to run `:scan` multiple times, running only the tests that failed each time. This ensures that any _fragility_ is ironed out over a number of "tries". The end result is that only the truly failing tests appear.
 
 Another issue that can cause tests to incorrectly fail comes from an issue with the iOS Simulator. If you provide a huge number of tests to the iOS Simulator, it can exhaust the available resources and cause it to fail large numbers of tests. You can get around this by running your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
 
