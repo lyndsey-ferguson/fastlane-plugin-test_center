@@ -62,7 +62,7 @@ lane :sweep do
     testrun_completed_block: test_run_block
   )
   unless result[:failed_testcount].zero?
-    UI.info("There are #{result[:failed_testcount]} legitimate failing tests")
+    UI.message("There are #{result[:failed_testcount]} legitimate failing tests")
   end
 end
 ```
