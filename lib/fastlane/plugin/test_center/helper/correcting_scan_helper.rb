@@ -52,6 +52,11 @@ module TestCenter
         )
         output_directory = @output_directory
         testable_tests = @test_collector.testables_tests[testable]
+        if testable_tests.empty?
+          FastlaneCore::UI.important("There are no tests to run in testable '#{testable}'. Skipping")
+          return true
+        end
+
         if @batch_count > 1 || @testables_count > 1
           current_batch = 1
           testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|

@@ -109,6 +109,21 @@ describe TestCenter do
           scanner.scan
         end
 
+        it 'scan does not call correcting_scan if there are no tests in the testable' do
+          scanner = CorrectingScanHelper.new(
+            xctestrun: 'path/to/fake.xctestrun',
+            output_directory: '.'
+          )
+          allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
+          expect(@mock_testcollector).to receive(:testables_tests).and_return(
+            {
+              'AtomicBoyTests' => []
+            }
+          )
+          expect(scanner).not_to receive(:correcting_scan)
+          expect(scanner.scan).to eq(true)
+        end
+
         it 'scan calls correcting_scan once for each of two testables' do
           scanner = CorrectingScanHelper.new(
             xctestrun: 'path/to/fake.xctestrun',
