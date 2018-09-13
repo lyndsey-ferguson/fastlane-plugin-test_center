@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='SupplyChainTests.xctest' tests='173' failures='5'>
+  <testsuite name='SupplyChainTests.QuantityUploadsTests' tests='13' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityDelete_Coding' time='0.123'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityDelete_isDead' time='0.060'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityDelete_isNotDead' time='0.062'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityDelete_startSync' time='0.070'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_Coding' time='0.055'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_isDead' time='0.053'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_isNotDead' time='0.058'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_isReady' time='0.052'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_PATCH' time='0.065'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_POST' time='0.044'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_startSync' time='0.068'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='test_QuantityUpload_update' time='0.047'/>
+    <testcase classname='SupplyChainTests.QuantityUploadsTests' name='testQuantityDelete' time='0.041'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.CrewEmployeePickerViewModelTests' tests='11' failures='0'>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testDidFinishSelection' time='0.032'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testIsSelectedReturnsCorrectSelectedStateForIndexPath' time='0.027'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidDeselectCrewDecrementsCrewLabelCount' time='0.025'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidDeselectEmployeeDecrementsEmployeeLabelCount' time='0.025'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidSelectCrewIncrementsCrewLabelCount' time='0.029'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidSelectEmployeeIncrementsEmployeeLabelCount' time='0.024'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidSwitchToCrewsDisplaysCrewData' time='0.031'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidSwitchToEmployeesDisplaysEmployeeData' time='0.020'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatDidSwitchToEmployeesDisplaysEmptyData' time='0.017'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatOnViewDidLoadDisplaysCrewData' time='0.096'/>
+    <testcase classname='SupplyChainTests.CrewEmployeePickerViewModelTests' name='testThatOnViewDidLoadDisplaysEmptyCrewData' time='0.032'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.CrewPickerStorageTests' tests='4' failures='0'>
+    <testcase classname='SupplyChainTests.CrewPickerStorageTests' name='testThatCrewNameIsNotUniqueAcrossProject' time='0.034'/>
+    <testcase classname='SupplyChainTests.CrewPickerStorageTests' name='testThatCrewNameIsUniqueAcrossProject' time='0.030'/>
+    <testcase classname='SupplyChainTests.CrewPickerStorageTests' name='testThatOnLoadCrewDataIsForCorrectProject' time='0.026'/>
+    <testcase classname='SupplyChainTests.CrewPickerStorageTests' name='testThatSearchingCorrectlyFiltersCrewDataForProject' time='0.032'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Crew_HelpersTests' tests='1' failures='1'>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_AndChangedMembers'>
+      <failure message='Test crashed'>n/a</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='SupplyChainTests.QuantityEntryEditorViewModelTests' tests='11' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='test_InitWith_AddQuantities' time='0.043'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='test_isEditing' time='0.021'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='test_percentComplete' time='0.022'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='test_Save' time='0.021'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testAdd3Lines' time='0.018'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testAddLine' time='0.023'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testDeleteLastInList' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testDeleteLineCount' time='0.023'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testDeleteMiddleList' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testInitWith_EditQuantities' time='0.023'/>
+    <testcase classname='SupplyChainTests.QuantityEntryEditorViewModelTests' name='testInitWithoutQuantities' time='0.021'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.QuantityEditorViewModelTests' tests='13' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testCostCodeDisplayData' time='0.018'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testCostCodes' time='0.017'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testInit' time='0.021'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testIsInCurrentSnapshot' time='0.018'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testNumberOfCostCodes' time='0.019'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testNumberOfRows' time='0.018'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testQuantityEntryDisplayData' time='0.021'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testRemoveQuantityDataForCostCost' time='0.022'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testSendAnalytics' time='0.027'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testSubmit' time='0.076'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testUpdate' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testViewDidLoad' time='0.016'/>
+    <testcase classname='SupplyChainTests.QuantityEditorViewModelTests' name='testViewWillAppear' time='0.017'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardEditorViewModelTests' tests='6' failures='1'>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testDefaultValuesCorrectForBulkTimeEntry' time='0.051'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testDefaultValuesCorrectForSingleTimeEntry' time='0.036'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testEmployeeRowDisplaysCorrectValueForCrews' time='0.034'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testEmployeeRowDisplaysCorrectValueForEmployee' time='0.037'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testPreviousDataDisplaysCorrectValueForSingleTimecard' time='0.040'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsNotShownWhenAddingNewTimecardToUnsignedWorkerTimecards'>
+      <failure message='Test crashed'>n/a</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimesheetEditorViewModelTests' tests='6' failures='0'>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testBulkAddForAllWorkers' time='0.039'/>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testEditTimecardForWorker' time='0.018'/>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testRemoveTimecardDataForWorker' time='0.019'/>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testRemoveTimecardDataForWorker_DoesWorkForSubsectionHeader' time='0.015'/>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testSignatureAlertIsShownWhenRemovingTimecardDataFromSignedTimecard' time='0.019'/>
+    <testcase classname='SupplyChainTests.TimesheetEditorViewModelTests' name='testSubmitTimecards' time='0.013'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.ProductionReportStorageTests' tests='14' failures='0'>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testAllLaborReportItems' time='0.032'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testFirstLaborReportItem' time='0.025'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testFirstQuantityReportItem' time='0.021'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testInit' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testLaborReportCount' time='0.023'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testLastFetchedDate' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testNumberOfItemsInSection' time='0.023'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testProductionRateReportCount' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testQuantityReportCount' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testSearch' time='0.023'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testSecondLaborReportItem' time='0.020'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testSecondQuantityReportItem' time='0.024'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testSectionName' time='0.022'/>
+    <testcase classname='SupplyChainTests.ProductionReportStorageTests' name='testThirdQuantityReportItem' time='0.022'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.QuantityStorageTests' tests='10' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testAllQuantities' time='0.034'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testControllerDidChangeContent' time='0.029'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testCreatorIds' time='0.031'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testFormattedUnitOfMeasure' time='0.062'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testInit' time='0.030'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testNumberOfCostCodes' time='0.027'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testNumberOfQuantityRowsForCostCodeSection' time='0.028'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testQuantityData' time='0.028'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testQuantityEntityAtIndexPath' time='0.031'/>
+    <testcase classname='SupplyChainTests.QuantityStorageTests' name='testTotalNumberOfQuantities' time='0.028'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimesheetListViewModelTests' tests='5' failures='0'>
+    <testcase classname='SupplyChainTests.TimesheetListViewModelTests' name='testThatOnViewDidLoadDisplaysEmptyData' time='0.029'/>
+    <testcase classname='SupplyChainTests.TimesheetListViewModelTests' name='testThatSelectingNextDateDisplaysCorrectData' time='0.027'/>
+    <testcase classname='SupplyChainTests.TimesheetListViewModelTests' name='testThatSelectingNextDateDisplaysEmptyData' time='0.029'/>
+    <testcase classname='SupplyChainTests.TimesheetListViewModelTests' name='testThatSelectingPreviousDateDisplaysCorrectData' time='0.024'/>
+    <testcase classname='SupplyChainTests.TimesheetListViewModelTests' name='testThatSelectingPreviousDateDisplaysEmptyData' time='0.025'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.ProductionReportItemDataTests' tests='6' failures='0'>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testGraphValues' time='0.023'/>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testLaborIsNegative' time='0.024'/>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testLaborIsOverBudget' time='0.023'/>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testQuantityIsNegative' time='0.024'/>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testQuantityIsOverBudget' time='0.025'/>
+    <testcase classname='SupplyChainTests.ProductionReportItemDataTests' name='testRateState' time='0.023'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardStorageTests' tests='1' failures='1'>
+    <testcase classname='SupplyChainTests.TimecardStorageTests' name='testFindPreviousTimesheet'>
+      <failure message='Test crashed'>n/a</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimesheetFilterViewModelTests' tests='3' failures='0'>
+    <testcase classname='SupplyChainTests.TimesheetFilterViewModelTests' name='testCorrectFilterIsAppliedWhenSelected' time='0.152'/>
+    <testcase classname='SupplyChainTests.TimesheetFilterViewModelTests' name='testFiltersAreNotAppliedTwice' time='0.033'/>
+    <testcase classname='SupplyChainTests.TimesheetFilterViewModelTests' name='testReset' time='0.049'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.ProductionRateReportViewModelTests' tests='7' failures='0'>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testHeaderDisplayData' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testLastFetchedDate' time='0.018'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testNumberOfItems' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testNumberOfSections' time='0.022'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testReportItemDataAtIndexPath' time='0.021'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testSearchHasResults' time='0.019'/>
+    <testcase classname='SupplyChainTests.ProductionRateReportViewModelTests' name='testViewDidLoad' time='0.023'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Person_HelpersTests' tests='5' failures='0'>
+    <testcase classname='SupplyChainTests.Person_HelpersTests' name='testBuildForExistingPerson_WithChangedEmployeeID' time='0.039'/>
+    <testcase classname='SupplyChainTests.Person_HelpersTests' name='testBuildForExistingPerson_WithChangedFirstName' time='0.032'/>
+    <testcase classname='SupplyChainTests.Person_HelpersTests' name='testBuildForExistingPerson_WithChangedLastName' time='0.031'/>
+    <testcase classname='SupplyChainTests.Person_HelpersTests' name='testBuildForExistingPerson_WithoutChanges' time='0.026'/>
+    <testcase classname='SupplyChainTests.Person_HelpersTests' name='testBuildForNewPerson' time='0.033'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.QuantityDetailViewModelTests' tests='9' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testbudgetedCostCodesFromTimesheet' time='0.030'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testDisplayData' time='0.036'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testHeaderData' time='0.032'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testIsEditable' time='0.027'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testNumberOfCostCodes' time='0.030'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testNumberOfRows' time='0.031'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testQuantities' time='0.027'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testTimesheetHasNonBudgetedCostCodes' time='0.028'/>
+    <testcase classname='SupplyChainTests.QuantityDetailViewModelTests' name='testViewDidLoad' time='0.029'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimesheetStorageTests' tests='2' failures='0'>
+    <testcase classname='SupplyChainTests.TimesheetStorageTests' name='test_hourAndMinute' time='0.039'/>
+    <testcase classname='SupplyChainTests.TimesheetStorageTests' name='testThatOnLoadTimecardDataIsForCorrectProjectAndWorkDate' time='0.036'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.LaborReportViewModelTests' tests='8' failures='0'>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testHeaderDisplayData' time='0.020'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testLastFetchedDate' time='0.021'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testNumberOfItems' time='0.020'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testNumberOfSections' time='0.024'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testProjectTotals' time='0.024'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testReportItemDataAtIndexPath' time='0.025'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testSearchHasResults' time='0.022'/>
+    <testcase classname='SupplyChainTests.LaborReportViewModelTests' name='testViewDidLoad' time='0.027'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.PersonEditorViewModelTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.PersonEditorViewModelTests' name='testViewDidLoad' time='0.024'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.ProductionReportDetailViewModelTests' tests='5' failures='0'>
+    <testcase classname='SupplyChainTests.ProductionReportDetailViewModelTests' name='testInit' time='0.024'/>
+    <testcase classname='SupplyChainTests.ProductionReportDetailViewModelTests' name='testLaborBudgetedData' time='0.024'/>
+    <testcase classname='SupplyChainTests.ProductionReportDetailViewModelTests' name='testNumberOfRows' time='0.018'/>
+    <testcase classname='SupplyChainTests.ProductionReportDetailViewModelTests' name='testQuantityBudgetedData' time='0.022'/>
+    <testcase classname='SupplyChainTests.ProductionReportDetailViewModelTests' name='testRateBudgetedData' time='0.017'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardEditorViewModelTests' tests='1' failures='1'>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsNotShownWhenChangingTotalHoursForUnsignedTimecard'>
+      <failure message='Test crashed'>n/a</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='SupplyChainTests.EmployeeStorageTests' tests='3' failures='1'>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testEmployeeWithId' time='0.045'/>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testSuggestionList' time='0.034'/>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testThatOnLoadEmployeeDataIsForCorrectProject'>
+      <failure message='Test crashed'>n/a</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Crew_HelpersTests' tests='5' failures='0'>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_AndEmptyMembers' time='0.041'/>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_WithDifferentLead' time='0.027'/>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_WithoutChanges' time='0.027'/>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_WithoutLead' time='0.022'/>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForNewCrew' time='0.028'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.EmployeeStorageTests' tests='2' failures='0'>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testThatSearchingCorrectlyFiltersEmployeeDataForProject' time='0.038'/>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testVerifyExistence' time='0.042'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.QuantityReportViewModelTests' tests='7' failures='0'>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testHeaderDisplayData' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testLastFetchedDate' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testNumberOfItems' time='0.021'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testNumberOfSections' time='0.022'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testReportItemDataAtIndexPath' time='0.020'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testSearchHasResults' time='0.019'/>
+    <testcase classname='SupplyChainTests.QuantityReportViewModelTests' name='testViewDidLoad' time='0.030'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Double_HelpersTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.Double_HelpersTests' name='testRounded' time='0.001'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Quantity_HelpersTests' tests='7' failures='0'>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='test_Build_ForExistingQuantity_WithoutChanges' time='0.044'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='test_Build_ForExistingQuantity_WithoutLocation' time='0.030'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='test_Build_ForNewQuantity' time='0.030'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='test_BuildForExistingQuantity_AndChangedLocation' time='0.027'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='test_BuildForExistingQuantity_AndChangedTimesheet' time='0.032'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='testBuildForExistingQuantity_AndChangedCrew' time='0.031'/>
+    <testcase classname='SupplyChainTests.Quantity_HelpersTests' name='testBuildForExistingQuantity_WithoutCrew' time='0.027'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardStorageTests' tests='2' failures='0'>
+    <testcase classname='SupplyChainTests.TimecardStorageTests' name='testThatOnLoadTimecardDataIsForCorrectProjectAndWorkDate' time='0.042'/>
+    <testcase classname='SupplyChainTests.TimecardStorageTests' name='testWorkDate' time='0.031'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardEditorViewModelTests' tests='3' failures='0'>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsNotShownWhenTotalHoursForSignedTimecardDoesNotChange' time='0.038'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsShownWhenAddingNewTimecardToSignedTimecard' time='0.037'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsShownWhenChangingTotalHoursForSignedTimecard' time='0.033'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.CrewEditorViewModelTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.CrewEditorViewModelTests' name='testWorkersRowDisplaysCorrectValueForCrews' time='0.027'/>
+  </testsuite>
+</testsuites>

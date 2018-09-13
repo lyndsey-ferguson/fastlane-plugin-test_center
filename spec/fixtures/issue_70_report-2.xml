@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='SupplyChainTests.xctest' tests='5' failures='0'>
+  <testsuite name='SupplyChainTests.TimecardEditorViewModelTests' tests='2' failures='0'>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsNotShownWhenAddingNewTimecardToUnsignedWorkerTimecards' time='0.099'/>
+    <testcase classname='SupplyChainTests.TimecardEditorViewModelTests' name='testSignatureAlertIsNotShownWhenChangingTotalHoursForUnsignedTimecard' time='0.067'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.EmployeeStorageTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.EmployeeStorageTests' name='testThatOnLoadEmployeeDataIsForCorrectProject' time='0.057'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.TimecardStorageTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.TimecardStorageTests' name='testFindPreviousTimesheet' time='0.070'/>
+  </testsuite>
+  <testsuite name='SupplyChainTests.Crew_HelpersTests' tests='1' failures='0'>
+    <testcase classname='SupplyChainTests.Crew_HelpersTests' name='testBuildForExistingCrew_AndChangedMembers' time='0.055'/>
+  </testsuite>
+</testsuites>

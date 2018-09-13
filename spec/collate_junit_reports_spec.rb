@@ -24,6 +24,9 @@ junit_report_3 = "<?xml version='1.0' encoding='UTF-8'?>" \
 "  </testsuite>" \
 "</testsuites>"
 
+issue_70_report = File.read('./spec/fixtures/issue_70_report.xml')
+issue_70_report_2 = File.read('./spec/fixtures/issue_70_report-2.xml')
+
 describe Fastlane::Actions::CollateJunitReportsAction do
   before(:each) do
     allow(File).to receive(:exist?).and_call_original
@@ -136,5 +139,29 @@ describe Fastlane::Actions::CollateJunitReportsAction do
       expect(testable.attributes['failures']).to eq('0')
       expect(testable.attributes['tests']).to eq('4')
     end
+  end
+
+  it 'it collates issue 70 reports' do
+    fastfile = "lane :test do
+        collate_junit_reports(
+          reports: ['path/to/fake_junit_report_1.xml', 'path/to/fake_junit_report_2.xml'],
+          collated_report: 'path/to/report.xml'
+        )
+      end"
+
+      allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
+      allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_70_report)
+      allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
+      allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_70_report_2)
+      allow(FileUtils).to receive(:mkdir_p)
+
+      report_file = StringIO.new
+      expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
+      Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+      report = REXML::Document.new(report_file.string)
+
+      testable = REXML::XPath.first(report, "//testsuites")
+      expect(testable.attributes['failures']).to eq('0')
+      expect(testable.attributes['tests']).to eq('173')
   end
 end

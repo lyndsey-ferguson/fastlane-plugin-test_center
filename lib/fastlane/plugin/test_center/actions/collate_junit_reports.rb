@@ -10,24 +10,17 @@ module Fastlane
 
           # copy any missing testsuites
           target_report = reports.shift
+          flatten_duplicate_testsuites(target_report)
+
           reports.each do |report|
+            flatten_duplicate_testsuites(report)
+
             report.elements.each('//testsuite') do |testsuite|
               testsuite_name = testsuite.attributes['name']
 
               target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}']")
               if target_testsuite
-                testsuite.elements.each('testcase') do |testcase|
-                  classname = testcase.attributes['classname']
-                  name = testcase.attributes['name']
-                  target_testcase = REXML::XPath.first(target_testsuite, "testcase[@name='#{name}' and @classname='#{classname}']")
-                  # Replace target_testcase with testcase
-                  if target_testcase
-                    target_testcase.parent.insert_after(target_testcase, testcase)
-                    target_testcase.parent.delete_element(target_testcase)
-                  else
-                    target_testsuite << testcase
-                  end
-                end
+                collate_testsuite(target_testsuite, testsuite)
               else
                 testable = REXML::XPath.first(target_report, "//testsuites")
                 testable << testsuite
@@ -43,6 +36,36 @@ module Fastlane
           FileUtils.mkdir_p(File.dirname(params[:collated_report]))
           File.open(params[:collated_report], 'w') do |f|
             target_report.write(f, 2)
+          end
+        end
+      end
+
+      def self.flatten_duplicate_testsuites(report)
+        report.elements.each('//testsuite') do |testsuite|
+          testsuite_name = testsuite.attributes['name']
+
+          duplicate_testsuites = REXML::XPath.match(report, "//testsuite[@name='#{testsuite_name}']")
+          if duplicate_testsuites.size > 1
+            duplicate_testsuites.drop(1).each do |duplicate_testsuite|
+              collate_testsuite(testsuite, duplicate_testsuite)
+              duplicate_testsuite.parent.delete_element(duplicate_testsuite)
+            end
+          end
+          update_testsuite_counts(testsuite)
+        end
+      end
+
+      def self.collate_testsuite(target_testsuite, other_testsuite)
+        other_testsuite.elements.each('testcase') do |testcase|
+          classname = testcase.attributes['classname']
+          name = testcase.attributes['name']
+          target_testcase = REXML::XPath.first(target_testsuite, "testcase[@name='#{name}' and @classname='#{classname}']")
+          # Replace target_testcase with testcase
+          if target_testcase      
+            target_testcase.parent.insert_after(target_testcase, testcase)
+            target_testcase.parent.delete_element(target_testcase)
+          else
+            target_testsuite << testcase
           end
         end
       end
