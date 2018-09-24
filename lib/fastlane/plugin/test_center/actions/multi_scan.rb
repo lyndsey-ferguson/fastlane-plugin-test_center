@@ -239,11 +239,15 @@ module Fastlane
             'use the :workspace parameter instead of the :project parameter to find, ' \\
             'build, and test the iOS app.'
           )
-           multi_scan(
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy',
-            try_count: 3
-          )
+          begin
+            multi_scan(
+              workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+              scheme: 'AtomicBoy',
+              try_count: 3
+            )
+          rescue # anything
+            UI.error('Found real failing tests!')
+          end
           ",
           "
           UI.important(
