@@ -270,7 +270,7 @@ module Fastlane
             project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
             scheme: 'Professor',
             try_count: 3,
-            custom_report_file_name: 'atomic_report.xml',
+            output_files: 'atomic_report.xml',
             output_types: 'junit',
             fail_build: false
           )
