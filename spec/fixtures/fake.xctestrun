@@ -149,5 +149,27 @@
 		<key>UserAttachmentLifetime</key>
 		<string>deleteOnSuccess</string>
 	</dict>
+	<key>__xctestrun_metadata__</key>
+	<dict>
+		<key>CodeCoverageBuildableInfos</key>
+		<array>
+			<dict>
+				<key>Architecture</key>
+				<string>x86_64</string>
+				<key>BuildableIdentifier</key>
+				<string>84CA5F5715235131003456ED:primary</string>
+				<key>Name</key>
+				<string>Innovative.app</string>
+				<key>ProductPath</key>
+				<string>__TESTROOT__/Debug-iphonesimulator/AtomicBoy.app/AtomicBoy</string>
+				<key>Toolchains</key>
+				<array>
+					<string>com.apple.dt.toolchain.XcodeDefault</string>
+				</array>
+			</dict>
+		</array>
+		<key>FormatVersion</key>
+		<integer>1</integer>
+	</dict>
 </dict>
 </plist>
