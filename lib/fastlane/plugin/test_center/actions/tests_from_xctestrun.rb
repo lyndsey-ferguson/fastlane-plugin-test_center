@@ -12,6 +12,8 @@ module Fastlane
         xctestrun_rootpath = File.dirname(xctestrun_path)
         tests = Hash.new([])
         xctestrun.each do |testable_name, xctestrun_config|
+          next if testable_name == '__xctestrun_metadata__'
+
           test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
           if xctestrun_config.key?('SkipTestIdentifiers')
             test_identifiers.reject! { |test_identifier| xctestrun_config['SkipTestIdentifiers'].include?(test_identifier) }
