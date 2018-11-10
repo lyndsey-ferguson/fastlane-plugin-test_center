@@ -60,7 +60,7 @@ describe Fastlane::Actions::CollateTestResultBundlesAction do
       allow(Plist).to receive(:parse_xml).with('path/to/fake2.test_bundle/Info.plist').and_return(info_plist_2)
       expect(Plist::Emit).to receive(:save_plist).with(info_plist_1, '/tmp/path/to/fake.test_bundle/Info.plist')
       Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
-      expect(info_plist_1['Actions'][0]['EndedTime']).to eq(DateTime.parse('2018-06-25T13:32:11Z'))
+      expect(info_plist_1['Actions'][0]['EndedTime']).to eq(DateTime.parse('2018-06-25T13:32:11Z')) # rubocop:disable Style/DateTime
       expect(info_plist_1['Actions'][0]['ActionResult']['TestsFailedCount']).to eq(3)
     end
 
