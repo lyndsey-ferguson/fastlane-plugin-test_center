@@ -84,11 +84,12 @@ module Fastlane
         options_to_remove = %i[
           try_count
           batch_count
+          output_files
+          parallelize
           quit_simulators
           testrun_completed_block
           test_without_building
           output_types
-          output_files
         ]
         config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
@@ -171,6 +172,13 @@ module Fastlane
             env_name: "SCAN_OUTPUT_TYPES",
             description: "Comma separated list of the output types (e.g. html, junit, json, json-compilation-database)",
             default_value: "html,junit"
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :parallelize,
+            description: 'Run each batch of tests and/or each test target in parallel on its own Simulator',
+            optional: true,
+            is_string: false,
+            default_value: false
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
