@@ -5,6 +5,8 @@ module TestCenter
     require 'plist'
 
     class TestCollector
+      attr_reader :xctestrun_path
+
       def initialize(options)
         unless options[:xctestrun] || options[:derived_data_path]
           options[:derived_data_path] = default_derived_data_path(options)
@@ -15,6 +17,7 @@ module TestCenter
         end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
+        @batch_count = options[:batch_count]
       end
 
       def default_derived_data_path(options)
@@ -34,7 +37,9 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys
+            @testables ||= Plist.parse_xml(@xctestrun_path).keys.reject do |key|
+              key == '__xctestrun_metadata__'
+            end
           end
         end
         @testables
@@ -69,6 +74,26 @@ module TestCenter
           end
         end
         @testables_tests
+      end
+
+      def test_batches
+        if @batches.nil?
+          @batches = []
+          testables.each do |testable|
+            testable_tests = testables_tests[testable]
+            next if testable_tests.empty?
+
+            if @batch_count > 1
+              testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
+                @batches << tests_batch
+              end
+            else
+              @batches << testable_tests
+            end
+          end
+        end
+
+        @batches
       end
     end
   end
