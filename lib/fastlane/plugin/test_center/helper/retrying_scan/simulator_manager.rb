@@ -19,18 +19,18 @@ module TestCenter
           proc { cleanup_simulators }
         end
 
-        def setup_simulators(devices)
-          found_simulator_devices = []
+        def setup_simulators(devices, batch_deploymentversions)
           FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
             simulator.delete if /-batchclone-/ =~ simulator.name
           end
 
-          if devices.count > 0
-            found_simulator_devices = Scan::DetectValues.detect_simulator(devices, '', '', '', nil)
-          else
-            found_simulator_devices = Scan::DetectValues.detect_simulator(devices, 'iOS', 'IPHONEOS_DEPLOYMENT_TARGET', 'iPhone 5s', nil)
-          end
           (0...@batch_count).each do |batch_index|
+            found_simulator_devices = []
+            if devices.count > 0
+              found_simulator_devices = detect_simulator(devices, batch_deploymentversions[batch_index])
+            else
+              found_simulator_devices = Scan::DetectValues.detect_simulator(devices, 'iOS', 'IPHONEOS_DEPLOYMENT_TARGET', 'iPhone 5s', nil)
+            end
             @simulators[batch_index] ||= []
             found_simulator_devices.each do |found_simulator_device|
               device_for_batch = found_simulator_device.clone
@@ -39,6 +39,87 @@ module TestCenter
               @simulators[batch_index] << device_for_batch
             end
           end
+        end
+
+        def detect_simulator(devices, deployment_target_version)
+          require 'set'
+
+          simulators = Scan::DetectValues.filter_simulators(
+            FastlaneCore::DeviceManager.simulators(requested_os_type).tap do |array|
+              if array.empty?
+                UI.user_error!(['No', simulator_type_descriptor, 'simulators found on local machine'].reject(&:nil?).join(' '))
+              end
+            end,
+            :greater_than_or_equal,
+            deployment_target_version
+          ).tap do |sims|
+            if sims.empty?
+              UI.error("No simulators found that are greater than or equal to the version of deployment target (#{deployment_target_version})")
+            end
+          end
+
+          # At this point we have all simulators for the given deployment target (or higher)
+
+          # We create 2 lambdas, which we iterate over later on
+          # If the first lambda `matches` found a simulator to use
+          # we'll never call the second one
+
+          matches = lambda do
+            set_of_simulators = devices.inject(
+              Set.new # of simulators
+            ) do |set, device_string|
+              pieces = device_string.split(/\s(?=\([\d\.]+\)$)/)
+
+              selector = ->(sim) { pieces.count > 0 && sim.name == pieces.first }
+
+              set + (
+                if pieces.count == 0
+                  [] # empty array
+                elsif pieces.count == 1
+                  simulators
+                    .select(&selector)
+                    .reverse # more efficient, because `simctl` prints higher versions first
+                    .sort_by! { |sim| Gem::Version.new(sim.os_version) }
+                    .pop(1)
+                else # pieces.count == 2 -- mathematically, because of the 'end of line' part of our regular expression
+                  version = pieces[1].tr('()', '')
+                  potential_emptiness_error = lambda do |sims|
+                    if sims.empty?
+                      UI.error("No simulators found that are equal to the version " \
+                      "of specifier (#{version}) and greater than or equal to the version " \
+                      "of deployment target (#{deployment_target_version})")
+                    end
+                  end
+                  Scan::DetectValues.filter_simulators(simulators, :equal, version).tap(&potential_emptiness_error).select(&selector)
+                end
+              ).tap do |array|
+                UI.error("Ignoring '#{device_string}', couldn't find matching simulator") if array.empty?
+              end
+            end
+
+            set_of_simulators.to_a
+          end
+
+          default = lambda do
+            UI.error("Couldn't find any matching simulators for '#{devices}' - falling back to default simulator") if (devices || []).count > 0
+
+            result = Array(
+              simulators
+                .select { |sim| sim.name == default_device_name }
+                .reverse # more efficient, because `simctl` prints higher versions first
+                .sort_by! { |sim| Gem::Version.new(sim.os_version) }
+                .last || simulators.first
+            )
+
+            UI.message("Found simulator \"#{result.first.name} (#{result.first.os_version})\"") if result.first
+
+            result
+          end
+
+          [matches, default].lazy.map { |x|
+            arr = x.call
+            arr unless arr.empty?
+          }.reject(&:nil?).first
         end
 
         def cleanup_simulators

@@ -10,17 +10,15 @@ lane :run_examples do
   end
 end
 
-lane :issue_43 do
-  UI.important(
-    'example: ' \
-    'multi_scan also works with just one test target in the Scheme.'
-  )
+lane :testing do
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-    scheme: 'Professor',
+    scheme: 'AtomicBoy',
     try_count: 3,
-    output_files: 'atomic_report.xml',
-    output_types: 'junit',
-    fail_build: false
+    batch_count: 2,
+    fail_build: false,
+    output_files: 'report.html',
+    output_types: 'html',
+    parallelize: true
   )
 end

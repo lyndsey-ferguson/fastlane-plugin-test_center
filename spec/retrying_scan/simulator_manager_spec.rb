@@ -1,6 +1,5 @@
 describe TestCenter::Helper::RetryingScan do
-  SimulatorManager = TestCenter::Helper::RetryingScan::SimulatorManager
-  describe 'simulator_manager', simulator_manager: true do
+  skip 'simulator_manager' do
     describe 'batch_count is 1, one device' do
       before(:each) do
         device = OpenStruct.new(
