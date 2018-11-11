@@ -6,26 +6,29 @@ module Fastlane
         if report_filepaths.size == 1
           FileUtils.cp(report_filepaths[0], params[:collated_report])
         else
+          UI.verbose("collate_junit_reports with #{report_filepaths}")
           reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
 
           # copy any missing testsuites
           target_report = reports.shift
-          flatten_duplicate_testsuites(target_report)
+          preprocess_testsuites(target_report)
 
           reports.each do |report|
-            flatten_duplicate_testsuites(report)
-
+            preprocess_testsuites(report)
+            UI.verbose("> collating last report file #{report_filepaths.last}")
             report.elements.each('//testsuite') do |testsuite|
               testsuite_name = testsuite.attributes['name']
-
               target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}']")
               if target_testsuite
+                UI.verbose("  > collating testsuite #{testsuite_name}")
                 collate_testsuite(target_testsuite, testsuite)
+                UI.verbose("  < collating testsuite #{testsuite_name}")
               else
                 testable = REXML::XPath.first(target_report, "//testsuites")
                 testable << testsuite
               end
             end
+            UI.verbose("< collating last report file #{report_filepaths.last}")
           end
           target_report.elements.each('//testsuite') do |testsuite|
             update_testsuite_counts(testsuite)
@@ -40,18 +43,47 @@ module Fastlane
         end
       end
 
-      def self.flatten_duplicate_testsuites(report)
-        report.elements.each('//testsuite') do |testsuite|
-          testsuite_name = testsuite.attributes['name']
+      def self.collapse_testcase_multiple_failures_in_testsuite(testsuite)
+        testcases_with_failures = REXML::XPath.match(testsuite, 'testcase[failure]')
 
-          duplicate_testsuites = REXML::XPath.match(report, "//testsuite[@name='#{testsuite_name}']")
-          if duplicate_testsuites.size > 1
-            duplicate_testsuites.drop(1).each do |duplicate_testsuite|
-              collate_testsuite(testsuite, duplicate_testsuite)
-              duplicate_testsuite.parent.delete_element(duplicate_testsuite)
-            end
+        while testcases_with_failures.size > 1
+          target_testcase = testcases_with_failures.shift
+
+          name = target_testcase.attributes['name']
+          classname = target_testcase.attributes['classname']
+
+          failures = REXML::XPath.match(testsuite, "testcase[@name='#{name}'][@classname='#{classname}']/failure")
+          next unless failures.size > 1
+
+          failures[1..-1].each do |failure|
+            failure_clone = failure.clone
+            failure_clone.text = failure.text
+            target_testcase << failure_clone
+
+            testsuite.delete_element(failure.parent)
+            testcases_with_failures.delete(failure.parent)
           end
-          update_testsuite_counts(testsuite)
+        end
+      end
+
+      def self.flatten_duplicate_testsuites(report, testsuite)
+        testsuite_name = testsuite.attributes['name']
+        duplicate_testsuites = REXML::XPath.match(report, "//testsuite[@name='#{testsuite_name}']")
+        if duplicate_testsuites.size > 1
+          UI.verbose("    > flattening_duplicate_testsuites")
+          duplicate_testsuites.drop(1).each do |duplicate_testsuite|
+            collate_testsuite(testsuite, duplicate_testsuite)
+            duplicate_testsuite.parent.delete_element(duplicate_testsuite)
+          end
+          UI.verbose("    < flattening_duplicate_testsuites")
+        end
+        update_testsuite_counts(testsuite)
+      end
+
+      def self.preprocess_testsuites(report)
+        report.elements.each('//testsuite') do |testsuite|
+          flatten_duplicate_testsuites(report, testsuite)
+          collapse_testcase_multiple_failures_in_testsuite(testsuite)
         end
       end
 
@@ -61,9 +93,14 @@ module Fastlane
           name = testcase.attributes['name']
           target_testcase = REXML::XPath.first(target_testsuite, "testcase[@name='#{name}' and @classname='#{classname}']")
           # Replace target_testcase with testcase
-          if target_testcase      
-            target_testcase.parent.insert_after(target_testcase, testcase)
-            target_testcase.parent.delete_element(target_testcase)
+          if target_testcase
+            UI.verbose("      collate_testsuite with testcase #{name}")
+            UI.verbose("      replacing \"#{target_testcase}\" with \"#{testcase}\"")
+            parent = target_testcase.parent
+            parent.insert_after(target_testcase, testcase)
+            parent.delete_element(target_testcase)
+            UI.verbose("")
+            UI.verbose("      target_testcase after replacement \"#{parent}\"")
           else
             target_testsuite << testcase
           end

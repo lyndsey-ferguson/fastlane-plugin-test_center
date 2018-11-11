@@ -8,11 +8,17 @@ junit_report_1 = "<?xml version='1.0' encoding='UTF-8'?>" \
 "</testsuites>"
 
 junit_report_2 = "<?xml version='1.0' encoding='UTF-8'?>" \
-"<testsuites name='AtomicBoyUITests.xctest' tests='2' failures='1'>" \
+"<testsuites name='AtomicBoyUITests.xctest' tests='3' failures='2'>" \
 "  <testsuite name='AtomicBoyUITests' tests='2' failures='1'>" \
 "    <testcase classname='AtomicBoyUITests' name='testExample' time='4.397'/>" \
 "    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
 "      <failure message='((false) is true) failed'>AtomicBoyUITests.m:48</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
+"      <failure message='All the grass is not green'>AtomicBoyUITests.m:987</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
+"      <failure message='All that glitters is not gold'>AtomicBoyUITests.m:infinity</failure>" \
 "    </testcase>" \
 "  </testsuite>" \
 "</testsuites>"
@@ -149,19 +155,19 @@ describe Fastlane::Actions::CollateJunitReportsAction do
         )
       end"
 
-      allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
-      allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_70_report)
-      allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
-      allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_70_report_2)
-      allow(FileUtils).to receive(:mkdir_p)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_70_report)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_70_report_2)
+    allow(FileUtils).to receive(:mkdir_p)
 
-      report_file = StringIO.new
-      expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
-      Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
-      report = REXML::Document.new(report_file.string)
+    report_file = StringIO.new
+    expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
+    Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    report = REXML::Document.new(report_file.string)
 
-      testable = REXML::XPath.first(report, "//testsuites")
-      expect(testable.attributes['failures']).to eq('0')
-      expect(testable.attributes['tests']).to eq('173')
+    testable = REXML::XPath.first(report, "//testsuites")
+    expect(testable.attributes['failures']).to eq('0')
+    expect(testable.attributes['tests']).to eq('173')
   end
 end

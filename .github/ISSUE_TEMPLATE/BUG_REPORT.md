@@ -18,9 +18,9 @@ about: If something isn't working as expected 🤔
 <!-- Please include what's happening, expected behavior, and any relevant code samples -->
 
 ##### Complete output when running fastlane, including the stack trace and command used
-<!-- You can use: `--capture_output` as the last commandline argument to get that collected for you -->
+<!-- You can use: `--verbose --capture_output` as the last commandline arguments to get that collected for you -->
 
-<!-- The output of `--capture_output` could contain sensitive data such as application ids, certificate ids, passwords, authentication tokens, or email addreses, Please make sure you double check the output and replace anything sensitive you don't wish to submit in the issue -->
+<!-- The output of `--verbose --capture_output` could contain sensitive data such as application ids, certificate ids, passwords, authentication tokens, or email addreses, Please make sure you double check the output and replace anything sensitive you don't wish to submit in the issue -->
 
 <details>
   <pre>[INSERT OUTPUT HERE]</pre>
@@ -29,7 +29,7 @@ about: If something isn't working as expected 🤔
 ### Environment
 
 <!-- Please run `fastlane env` and copy the output below. This will help us help you :+1:
-If you used `--capture_output` option, please remove this block as it is already included there. -->
+If you used the `--capture_output` option, please remove this block as it is already included there. -->
 
 <details>
   <pre>[INSERT OUTPUT HERE]</pre>
