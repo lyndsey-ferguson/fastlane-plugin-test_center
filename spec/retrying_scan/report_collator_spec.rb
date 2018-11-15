@@ -10,6 +10,7 @@ describe TestCenter::Helper::RetryingScan do
         'report.xml'
       )
       collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
         output_directory: '.',
         reportnamer: reportnamer
       )
@@ -26,6 +27,7 @@ describe TestCenter::Helper::RetryingScan do
         'report.xml'
       )
       collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
         output_directory: '.',
         reportnamer: reportnamer
       )
@@ -56,6 +58,7 @@ describe TestCenter::Helper::RetryingScan do
         'report.html'
       )
       collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
         output_directory: '.',
         reportnamer: reportnamer
       )
@@ -87,6 +90,7 @@ describe TestCenter::Helper::RetryingScan do
         'report.json'
       )
       collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
         output_directory: '.',
         reportnamer: reportnamer
       )
@@ -118,6 +122,7 @@ describe TestCenter::Helper::RetryingScan do
         'report.json'
       )
       collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
         output_directory: '.',
         reportnamer: reportnamer,
         scheme: 'HappyHippo',

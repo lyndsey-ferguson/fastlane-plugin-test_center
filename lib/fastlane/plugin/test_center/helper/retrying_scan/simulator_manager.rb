@@ -4,9 +4,9 @@ module TestCenter
       require 'scan'
 
       class Parallelization
-        def initialize(batch_count)
+        def initialize(batch_count, output_directory)
           @batch_count = batch_count
-
+          @output_directory = output_directory
           @simulators ||= []
 
           if @batch_count < 1
@@ -45,16 +45,16 @@ module TestCenter
           require 'set'
 
           simulators = Scan::DetectValues.filter_simulators(
-            FastlaneCore::DeviceManager.simulators(requested_os_type).tap do |array|
+            FastlaneCore::DeviceManager.simulators('iOS').tap do |array|
               if array.empty?
-                UI.user_error!(['No', simulator_type_descriptor, 'simulators found on local machine'].reject(&:nil?).join(' '))
+                FastlaneCore::UI.user_error!(['No', simulator_type_descriptor, 'simulators found on local machine'].reject(&:nil?).join(' '))
               end
             end,
             :greater_than_or_equal,
             deployment_target_version
           ).tap do |sims|
             if sims.empty?
-              UI.error("No simulators found that are greater than or equal to the version of deployment target (#{deployment_target_version})")
+              FastlaneCore::UI.error("No simulators found that are greater than or equal to the version of deployment target (#{deployment_target_version})")
             end
           end
 
@@ -85,7 +85,7 @@ module TestCenter
                   version = pieces[1].tr('()', '')
                   potential_emptiness_error = lambda do |sims|
                     if sims.empty?
-                      UI.error("No simulators found that are equal to the version " \
+                      FastlaneCore::UI.error("No simulators found that are equal to the version " \
                       "of specifier (#{version}) and greater than or equal to the version " \
                       "of deployment target (#{deployment_target_version})")
                     end
@@ -93,7 +93,7 @@ module TestCenter
                   Scan::DetectValues.filter_simulators(simulators, :equal, version).tap(&potential_emptiness_error).select(&selector)
                 end
               ).tap do |array|
-                UI.error("Ignoring '#{device_string}', couldn't find matching simulator") if array.empty?
+                FastlaneCore::UI.error("Ignoring '#{device_string}', couldn't find matching simulator") if array.empty?
               end
             end
 
@@ -101,7 +101,7 @@ module TestCenter
           end
 
           default = lambda do
-            UI.error("Couldn't find any matching simulators for '#{devices}' - falling back to default simulator") if (devices || []).count > 0
+            FastlaneCore::UI.error("Couldn't find any matching simulators for '#{devices}' - falling back to default simulator") if (devices || []).count > 0
 
             result = Array(
               simulators
@@ -111,7 +111,7 @@ module TestCenter
                 .last || simulators.first
             )
 
-            UI.message("Found simulator \"#{result.first.name} (#{result.first.os_version})\"") if result.first
+            FastlaneCore::UI.message("Found simulator \"#{result.first.name} (#{result.first.os_version})\"") if result.first
 
             result
           end
@@ -142,6 +142,20 @@ module TestCenter
           end
         end
 
+        def ensure_conflict_free_scanlogging(scan_options, batch_index)
+          scan_options[:buildlog_path] = scan_options[:buildlog_path] + "-#{batch_index}"
+        end
+
+        def ensure_devices_cloned_for_testrun_are_used(scan_options, batch_index)
+          scan_options.delete(:device)
+          scan_options[:devices] = devices(batch_index)
+        end
+
+        def setup_scan_options_for_testrun(scan_options, batch_index)
+          ensure_conflict_free_scanlogging(scan_options, batch_index)
+          ensure_devices_cloned_for_testrun_are_used(scan_options, batch_index)
+        end
+
         def setup_pipes_for_fork
           @pipe_endpoints = []
           (0...@batch_count).each do
@@ -152,13 +166,15 @@ module TestCenter
         def connect_subprocess_endpoint(batch_index)
           mainprocess_reader, = @pipe_endpoints[batch_index]
           mainprocess_reader.close # we are now in the subprocess
-
+          FileUtils.mkdir_p(@output_directory)
           subprocess_output_dir = Dir.mktmpdir
-          puts "log files written to #{subprocess_output_dir}"
           subprocess_logfilepath = File.join(subprocess_output_dir, "batchscan_#{batch_index}.log")
-          subprocess_logfile = File.open(subprocess_logfilepath, 'w')
-          $stdout.reopen(subprocess_logfile)
-          $stderr.reopen(subprocess_logfile)
+          $subprocess_logfile = File.open(subprocess_logfilepath, 'w')
+          $subprocess_logfile.sync = true
+          $old_stdout = $stdout.dup
+          $old_stderr = $stderr.dup
+          $stdout.reopen($subprocess_logfile)
+          $stderr.reopen($subprocess_logfile)
         end
 
         def disconnect_subprocess_endpoints
@@ -171,16 +187,17 @@ module TestCenter
         end
 
         def send_subprocess_result(batch_index, result)
+          $stdout = $old_stdout.dup
+          $stderr = $old_stderr.dup
           _, subprocess_writer = @pipe_endpoints[batch_index]
-          subprocess_logfile = $stdout # Remember? We changed $stdout in :connect_subprocess_endpoint to be a File.
 
           subprocess_output = {
-            'subprocess_logfilepath' => subprocess_logfile.path,
+            'subprocess_logfilepath' => $subprocess_logfile.path,
             'tests_passed' => result
           }
           subprocess_writer.puts subprocess_output.to_json
           subprocess_writer.flush
-          subprocess_logfile.close
+          $subprocess_logfile.close
         end
 
         def parse_subprocess_results(subprocess_index, subprocess_output)

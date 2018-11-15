@@ -8,10 +8,12 @@ module TestCenter
         CollateTestResultBundlesAction = Fastlane::Actions::CollateTestResultBundlesAction
 
         def initialize(params)
+          @source_reports_directory_glob = params[:source_reports_directory_glob]
           @output_directory = params[:output_directory]
           @reportnamer = params[:reportnamer]
           @scheme = params[:scheme]
           @result_bundle = params[:result_bundle]
+          @suffix = params[:suffix] || ''
         end
 
         def collate
@@ -38,59 +40,60 @@ module TestCenter
         end
 
         def collate_junit_reports
-          report_files = sort_globbed_files("#{@output_directory}/#{@reportnamer.junit_fileglob}")
+          glob = "#{@source_reports_directory_glob}/#{@reportnamer.junit_fileglob}"
+          report_files = sort_globbed_files(glob)
           if report_files.size > 1
             config = create_config(
               CollateJunitReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname))
+                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
               }
             )
             CollateJunitReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@output_directory}/#{@reportnamer.junit_numbered_fileglob}")
+            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.junit_numbered_fileglob}")
           end
         end
 
         def collate_html_reports
           return unless @reportnamer.includes_html?
 
-          report_files = sort_globbed_files("#{@output_directory}/#{@reportnamer.html_fileglob}")
+          report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.html_fileglob}")
           if report_files.size > 1
             config = create_config(
               CollateJunitReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.html_reportname))
+                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.html_reportname(@suffix)))
               }
             )
             CollateHtmlReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@output_directory}/#{@reportnamer.html_numbered_fileglob}")
+            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.html_numbered_fileglob}")
           end
         end
 
         def collate_json_reports
           return unless @reportnamer.includes_json?
 
-          report_files = sort_globbed_files("#{@output_directory}/#{@reportnamer.json_fileglob}")
+          report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.json_fileglob}")
 
           if report_files.size > 1
             config = create_config(
               CollateJsonReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.json_reportname))
+                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.json_reportname(@suffix)))
               }
             )
             CollateJsonReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@output_directory}/#{@reportnamer.json_numbered_fileglob}")
+            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.json_numbered_fileglob}")
           end
         end
 
         def collate_test_result_bundles
           return unless @result_bundle
 
-          test_result_bundlepaths = sort_globbed_files("#{@output_directory}/#{@scheme}*.test_result")
+          test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
 
           if test_result_bundlepaths.size > 1
             config = create_config(
@@ -101,7 +104,7 @@ module TestCenter
               }
             )
             CollateTestResultBundlesAction.run(config)
-            delete_globbed_intermediatefiles("#{@output_directory}/#{@scheme}-[1-9]*.test_result")
+            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@scheme}-[1-9]*.test_result")
           end
         end
       end
