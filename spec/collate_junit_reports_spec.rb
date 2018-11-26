@@ -33,6 +33,47 @@ junit_report_3 = "<?xml version='1.0' encoding='UTF-8'?>" \
 issue_70_report = File.read('./spec/fixtures/issue_70_report.xml')
 issue_70_report_2 = File.read('./spec/fixtures/issue_70_report-2.xml')
 
+issue_43_report = "<?xml version='1.0' encoding='UTF-8'?>" \
+"<testsuites name='AtomicBoyUITests.xctest' tests='3' failures='2'>" \
+"  <testsuite name='AtomicBoyUITests' tests='2' failures='1'>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample' time='4.397'/>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
+"      <failure message='((false) is true) failed'>AtomicBoyUITests.m:48</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample3'>" \
+"      <failure message='All the grass is not green'>AtomicBoyUITests.m:987</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample4'>" \
+"      <failure message='All that glitters is not gold'>AtomicBoyUITests.m:infinity</failure>" \
+"    </testcase>" \
+"  </testsuite>" \
+"</testsuites>"
+
+issue_43_report_2 = "<?xml version='1.0' encoding='UTF-8'?>" \
+"<testsuites name='AtomicBoyUITests.xctest' tests='3' failures='2'>" \
+"  <testsuite name='AtomicBoyUITests' tests='2' failures='1'>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample' time='4.397'/>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
+"      <failure message='((false) is true) failed'>AtomicBoyUITests.m:48</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample3' time='4.397'/>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample4'>" \
+"      <failure message='All that glitters is not gold'>AtomicBoyUITests.m:infinity</failure>" \
+"    </testcase>" \
+"  </testsuite>" \
+"</testsuites>"
+
+issue_43_report_3 = "<?xml version='1.0' encoding='UTF-8'?>" \
+"<testsuites name='AtomicBoyUITests.xctest' tests='3' failures='2'>" \
+"  <testsuite name='AtomicBoyUITests' tests='2' failures='1'>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample' time='4.397'/>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample2'>" \
+"      <failure message='((false) is true) failed'>AtomicBoyUITests.m:48</failure>" \
+"    </testcase>" \
+"    <testcase classname='AtomicBoyUITests' name='testExample4' time='4.397'/>" \
+"  </testsuite>" \
+"</testsuites>"
+
 describe Fastlane::Actions::CollateJunitReportsAction do
   before(:each) do
     allow(File).to receive(:exist?).and_call_original
@@ -169,5 +210,40 @@ describe Fastlane::Actions::CollateJunitReportsAction do
     testable = REXML::XPath.first(report, "//testsuites")
     expect(testable.attributes['failures']).to eq('0')
     expect(testable.attributes['tests']).to eq('173')
+  end
+
+  it 'updates the try counts' do
+    fastfile = "lane :test do
+        collate_junit_reports(
+          reports: [
+            'path/to/fake_junit_report_1.xml',
+            'path/to/fake_junit_report_2.xml',
+            'path/to/fake_junit_report_3.xml'
+          ],
+          collated_report: 'path/to/report.xml'
+        )
+      end"
+
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_43_report)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_43_report_2)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_3.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_3.xml').and_return(issue_43_report_3)
+    allow(FileUtils).to receive(:mkdir_p)
+
+    report_file = StringIO.new
+    expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
+    Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    report = REXML::Document.new(report_file.string)
+
+    testExample2 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample2']")
+    expect(testExample2.attributes['retries']).to eq('2')
+    testExample3 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample3']")
+    expect(testExample3.attributes['retries']).to eq('1')
+    testExample4 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample4']")
+    expect(testExample4.attributes['retries']).to eq('2')
+
+    expect(report.root.attributes['retries']).to eq('2')
   end
 end
