@@ -15,12 +15,17 @@ module Fastlane
         xctestrun.each do |testable_name, xctestrun_config|
           next if testable_name == '__xctestrun_metadata__'
 
-          test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
+          xctest_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
+          test_identifiers = XCTestList.tests(xctest_path)
           UI.verbose("Found the following tests: #{test_identifiers.join("\n\t")}")
           if xctestrun_config.key?('SkipTestIdentifiers')
             skipped_tests = xctestrun_config['SkipTestIdentifiers']
             UI.verbose("Removing skipped tests: #{skipped_tests.join("\n\t")}")
             test_identifiers.reject! { |test_identifier| skipped_tests.include?(test_identifier) }
+          end
+          if test_identifiers.empty?
+            UI.error("No tests found in '#{xctest_path}'!")
+            UI.important("Is the Build Setting, `ENABLE_TESTABILITY` enabled for the test target #{testable_name}?")
           end
           tests[testable_name] = test_identifiers.map do |test_identifier|
             "#{testable_name.shellescape}/#{test_identifier}"
