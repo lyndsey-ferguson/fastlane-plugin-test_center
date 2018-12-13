@@ -10,6 +10,7 @@ module TestCenter
         @batch_count = multi_scan_options[:batch_count] || 1
         @output_directory = multi_scan_options[:output_directory] || 'test_results'
         @try_count = multi_scan_options[:try_count]
+        @quit_simulators = multi_scan_options[:quit_simulators]
         @retry_total_count = 0
         @testrun_completed_block = multi_scan_options[:testrun_completed_block]
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
@@ -23,6 +24,7 @@ module TestCenter
             clean
             try_count
             batch_count
+            quit_simulators
             custom_report_file_name
             fail_build
             testrun_completed_block
@@ -276,6 +278,8 @@ module TestCenter
       end
 
       def quit_simulators
+        return unless @quit_simulators
+
         Fastlane::Actions.sh("killall -9 'iPhone Simulator' 'Simulator' 'SimulatorBridge' &> /dev/null || true", log: false)
         launchctl_list_count = 0
         while Fastlane::Actions.sh('launchctl list | grep com.apple.CoreSimulator.CoreSimulatorService || true', log: false) != ''

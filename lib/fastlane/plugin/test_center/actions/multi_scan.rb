@@ -10,7 +10,7 @@ module Fastlane
       def self.run(params)
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
-            config: params._values.select { |k, _| %i[try_count batch_count fail_build].include?(k) },
+            config: params._values.select { |k, _| %i[try_count batch_count fail_build quit_simulators].include?(k) },
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
@@ -84,6 +84,7 @@ module Fastlane
         options_to_remove = %i[
           try_count
           batch_count
+          quit_simulators
           testrun_completed_block
           test_without_building
           output_types
@@ -154,6 +155,15 @@ module Fastlane
             verify_block: proc do |count|
               UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :quit_simulators,
+            env_name: "FL_MULTI_SCAN_QUIT_SIMULATORS",
+            description: "If the simulators need to be killed before run the tests",
+            type: Boolean,
+            is_string: false,
+            default_value: true,
+            optional: true
           ),
           FastlaneCore::ConfigItem.new(
             key: :output_types,

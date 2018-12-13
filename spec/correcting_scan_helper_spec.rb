@@ -617,7 +617,8 @@ describe TestCenter do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
-                try_count: 3
+                try_count: 3,
+                quit_simulators: true
               )
               allow(File).to receive(:exist?).and_call_original
               allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
@@ -644,6 +645,53 @@ describe TestCenter do
                 expect(config._values[:only_testing]).to eq(['BagOfTests/CoinTossingUITests/testResultIsTails'])
                 raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
               end
+
+              expect(Fastlane::Actions).to receive(:sh)
+              result = scanner.correcting_scan(
+                {
+                  output_directory: '.'
+                },
+                1,
+                ReportNameHelper.new('html,junit')
+              )
+              expect(scanner.retry_total_count).to eq(2)
+              expect(result).to eq(false)
+            end
+
+            it 'calls scan three times when two runs have failures without kill the simulator' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                quit_simulators: false
+              )
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
+              expected_report_files = ['.*/report.junit', '.*/report-2.junit', '.*/report-3.junit']
+              allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
+                expect(config._values).to have_key(:junit)
+                expect(config._values[:junit]).to match(expected_report_files.shift)
+                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'] }
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report.html,report.junit')
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report-2.html,report-2.junit')
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report-3.html,report-3.junit')
+                expect(config._values).to have_key(:only_testing)
+                expect(config._values[:only_testing]).to eq(['BagOfTests/CoinTossingUITests/testResultIsTails'])
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+
+              expect(Fastlane::Actions).not_to receive(:sh)
               result = scanner.correcting_scan(
                 {
                   output_directory: '.'
