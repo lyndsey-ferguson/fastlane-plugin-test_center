@@ -658,7 +658,7 @@ describe TestCenter do
               expect(result).to eq(false)
             end
 
-            it 'calls scan three times when two runs have failures without kill the simulator' do
+            it 'calls scan three times when two runs have failures without killing the simulator' do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
