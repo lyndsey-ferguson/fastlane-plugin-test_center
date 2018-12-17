@@ -1,6 +1,8 @@
 module Fastlane
   module Actions
     class CollateJunitReportsAction < Action
+      require 'pry-byebug'
+
       def self.run(params)
         report_filepaths = params[:reports]
         if report_filepaths.size == 1
@@ -8,9 +10,9 @@ module Fastlane
         else
           UI.verbose("collate_junit_reports with #{report_filepaths}")
           reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
-
           # copy any missing testsuites
           target_report = reports.shift
+          target_report.root.attributes['retries'] = reports.size.to_s
           preprocess_testsuites(target_report)
 
           reports.each do |report|
@@ -97,6 +99,7 @@ module Fastlane
             UI.verbose("      collate_testsuite with testcase #{name}")
             UI.verbose("      replacing \"#{target_testcase}\" with \"#{testcase}\"")
             parent = target_testcase.parent
+            increment_testcase_tries(target_testcase, testcase) unless testcase.root == target_testcase.root 
             parent.insert_after(target_testcase, testcase)
             parent.delete_element(target_testcase)
             UI.verbose("")
@@ -105,6 +108,11 @@ module Fastlane
             target_testsuite << testcase
           end
         end
+      end
+
+      def self.increment_testcase_tries(target_testcase, testcase)
+        try_count = target_testcase.attributes['retries']
+        testcase.attributes['retries'] = (try_count.to_i + 1).to_s
       end
 
       def self.update_testable_counts(testable)
