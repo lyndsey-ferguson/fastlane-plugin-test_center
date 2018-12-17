@@ -691,7 +691,7 @@ describe TestCenter do
                 raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
               end
 
-              expect(Fastlane::Actions).not_to receive(:sh)
+              expect(Fastlane::Actions).not_to receive(:sh).with(/killall -9 'iPhone Simulator' 'Simulator' 'SimulatorBridge'.*/, anything)
               result = scanner.correcting_scan(
                 {
                   output_directory: '.'
