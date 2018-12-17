@@ -1,7 +1,6 @@
 module Fastlane
   module Actions
     class CollateJunitReportsAction < Action
-      require 'pry-byebug'
 
       def self.run(params)
         report_filepaths = params[:reports]
