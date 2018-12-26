@@ -10,16 +10,10 @@ Gemfile.lock
 fastlane/README.md
 coverage
 reports/
-**/test_output/**/report*.html
-**/test_output/**/report*.xml
-**/test_output/**/report*.junit
-**/test_output/**/*.test_result/
+**/test_output/**/*
 spec/fixtures/malformed-report.html
 AtomicBoy/AtomicBoy.xcodeproj/xcshareddata/xcschemes/AtomicBoy.xcscheme
 fastlane/report.xml
-fastlane/test_output/atomic_report.xml
-fastlane/test_output/results-AtomicBoyTests/report.json
-fastlane/test_output/results-AtomicBoyUITests/report.json
 AtomicBoy/AtomicBoy.xcodeproj/xcshareddata/xcschemes/AtomicBoy.xcscheme
 fastlane/report.xml
 spec/fixtures/malformed-report.html
