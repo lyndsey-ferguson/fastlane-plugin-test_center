@@ -157,24 +157,24 @@ module TestCenter
         end
 
         def setup_pipes_for_fork
-          # @pipe_endpoints = []
-          # (0...@batch_count).each do
-          #   @pipe_endpoints << IO.pipe
-          # end
+          @pipe_endpoints = []
+          (0...@batch_count).each do
+            @pipe_endpoints << IO.pipe
+          end
         end
 
         def connect_subprocess_endpoint(batch_index)
-          # mainprocess_reader, = @pipe_endpoints[batch_index]
-          # mainprocess_reader.close # we are now in the subprocess
-          # FileUtils.mkdir_p(@output_directory)
-          # subprocess_output_dir = Dir.mktmpdir
-          # subprocess_logfilepath = File.join(subprocess_output_dir, "batchscan_#{batch_index}.log")
-          # $subprocess_logfile = File.open(subprocess_logfilepath, 'w')
-          # $subprocess_logfile.sync = true
-          # $old_stdout = $stdout.dup
-          # $old_stderr = $stderr.dup
-          # $stdout.reopen($subprocess_logfile)
-          # $stderr.reopen($subprocess_logfile)
+          mainprocess_reader, = @pipe_endpoints[batch_index]
+          mainprocess_reader.close # we are now in the subprocess
+          FileUtils.mkdir_p(@output_directory)
+          subprocess_output_dir = Dir.mktmpdir
+          subprocess_logfilepath = File.join(subprocess_output_dir, "batchscan_#{batch_index}.log")
+          $subprocess_logfile = File.open(subprocess_logfilepath, 'w')
+          $subprocess_logfile.sync = true
+          $old_stdout = $stdout.dup
+          $old_stderr = $stderr.dup
+          $stdout.reopen($subprocess_logfile)
+          $stderr.reopen($subprocess_logfile)
         end
 
         def disconnect_subprocess_endpoints
@@ -183,64 +183,64 @@ module TestCenter
           # writer.
           # This has to be done after the fork, because we don't want the subprocess
           # to receive its endpoint already closed.
-          # @pipe_endpoints.each { |_, subprocess_writer| subprocess_writer.close }
+          @pipe_endpoints.each { |_, subprocess_writer| subprocess_writer.close }
         end
 
         def send_subprocess_result(batch_index, result)
-          # $stdout = $old_stdout.dup
-          # $stderr = $old_stderr.dup
-          # _, subprocess_writer = @pipe_endpoints[batch_index]
+          $stdout = $old_stdout.dup
+          $stderr = $old_stderr.dup
+          _, subprocess_writer = @pipe_endpoints[batch_index]
 
-          # subprocess_output = {
-          #   'subprocess_logfilepath' => $subprocess_logfile.path,
-          #   'tests_passed' => result
-          # }
-          # subprocess_writer.puts subprocess_output.to_json
-          # subprocess_writer.flush
-          # $subprocess_logfile.close
+          subprocess_output = {
+            'subprocess_logfilepath' => $subprocess_logfile.path,
+            'tests_passed' => result
+          }
+          subprocess_writer.puts subprocess_output.to_json
+          subprocess_writer.flush
+          $subprocess_logfile.close
         end
 
         def parse_subprocess_results(subprocess_index, subprocess_output)
-          # subprocess_result = {
-          #   'tests_passed' => false
-          # }
-          # if subprocess_output.empty?
-          #   FastlaneCore::UI.error("Something went terribly wrong: no output from parallelized batch #{subprocess_index}!")
-          # else
-          #   subprocess_result = JSON.parse(subprocess_output)
-          # end
-          # subprocess_result
+          subprocess_result = {
+            'tests_passed' => false
+          }
+          if subprocess_output.empty?
+            FastlaneCore::UI.error("Something went terribly wrong: no output from parallelized batch #{subprocess_index}!")
+          else
+            subprocess_result = JSON.parse(subprocess_output)
+          end
+          subprocess_result
         end
 
         def stream_subprocess_result_to_console(subprocess_logfilepath)
-          # puts '-' * 80
-          # if File.exist?(subprocess_logfilepath)
-          #   File.foreach(subprocess_logfilepath, "r:UTF-8") do |line|
-          #     puts line
-          #   end
-          # end
+          puts '-' * 80
+          if File.exist?(subprocess_logfilepath)
+            File.foreach(subprocess_logfilepath, "r:UTF-8") do |line|
+              puts line
+            end
+          end
         end
 
         def wait_for_subprocesses
-          # disconnect_subprocess_endpoints # to ensure no blocking on the pipe
-          # FastlaneCore::Helper.show_loading_indicator("Scanning in #{@batch_count} batches")
+          disconnect_subprocess_endpoints # to ensure no blocking on the pipe
+          FastlaneCore::Helper.show_loading_indicator("Scanning in #{@batch_count} batches")
           Process.waitall
-          # FastlaneCore::Helper.hide_loading_indicator
+          FastlaneCore::Helper.hide_loading_indicator
         end
 
         def handle_subprocesses_results
-          # tests_passed = false
-          # FastlaneCore::UI.header("Output from parallelized batch run")
-          # @pipe_endpoints.each_with_index do |endpoints, index|
-          #   mainprocess_reader, = endpoints
-          #   subprocess_result = parse_subprocess_results(index, mainprocess_reader.read)
-          #   mainprocess_reader.close
-          #   stream_subprocess_result_to_console(subprocess_result['subprocess_logfilepath'])
-          #   tests_passed = subprocess_result['tests_passed']
-          # end
-          # puts '=' * 80
-          # tests_passed
-          true
+          tests_passed = false
+          FastlaneCore::UI.header("Output from parallelized batch run")
+          @pipe_endpoints.each_with_index do |endpoints, index|
+            next if index > 0
+            mainprocess_reader, = endpoints
+            subprocess_result = parse_subprocess_results(index, mainprocess_reader.read)
+            mainprocess_reader.close
+            stream_subprocess_result_to_console(subprocess_result['subprocess_logfilepath'])
+            tests_passed = subprocess_result['tests_passed']
+          end
+          puts '=' * 80
+          tests_passed
         end
       end
     end
