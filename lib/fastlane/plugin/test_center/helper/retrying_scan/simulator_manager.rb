@@ -232,7 +232,6 @@ module TestCenter
           tests_passed = false
           FastlaneCore::UI.header("Output from parallelized batch run")
           @pipe_endpoints.each_with_index do |endpoints, index|
-            next if index > 1
             mainprocess_reader, = endpoints
             subprocess_result = parse_subprocess_results(index, mainprocess_reader.read)
             mainprocess_reader.close
