@@ -1,3 +1,8 @@
+module TestCenter
+  module Helper
+    MUST_SHELLESCAPE_TESTIDENTIFIER = Gem::Version.new(Fastlane::VERSION) < Gem::Version.new('2.114.0')
+  end
+end
 
 class String
   def testsuite_swift?
@@ -10,5 +15,9 @@ class String
     else
       self
     end
+  end
+
+  def shellsafe_testidentifier
+    TestCenter::Helper::MUST_SHELLESCAPE_TESTIDENTIFIER ? self.shellescape : self
   end
 end
