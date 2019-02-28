@@ -103,8 +103,6 @@ module TestCenter
             @parallelizer.setup_pipes_for_fork
             @test_collector.test_batches.each_with_index do |test_batch, current_batch_index|
               fork do
-                $batch_index = current_batch_index
-                sleep current_batch_index
                 @parallelizer.connect_subprocess_endpoint(current_batch_index)
                 begin
                   @parallelizer.setup_scan_options_for_testrun(@scan_options, current_batch_index)
@@ -198,15 +196,7 @@ module TestCenter
               Fastlane::Actions::ScanAction.available_options,
               scan_options.merge(reportnamer.scan_options)
             )
-            Scan.config = config
-            test_command_generator = Scan::TestCommandGenerator.new
-            command = test_command_generator.generate
-
-            puts command.join(' ')
-            result = `#{command.join(' ')}`
-            raise FastlaneCore::Interface::FastlaneTestFailure, "tests failed" unless result == 0
-
-            # Fastlane::Actions::ScanAction.run(config)
+            Fastlane::Actions::ScanAction.run(config)
             @interstitial.finish_try(try_count)
             tests_passed = true
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
