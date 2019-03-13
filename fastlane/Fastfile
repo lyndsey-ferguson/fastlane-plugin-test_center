@@ -13,9 +13,9 @@ end
 lane :testing do
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-    scheme: 'AtomicBoy',
+    scheme: 'Atlas',
     try_count: 3,
-    batch_count: 2,
+    batch_count: 6,
     fail_build: false,
     output_files: 'report.html',
     output_types: 'html',

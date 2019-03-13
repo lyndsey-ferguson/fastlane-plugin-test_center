@@ -84,7 +84,8 @@ module TestCenter
             next if testable_tests.empty?
 
             if @batch_count > 1
-              testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
+              slice_count = [(testable_tests.length / @batch_count.to_f).ceil, 1].max
+              testable_tests.each_slice(slice_count).to_a.each do |tests_batch|
                 @batches << tests_batch
               end
             else
