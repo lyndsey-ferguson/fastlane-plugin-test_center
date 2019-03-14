@@ -14,7 +14,7 @@ module Fastlane
             collate_bundles(base_bundle_path, other_bundlepath)
           end
         end
-        FileUtils.rm_rf(params[:collated_bundle])
+        # FileUtils.rm_rf(params[:collated_bundle])
         FileUtils.cp_r(base_bundle_path, params[:collated_bundle])
         UI.message("Finished collating test_result bundle to '#{params[:collated_bundle]}'")
       end
