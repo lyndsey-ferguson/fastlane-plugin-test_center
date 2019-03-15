@@ -36,6 +36,7 @@ module TestCenter
               device_for_batch = found_simulator_device.clone
               new_name = "#{found_simulator_device.name}-batchclone-#{batch_index + 1}"
               device_for_batch.rename(new_name)
+              device_for_batch.boot
               @simulators[batch_index] << device_for_batch
             end
           end
@@ -265,6 +266,10 @@ module FastlaneCore
       def rename(newname)
         `xcrun simctl rename #{self.udid} '#{newname}'`
         self.name = newname
+      end
+
+      def boot
+        `xcrun simctl boot #{self.udid}`
       end
     end
   end
