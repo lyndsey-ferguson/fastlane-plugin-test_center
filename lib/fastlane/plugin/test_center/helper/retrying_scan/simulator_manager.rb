@@ -217,7 +217,9 @@ module TestCenter
           puts '-' * 80
           if File.exist?(subprocess_logfilepath)
             File.foreach(subprocess_logfilepath, "r:UTF-8") do |line|
-              print "[Simulator #{index}]", line
+              line.split("\n").each do |l|
+                puts "[Simulator #{index}] #{l}"
+              end
             end
           end
         end
