@@ -171,6 +171,7 @@ module TestCenter
           subprocess_output_dir = Dir.mktmpdir
           subprocess_logfilepath = File.join(subprocess_output_dir, "batchscan_#{batch_index}.log")
           $subprocess_logfile = File.open(subprocess_logfilepath, 'w', cr_newline: true)
+          $subprocess_logfile.sync = true
           $old_stdout = $stdout.dup
           $old_stderr = $stderr.dup
           $stdout.reopen($subprocess_logfile)
