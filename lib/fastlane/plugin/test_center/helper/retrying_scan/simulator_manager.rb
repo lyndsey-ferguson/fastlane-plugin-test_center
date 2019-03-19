@@ -2,7 +2,6 @@ module TestCenter
   module Helper
     module RetryingScan
       require 'scan'
-      require 'pry-byebug'
       require 'colorize'
 
       class Parallelization

@@ -5,7 +5,6 @@ module TestCenter
       require 'fastlane_core/ui/ui.rb'
       require 'plist'
       require 'json'
-      require 'pry-byebug'
       require 'shellwords'
       require_relative './simulator_manager'
 
