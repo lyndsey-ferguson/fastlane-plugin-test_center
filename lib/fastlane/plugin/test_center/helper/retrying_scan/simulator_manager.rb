@@ -2,6 +2,7 @@ module TestCenter
   module Helper
     module RetryingScan
       require 'scan'
+      require 'pry-byebug'
 
       class Parallelization
         def initialize(batch_count, output_directory)
@@ -170,7 +171,7 @@ module TestCenter
           FileUtils.mkdir_p(@output_directory)
           subprocess_output_dir = Dir.mktmpdir
           subprocess_logfilepath = File.join(subprocess_output_dir, "batchscan_#{batch_index}.log")
-          $subprocess_logfile = File.open(subprocess_logfilepath, 'w', cr_newline: true)
+          $subprocess_logfile = File.open(subprocess_logfilepath, 'w')
           $subprocess_logfile.sync = true
           $old_stdout = $stdout.dup
           $old_stderr = $stderr.dup
@@ -216,10 +217,9 @@ module TestCenter
         def stream_subprocess_result_to_console(index, subprocess_logfilepath)
           puts '-' * 80
           if File.exist?(subprocess_logfilepath)
-            File.foreach(subprocess_logfilepath, "r:UTF-8") do |line|
-              line.split("\n").each do |l|
-                puts "[Simulator #{index}] #{l}"
-              end
+            colors = String.colors - [:default, :black, :white]
+            File.foreach(subprocess_logfilepath) do |line|
+              print "[Sim-#{index}]".colorize(colors.sample), line
             end
           end
         end

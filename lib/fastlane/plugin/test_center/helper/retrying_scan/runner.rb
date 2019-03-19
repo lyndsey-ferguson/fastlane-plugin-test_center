@@ -7,6 +7,7 @@ module TestCenter
       require 'json'
       require 'pry-byebug'
       require 'shellwords'
+      require_relative './simulator_manager'
 
       class Runner
         Parallelization = TestCenter::Helper::RetryingScan::Parallelization

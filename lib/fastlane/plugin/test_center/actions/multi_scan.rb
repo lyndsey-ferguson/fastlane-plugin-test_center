@@ -5,6 +5,7 @@ module Fastlane
     require 'shellwords'
     require 'xctest_list'
     require 'plist'
+    require_relative '../helper/retrying_scan/runner'
 
     class MultiScanAction < Action
       def self.run(params)
