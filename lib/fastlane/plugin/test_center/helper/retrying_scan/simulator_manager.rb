@@ -3,6 +3,7 @@ module TestCenter
     module RetryingScan
       require 'scan'
       require 'pry-byebug'
+      require 'colorize'
 
       class Parallelization
         def initialize(batch_count, output_directory)
@@ -218,8 +219,9 @@ module TestCenter
           puts '-' * 80
           if File.exist?(subprocess_logfilepath)
             colors = String.colors - [:default, :black, :white]
+            color = colors.sample
             File.foreach(subprocess_logfilepath) do |line|
-              print "[Sim-#{index}]".colorize(colors.sample), line
+              print "[Sim-#{index}]".colorize(color), line
             end
           end
         end
