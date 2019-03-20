@@ -35,7 +35,7 @@ module TestCenter
             @simulators[batch_index] ||= []
             found_simulator_devices.each do |found_simulator_device|
               device_for_batch = found_simulator_device.clone
-              new_name = "#{found_simulator_device.name}-batchclone-#{batch_index + 1}"
+              new_name = "#{found_simulator_device.name.gsub(/[^a-zA-Z\d]/,'')}-batchclone-#{batch_index + 1}"
               device_for_batch.rename(new_name)
               device_for_batch.boot
               @simulators[batch_index] << device_for_batch
@@ -217,10 +217,14 @@ module TestCenter
         def stream_subprocess_result_to_console(index, subprocess_logfilepath)
           puts '-' * 80
           if File.exist?(subprocess_logfilepath)
+            simulator_prefix = "[Sim-#{index}]"
+            unless ENV['FASTLANE_DISABLE_COLORS']
             colors = String.colors - [:default, :black, :white]
             color = colors.sample
+              simulator_prefix = simulator_prefix.colorize(color)
+            end
             File.foreach(subprocess_logfilepath) do |line|
-              print "[Sim-#{index}]".colorize(color), line
+              print simulator_prefix, line
             end
           end
         end
