@@ -22,7 +22,7 @@ module TestCenter
           @given_output_types = multi_scan_options[:output_types]
           @given_output_files = multi_scan_options[:output_files]
           @parallelize = multi_scan_options[:parallelize]
-          @test_collector = TestCollector.new(multi_scan_options)
+          @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
           @scan_options = multi_scan_options.reject do |option, _|
             %i[
               output_directory

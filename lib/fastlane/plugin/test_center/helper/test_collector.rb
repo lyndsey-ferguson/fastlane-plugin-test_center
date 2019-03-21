@@ -3,7 +3,7 @@ module TestCenter
     require 'fastlane_core/ui/ui.rb'
     require 'fastlane/actions/scan'
     require 'plist'
-
+    
     class TestCollector
       attr_reader :xctestrun_path
 
@@ -54,13 +54,31 @@ module TestCenter
         tests
       end
 
+      def xctestrun_known_tests
+        config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path)
+        ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
+      end
+
       def testables_tests
         unless @testables_tests
           if @only_testing
+            known_tests = nil
             @testables_tests = only_testing_to_testables_tests
+            
+            @testables_tests.each do |testable, tests|
+              tests.each_with_index do |test, index|
+                byebug
+                if test.count('/') < 2
+                  known_tests ||= xctestrun_known_tests[testable]
+                  test_components = test.split('/')
+                  testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
+                  @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) } 
+                end
+              end
+              @testables_tests[testable].flatten!
+            end
           else
-            config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path)
-            @testables_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
+            @testables_tests = xctestrun_known_tests
             if @skip_testing
               skipped_testable_tests = Hash.new { |h, k| h[k] = [] }
               @skip_testing.sort.each do |skipped_test_identifier|
@@ -73,6 +91,7 @@ module TestCenter
             end
           end
         end
+        
         @testables_tests
       end
 
