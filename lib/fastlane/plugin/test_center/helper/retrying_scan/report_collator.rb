@@ -24,10 +24,10 @@ module TestCenter
         end
 
         def sort_globbed_files(glob)
-          file = Dir.glob(glob).map do |relative_filepath|
+          files = Dir.glob(glob).map do |relative_filepath|
             File.absolute_path(relative_filepath)
           end
-          file.sort! { |f1, f2| File.mtime(f1) <=> File.mtime(f2) }
+          files.sort! { |f1, f2| File.mtime(f1) <=> File.mtime(f2) }
         end
 
         def delete_globbed_intermediatefiles(glob)

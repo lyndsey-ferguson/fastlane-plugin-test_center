@@ -134,7 +134,7 @@ module TestCenter
                 result_bundle: @scan_options[:result_bundle],
                 suffix: testable
               ).collate
-              # FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
+              FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
             end
             # for each key in test-target : [ output_directories ], call
             # collate_junit_reports for each key, the [ output_directories ] being

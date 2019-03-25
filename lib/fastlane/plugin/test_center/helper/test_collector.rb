@@ -3,7 +3,7 @@ module TestCenter
     require 'fastlane_core/ui/ui.rb'
     require 'fastlane/actions/scan'
     require 'plist'
-    
+
     class TestCollector
       attr_reader :xctestrun_path
 
@@ -67,7 +67,6 @@ module TestCenter
             
             @testables_tests.each do |testable, tests|
               tests.each_with_index do |test, index|
-                byebug
                 if test.count('/') < 2
                   known_tests ||= xctestrun_known_tests[testable]
                   test_components = test.split('/')
