@@ -101,11 +101,22 @@ module Fastlane
           scan_options.merge(build_for_testing: true).reject { |k, _| options_to_remove.include?(k) }
         )
         Fastlane::Actions::ScanAction.run(config)
+        remove_build_report_files
 
         scan_options.merge!(
           test_without_building: true,
           derived_data_path: Scan.config[:derived_data_path]
         ).delete(:build_for_testing)
+      end
+
+      def self.remove_build_report_files
+        report_options = Scan::XCPrettyReporterOptionsGenerator.generate_from_scan_config
+        output_files = report_options.instance_variable_get(:@output_files)
+        output_directory = report_options.instance_variable_get(:@output_directory)
+
+        output_files.each do |output_file|
+          FileUtils.rm_f(File.join(output_directory, output_file))
+        end
       end
 
       #####################################################
