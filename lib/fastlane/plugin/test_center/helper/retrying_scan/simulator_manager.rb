@@ -3,6 +3,7 @@ module TestCenter
     module RetryingScan
       require 'scan'
       require 'colorize'
+      require 'pry-byebug'
 
       class Parallelization
         def initialize(batch_count, output_directory)
@@ -194,6 +195,7 @@ module TestCenter
           _, subprocess_writer = @pipe_endpoints[batch_index]
 
           subprocess_output = {
+            'batch_index' => batch_index,
             'subprocess_logfilepath' => $subprocess_logfile.path,
             'tests_passed' => result
           }
@@ -227,6 +229,24 @@ module TestCenter
               print simulator_prefix, line
             end
           end
+        end
+
+        def handle_subprocesses
+          # disconnect_subprocess_endpoints # to ensure no blocking on pipe
+          FastlaneCore::Helper.show_loading_indicator("Scanning in #{@batch_count} batches")
+          puts "about to enter into the loop"
+          loop do
+            puts "looping"
+            read_array, _, error_array = IO.select(@pipe_endpoints.map(&:first))
+            read_array.each do |pipe_reader|
+              subprocess_result = parse_subprocess_results(index, pipe_reader.read)
+            end
+            error_array.each { |e| puts e }
+            break if error_array.size > 0
+            break if read_array.size == 0
+          end
+          Process.waitall
+          FastlaneCore::Helper.hide_loading_indicator
         end
 
         def wait_for_subprocesses
