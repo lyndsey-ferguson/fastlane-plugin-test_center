@@ -234,16 +234,22 @@ module TestCenter
         def handle_subprocesses
           # disconnect_subprocess_endpoints # to ensure no blocking on pipe
           FastlaneCore::Helper.show_loading_indicator("Scanning in #{@batch_count} batches")
-          puts "about to enter into the loop"
           loop do
-            puts "looping"
+            break if @pipe_endpoints.size.zero?
+
             read_array, _, error_array = IO.select(@pipe_endpoints.map(&:first))
             read_array.each do |pipe_reader|
-              subprocess_result = parse_subprocess_results(index, pipe_reader.read)
-            end
+              endpoint_index = @pipe_endpoints.find_index { |pe| pe.first == pipe_reader }
+              child_message_size = pipe_reader.stat.size
+              child_message = pipe_reader.read_nonblock(child_message_size)
+              subprocess_result = parse_subprocess_results(0, child_message)
+              pipe_reader.close
+              @pipe_endpoints.delete_at(endpoint_index)
+              stream_subprocess_result_to_console(subprocess_result['batch_index'], subprocess_result['subprocess_logfilepath'])
+              end
             error_array.each { |e| puts e }
             break if error_array.size > 0
-            break if read_array.size == 0
+            break if read_array.size.zero?
           end
           Process.waitall
           FastlaneCore::Helper.hide_loading_indicator

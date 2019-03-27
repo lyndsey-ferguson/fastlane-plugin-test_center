@@ -115,8 +115,9 @@ module TestCenter
                 FastlaneCore::UI.message("batched scan #{current_batch_index} finishing")
               end
             end
-            @parallelizer.wait_for_subprocesses
-            tests_passed = @parallelizer.handle_subprocesses_results && tests_passed
+            # @parallelizer.wait_for_subprocesses
+            # tests_passed = @parallelizer.handle_subprocesses_results && tests_passed
+            @parallelizer.handle_subprocesses
             @parallelizer.cleanup_simulators
             @test_collector.testables.each do |testable|
               # ReportCollator with a testable-batch glob pattern
