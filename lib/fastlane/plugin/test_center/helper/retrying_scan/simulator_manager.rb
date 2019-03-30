@@ -6,9 +6,11 @@ module TestCenter
       require 'pry-byebug'
 
       class Parallelization
-        def initialize(batch_count, output_directory)
+        def initialize(batch_count, output_directory, testrun_completed_block)
           @batch_count = batch_count
           @output_directory = output_directory
+          @testrun_completed_block = testrun_completed_block
+          
           @simulators ||= []
 
           if @batch_count < 1
@@ -189,12 +191,24 @@ module TestCenter
           @pipe_endpoints.each { |_, subprocess_writer| subprocess_writer.close }
         end
 
+        def send_subprocess_tryinfo(info)
+          puts "in send_subprocess_tryinfo"
+          _, subprocess_writer = @pipe_endpoints[batch_index]
+          subprocess_output = {
+            'message_type' => 'tryinfo',
+            'batch_index' => batch_index,
+            'tryinfo' => info
+          }
+          subprocess_writer.puts subprocess_output.to_json
+        end
+
         def send_subprocess_result(batch_index, result)
           $stdout = $old_stdout.dup
           $stderr = $old_stderr.dup
           _, subprocess_writer = @pipe_endpoints[batch_index]
 
           subprocess_output = {
+            'message_type' => 'completed',
             'batch_index' => batch_index,
             'subprocess_logfilepath' => $subprocess_logfile.path,
             'tests_passed' => result
@@ -245,10 +259,13 @@ module TestCenter
               child_message_size = pipe_reader.stat.size
               child_message = pipe_reader.read_nonblock(child_message_size)
               subprocess_result = parse_subprocess_results(0, child_message)
-              stream_subprocess_result_to_console(subprocess_result['batch_index'], subprocess_result['subprocess_logfilepath'])
-              if subprocess_result.key?('tests_passed')
+              if subprocess_result['message_type'] == 'completed'
+                stream_subprocess_result_to_console(subprocess_result['batch_index'], subprocess_result['subprocess_logfilepath'])
                 pipe_reader.close
                 @pipe_endpoints.delete_at(endpoint_index)
+              elsif subprocess_result['message_type'] == 'tryinfo'
+                puts "in simulator_manager, about to call @testrun_completed_block witth #{subprocess_result['tryinfo']}"
+                @testrun_completed_block && @testrun_completed_block.call(subprocess_result['tryinfo'])
               end
             end
             error_array.each { |e| puts e }

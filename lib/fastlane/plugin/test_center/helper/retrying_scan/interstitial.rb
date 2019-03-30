@@ -81,6 +81,9 @@ module TestCenter
         end
 
         def send_info_for_try(try_count)
+          puts "in send_info_for_try for #{@batch}"
+          return unless @testrun_completed_block
+
           report_filepath = File.join(@output_directory, @reportnamer.junit_last_reportname)
 
           config = FastlaneCore::Configuration.create(
@@ -112,7 +115,8 @@ module TestCenter
             test_result_bundlepath = File.join(@output_directory, @scheme) + test_result_suffix
             info[:test_result_bundlepath] = test_result_bundlepath
           end
-          @testrun_completed_block && @testrun_completed_block.call(info)
+          puts "interstitial about to call #{@testrun_completed_block} for batch #{@batch}"
+          @testrun_completed_block.call(info)
         end
 
         def set_json_env_if_necessary

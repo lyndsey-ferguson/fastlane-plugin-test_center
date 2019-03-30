@@ -46,7 +46,7 @@ module TestCenter
           @batch_count = @test_collector.test_batches.size
           if @parallelize
             @scan_options.delete(:derived_data_path)
-            @parallelizer = Parallelization.new(@batch_count, @output_directory)
+            @parallelizer = Parallelization.new(@batch_count, @output_directory, @testrun_completed_block)
           end
         end
 
@@ -170,12 +170,24 @@ module TestCenter
           )
         end
 
+        def test_run_completed_callback
+          if @parallelize && @testrun_completed_block
+            Proc.new do |info|
+              puts "about to call @parallelizer.send_subprocess_tryinfo(#{info})"
+              @parallelizer.send_subprocess_tryinfo(info)
+            end
+          else
+            @testrun_completed_block
+          end
+        end
+
         def reset_interstitial(output_directory)
           @interstitial = TestCenter::Helper::RetryingScan::Interstitial.new(
             @scan_options.merge(
               {
                 output_directory: output_directory,
                 reportnamer: @reportnamer,
+                testrun_completed_block: @testrun_completed_block,
                 parallelize: @parallelize
               }
             )
