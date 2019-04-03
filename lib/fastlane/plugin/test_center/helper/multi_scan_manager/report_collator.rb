@@ -1,6 +1,6 @@
 module TestCenter
   module Helper
-    module RetryingScan
+    module MultiScanManager
       class ReportCollator
         CollateJunitReportsAction = Fastlane::Actions::CollateJunitReportsAction
         CollateHtmlReportsAction = Fastlane::Actions::CollateHtmlReportsAction

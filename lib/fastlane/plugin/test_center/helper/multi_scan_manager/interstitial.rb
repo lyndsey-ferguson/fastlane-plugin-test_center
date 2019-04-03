@@ -1,6 +1,6 @@
 module TestCenter
   module Helper
-    module RetryingScan
+    module MultiScanManager
       class Interstitial
 
         attr_writer :output_directory

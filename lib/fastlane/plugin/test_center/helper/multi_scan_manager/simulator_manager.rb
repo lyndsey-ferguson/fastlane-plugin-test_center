@@ -1,6 +1,6 @@
 module TestCenter
   module Helper
-    module RetryingScan
+    module MultiScanManager
       require 'scan'
       require 'colorize'
       require 'pry-byebug'

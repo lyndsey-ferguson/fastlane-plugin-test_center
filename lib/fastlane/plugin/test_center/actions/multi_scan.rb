@@ -5,7 +5,7 @@ module Fastlane
     require 'shellwords'
     require 'xctest_list'
     require 'plist'
-    require_relative '../helper/retrying_scan/runner'
+    require_relative '../helper/multi_scan_manager/runner'
 
     class MultiScanAction < Action
       def self.run(params)
@@ -20,13 +20,13 @@ module Fastlane
             params._values
           )
         end
-        retrying_scan = ::TestCenter::Helper::RetryingScan::Runner.new(params.values)
-        tests_passed = retrying_scan.scan
+        runner = ::TestCenter::Helper::MultiScanManager::Runner.new(params.values)
+        tests_passed = runner.scan
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
 
-        summary = run_summary(params, tests_passed, retrying_scan.retry_total_count)
+        summary = run_summary(params, tests_passed, runner.retry_total_count)
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
             config: summary,

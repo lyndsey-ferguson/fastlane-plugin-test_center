@@ -1,7 +1,7 @@
 
 module TestCenter
   module Helper
-    module RetryingScan
+    module MultiScanManager
       require 'fastlane_core/ui/ui.rb'
       require 'plist'
       require 'json'
@@ -9,7 +9,7 @@ module TestCenter
       require_relative './simulator_manager'
 
       class Runner
-        Parallelization = TestCenter::Helper::RetryingScan::Parallelization
+        Parallelization = TestCenter::Helper::MultiScanManager::Parallelization
 
         attr_reader :retry_total_count
 
@@ -69,7 +69,7 @@ module TestCenter
               @reportnamer
             )
             all_tests_passed = testrun_passed && all_tests_passed
-            TestCenter::Helper::RetryingScan::ReportCollator.new(
+            TestCenter::Helper::MultiScanManager::ReportCollator.new(
               source_reports_directory_glob: output_directory,
               output_directory: output_directory,
               reportnamer: @reportnamer,
@@ -127,7 +127,7 @@ module TestCenter
                 @given_output_files,
                 @given_custom_report_file_name
               )
-              TestCenter::Helper::RetryingScan::ReportCollator.new(
+              TestCenter::Helper::MultiScanManager::ReportCollator.new(
                 source_reports_directory_glob: source_reports_directory_glob,
                 output_directory: @output_directory,
                 reportnamer: @reportnamer,
@@ -182,7 +182,7 @@ module TestCenter
         end
 
         def reset_interstitial(output_directory)
-          @interstitial = TestCenter::Helper::RetryingScan::Interstitial.new(
+          @interstitial = TestCenter::Helper::MultiScanManager::Interstitial.new(
             @scan_options.merge(
               {
                 output_directory: output_directory,
