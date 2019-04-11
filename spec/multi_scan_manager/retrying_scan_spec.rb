@@ -1,11 +1,62 @@
 describe TestCenter::Helper::MultiScanManager do
-  describe 'retrying_scan' do
-    RetryingScan = TestCenter::Helper::MultiScanManager::RetryingScan
+  describe 'retrying_scan', retrying_scan:true do
+    RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan
 
     describe 'scan' do
-      skip 'is called once if there are no failures'
-      skip 'is called three times if each test run fails twice'
-      skip 'is called twice if the first test run experiences testmanagerd connection failures'
+      it 'is called once if there are no failures' do
+        expect(Fastlane::Actions::ScanAction).to receive(:run).once
+        retrying_scan = RetryingScan.new
+        retrying_scan.run
+      end
+
+      it 'is called three times if each test run fails twice' do
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+        end
+        retrying_scan = RetryingScan.new
+        retrying_scan.run
+      end
+
+      it 'is called twice if the first run fails to connect to the test runner' do
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneBuildFailure, 'test operation failure'
+        end
+        scan_options = { derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr' }
+
+        retrying_scan = RetryingScan.new(
+          scan_options: scan_options
+        )
+        session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
+        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
+
+        allow(Dir).to receive(:glob)
+                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
+
+        allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
+        allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
+        allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+        
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneBuildFailure, 'failed to connect to runner'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
+
+        retrying_scan.run
+      end
+
+      # /Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/Test-Transient Testing-2019.04.08_16-32-28--0400.xcresult/1_Test/Diagnostics/AtomicBoyUITests-C73745AD-9DA7-4539-81DD-DE7C45152B71/AtomicBoyUITests-69F8BF52-FFEE-40A9-B50F-152041E06DF9/Session-AtomicBoyUITests-2019-04-08_163229-83OA4g.log
+      # /Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr <= derived data path
+      # look for most recently modified Session-testtarget.log
+      # look for 'Test operation failure: Test runner exited before starting test execution'
+      # look for 'Test operation failure: Lost connection to testmanagerd'
+
       skip 'is called only once if the first test run crashes'
     end
 
