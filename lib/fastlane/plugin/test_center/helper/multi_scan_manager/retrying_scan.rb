@@ -1,3 +1,4 @@
+require 'pry-byebug'
 module TestCenter
   module Helper
     module MultiScanManager
@@ -12,7 +13,9 @@ module TestCenter
             try_count += 1
             config = FastlaneCore::Configuration.create(
               Fastlane::Actions::ScanAction.available_options,
-              @scan_options
+              @scan_options.reject do |option, _|
+                %i[quit_core_simulator_service].include?(option)
+              end
             )
             Fastlane::Actions::ScanAction.run(config)
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
@@ -31,6 +34,10 @@ module TestCenter
             when /Test operation failure: Lost connection to testmanagerd/
               FastlaneCore::UI.error("Test Manager Daemon unexpectedly disconnected from test runner")
               FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
+              if @scan_options[:quit_core_simulator_service]
+                Fastlane::Actions::QuitCoreSimulatorServiceAction.run
+                retry if try_count < 3
+              end
             end
           end
         end
