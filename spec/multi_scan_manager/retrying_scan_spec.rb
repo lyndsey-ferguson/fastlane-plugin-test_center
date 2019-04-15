@@ -79,12 +79,12 @@ describe TestCenter::Helper::MultiScanManager do
         retrying_scan.run
       end
 
-      it 'quits the com.apple.CoreSimulator.CoreSimulatorService on testmanagerd connection failures if desired and retries to test' do
+      it 'restarts the com.apple.CoreSimulator.CoreSimulatorService on testmanagerd connection failures if desired and retries to test' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneBuildFailure, 'failed to connect to testmanagerd'
         end
         expect(FastlaneCore::UI).to receive(:error).with(/Test Manager Daemon/)
-        expect(Fastlane::Actions::QuitCoreSimulatorServiceAction).to receive(:run).ordered.once
+        expect(Fastlane::Actions::RestartCoreSimulatorServiceAction).to receive(:run).ordered.once
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
         scan_options = { 
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
