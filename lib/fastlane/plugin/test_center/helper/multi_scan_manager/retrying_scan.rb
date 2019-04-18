@@ -22,8 +22,8 @@ module TestCenter
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
             retry if try_count < 3
           rescue FastlaneCore::Interface::FastlaneBuildFailure => e
-            @scan_helper.after_each(rescued_build_failure: true)
-            retry if @scan_helper.can_retry && try_count < 3
+            @scan_helper.after_each(e)
+            retry if try_count < 3
           end
         end
       end

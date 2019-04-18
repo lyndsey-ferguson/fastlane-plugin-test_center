@@ -1,8 +1,12 @@
 describe TestCenter::Helper::MultiScanManager do
   describe 'retrying_scan', retrying_scan:true do
     RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan
+    ScanHelper ||= TestCenter::Helper::MultiScanManager::ScanHelper
 
     before(:each) do
+      @mock_scan_helper = OpenStruct.new
+      allow(ScanHelper).to receive(:new).and_return(@mock_scan_helper)
+      allow(@mock_scan_helper).to receive(:after_each)
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
     end
@@ -28,85 +32,33 @@ describe TestCenter::Helper::MultiScanManager do
         retrying_scan.run
       end
 
-      it 'is called twice if the first run fails to connect to the test runner' do
+      it 'is called twice if the first run generates a build exception that can be recovered from' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneBuildFailure, 'test operation failure'
         end
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
 
-        scan_options = { derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr' }
-
-        retrying_scan = RetryingScan.new(
-          scan_options: scan_options
-        )
-        session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
-        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-
-        allow(Dir).to receive(:glob)
-                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
-                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-
-        allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
-        allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
-        allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+        retrying_scan = RetryingScan.new
         
         retrying_scan.run
       end
 
-      it 'fails if the test runner fails to connect to testmanagerd' do
+      it 'fails if first runner generates a build exception that cannot be recovered from' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
-          raise FastlaneCore::Interface::FastlaneBuildFailure, 'failed to connect to testmanagerd'
+          raise FastlaneCore::Interface::FastlaneBuildFailure, 'something is seriously wrong!'
         end
-        expect(FastlaneCore::UI).to receive(:error).with(/Test Manager Daemon/)
         expect(Fastlane::Actions::ScanAction).not_to receive(:run).ordered
-        scan_options = { derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr' }
+        allow(@mock_scan_helper)
+          .to receive(:after_each)
+          .and_raise(FastlaneCore::Interface::FastlaneBuildFailure.new('something is seriously wrong!'))
 
-        retrying_scan = RetryingScan.new(
-          scan_options: scan_options
+        retrying_scan = RetryingScan.new
+
+        expect { retrying_scan.run }.to(
+          raise_error(FastlaneCore::Interface::FastlaneBuildFailure) do |error|
+            expect(error.message).to match("something is seriously wrong!")
+          end
         )
-        session_log_io = StringIO.new('Test operation failure: Lost connection to testmanagerd')
-        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-
-        allow(Dir).to receive(:glob)
-                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
-                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-
-        allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
-        allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
-        allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
-        
-
-        retrying_scan.run
-      end
-
-      it 'restarts the com.apple.CoreSimulator.CoreSimulatorService on testmanagerd connection failures if desired and retries to test' do
-        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
-          raise FastlaneCore::Interface::FastlaneBuildFailure, 'failed to connect to testmanagerd'
-        end
-        expect(FastlaneCore::UI).to receive(:error).with(/Test Manager Daemon/)
-        expect(Fastlane::Actions::RestartCoreSimulatorServiceAction).to receive(:run).ordered.once
-        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
-        scan_options = { 
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          quit_core_simulator_service: true
-        }
-
-        retrying_scan = RetryingScan.new(
-          scan_options: scan_options
-        )
-        session_log_io = StringIO.new('Test operation failure: Lost connection to testmanagerd')
-        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-
-        allow(Dir).to receive(:glob)
-                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
-                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-
-        allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
-        allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
-        allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
-        
-
-        retrying_scan.run
       end
 
       # /Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/Test-Transient Testing-2019.04.08_16-32-28--0400.xcresult/1_Test/Diagnostics/AtomicBoyUITests-C73745AD-9DA7-4539-81DD-DE7C45152B71/AtomicBoyUITests-69F8BF52-FFEE-40A9-B50F-152041E06DF9/Session-AtomicBoyUITests-2019-04-08_163229-83OA4g.log
