@@ -5,28 +5,27 @@ module TestCenter
 
       class ScanHelper
 
-        def initialize(scan_options)
+        def initialize(scan_options, parallelize = false)
           @scan_options = scan_options
+          @parallelize = parallelize
         end
         
         def before_all
-          setup_scan_config
-
           if @parallelize
+            setup_scan_config
             FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
               simulator.delete if /-batchclone-/ =~ simulator.name
             end
           end
-
         end
 
         def setup_scan_config
-          ::Scan.cache = nil
-          ::Scan.config = FastlaneCore::Configuration.create(
-            Fastlane::Actions::ScanAction.available_options,
-            scan_options.merge(scan_options)
-          )
-          ::Scan.config = ::Scan::DetectValues.set_additional_default_values
+          unless ::Scan.config&.fetch(:destination)
+            ::Scan.config = FastlaneCore::Configuration.create(
+              Fastlane::Actions::ScanAction.available_options,
+              @scan_options
+            )
+          end
         end
 
         def after_each(exception)

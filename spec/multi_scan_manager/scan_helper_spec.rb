@@ -10,14 +10,11 @@ describe TestCenter::Helper::MultiScanManager do
     end
 
     describe 'before_all' do
-      helper = ScanHelper.new(
-        derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'
-      )
     end
 
     describe 'after_each' do
       it 'raises if there is a random build failure' do
-        helper = ScanHelper.new(derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr')
+        helper = ScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
 
         session_log_io = StringIO.new('Everything went wrong!')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
@@ -42,7 +39,7 @@ describe TestCenter::Helper::MultiScanManager do
       end
 
       it 'does not raise if there is a test runner early exit failure' do
-        helper = ScanHelper.new(derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr')
+        helper = ScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
         
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
@@ -56,6 +53,47 @@ describe TestCenter::Helper::MultiScanManager do
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
         
         helper.after_each(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
+      end
+    end
+
+    describe 'parallelized' do
+      before(:each) do
+        @mocked_scan_config = {
+          destination: 'platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74'
+        }
+        allow(::Scan).to receive(:config).and_call_original
+      end
+
+      describe 'before_all' do
+        it 'does not set up the iOS destination if it is set' do
+          allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
+
+          helper = ScanHelper.new(
+            {
+              derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+              project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
+              scheme: 'Atlas'
+            },
+            true
+          )
+          expect(FastlaneCore::Configuration).not_to receive(:create)
+          helper.before_all
+        end
+  
+        it 'sets up the "iOS destination" if it is not set' do
+          helper = ScanHelper.new(
+            {
+              derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+              project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
+              scheme: 'Atlas'
+            },
+            true
+          )
+          
+          allow(FastlaneCore::Configuration).to receive(:create).and_return(@mocked_scan_config)
+          expect(::Scan).to receive(:config=).with(@mocked_scan_config)
+          helper.before_all
+        end
       end
     end
   end
