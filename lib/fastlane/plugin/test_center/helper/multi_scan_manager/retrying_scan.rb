@@ -3,9 +3,9 @@ module TestCenter
   module Helper
     module MultiScanManager
       class RetryingScan
-        def initialize(scan_options: {})
+        def initialize(scan_options, retrying_scan_helper)
           @scan_options = scan_options
-          @scan_helper = ScanHelper.new(scan_options: @scan_options)
+          @retrying_scan_helper = retrying_scan_helper
         end
 
         def run
@@ -22,7 +22,7 @@ module TestCenter
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
             retry if try_count < 3
           rescue FastlaneCore::Interface::FastlaneBuildFailure => e
-            @scan_helper.after_each(e)
+            @retrying_scan_helper.after_each(e)
             retry if try_count < 3
           end
         end

@@ -88,7 +88,7 @@ describe TestCenter do
         )
       end
 
-      it 'calls to testables_tests returns Hash of only_testing' do
+      skip 'calls to testables_tests returns Hash of only_testing' do
         expect(Fastlane::Actions::TestsFromXctestrunAction).not_to receive(:run)
         test_collector = TestCollector.new(
           xctestrun: 'path/to/fake.xctestrun',

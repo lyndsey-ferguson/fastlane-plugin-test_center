@@ -3,7 +3,7 @@ module TestCenter
     module MultiScanManager
       require 'pry-byebug'
 
-      class ScanHelper
+      class RetryingScanHelper
 
         def initialize(scan_options, parallelize = false)
           @scan_options = scan_options
@@ -28,7 +28,7 @@ module TestCenter
 
         def delete_multi_scan_cloned_simulators
           FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
-            simulator.delete if /TestCenter::Helper::MultiScanManager::ScanHelper<\d+>/ =~ simulator.name
+            simulator.delete if /#{self.class.name}<\d+>/ =~ simulator.name
           end
         end
 

@@ -1,9 +1,9 @@
 require 'pry-byebug'
 
 describe TestCenter::Helper::MultiScanManager do
-  describe 'scan_helper', scan_helper:true do
+  describe 'retrying_scan_helper', retrying_scan_helper:true do
 
-    ScanHelper ||= TestCenter::Helper::MultiScanManager::ScanHelper
+    RetryingScanHelper ||= TestCenter::Helper::MultiScanManager::RetryingScanHelper
     before(:each) do
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
@@ -14,7 +14,7 @@ describe TestCenter::Helper::MultiScanManager do
 
     describe 'after_each' do
       it 'raises if there is a random build failure' do
-        helper = ScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
+        helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
 
         session_log_io = StringIO.new('Everything went wrong!')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
@@ -39,7 +39,7 @@ describe TestCenter::Helper::MultiScanManager do
       end
 
       it 'does not raise if there is a test runner early exit failure' do
-        helper = ScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
+        helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
         
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
@@ -65,10 +65,10 @@ describe TestCenter::Helper::MultiScanManager do
 
       describe 'before_all' do
         it 'does not set up the iOS destination if it is set' do
-          allow_any_instance_of(ScanHelper).to receive(:delete_multi_scan_cloned_simulators)
+          allow_any_instance_of(RetryingScanHelper).to receive(:delete_multi_scan_cloned_simulators)
           allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
 
-          helper = ScanHelper.new(
+          helper = RetryingScanHelper.new(
             {
               derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
               project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
@@ -81,10 +81,10 @@ describe TestCenter::Helper::MultiScanManager do
         end
   
         it 'sets up the "iOS destination" if it is not set' do
-          allow_any_instance_of(ScanHelper).to receive(:delete_multi_scan_cloned_simulators)
+          allow_any_instance_of(RetryingScanHelper).to receive(:delete_multi_scan_cloned_simulators)
           allow(FastlaneCore::Configuration).to receive(:create).and_return(@mocked_scan_config)
 
-          helper = ScanHelper.new(
+          helper = RetryingScanHelper.new(
             {
               derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
               project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
@@ -101,20 +101,20 @@ describe TestCenter::Helper::MultiScanManager do
           allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
           mocked_simulators = [
             OpenStruct.new(
-              name: 'iPad Pro Clone 1 for TestCenter::Helper::MultiScanManager::ScanHelper<123>'
+              name: 'iPad Pro Clone 1 for TestCenter::Helper::MultiScanManager::RetryingScanHelper<123>'
             ),
             OpenStruct.new(
-              name: 'iPad Pro Clone 2 for TestCenter::Helper::MultiScanManager::ScanHelper<456>'
+              name: 'iPad Pro Clone 2 for TestCenter::Helper::MultiScanManager::RetryingScanHelper<456>'
             ),
             OpenStruct.new(
-              name: 'iPad Pro Clone 3 for TestCenter::Helper::MultiScanManager::ScanHelper<789>'
+              name: 'iPad Pro Clone 3 for TestCenter::Helper::MultiScanManager::RetryingScanHelper<789>'
             ),
             OpenStruct.new(
-              name: 'iPad Pro Clone 4 for TestCenter::Helper::MultiScanManager::ScanHelper<147>'
+              name: 'iPad Pro Clone 4 for TestCenter::Helper::MultiScanManager::RetryingScanHelper<147>'
             )
           ]
           allow(FastlaneCore::DeviceManager).to receive(:simulators).and_return(mocked_simulators)
-          helper = ScanHelper.new(
+          helper = RetryingScanHelper.new(
             {
               derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
               project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
