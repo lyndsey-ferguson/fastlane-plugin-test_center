@@ -9,6 +9,12 @@ describe TestCenter::Helper::MultiScanManager do
       allow(File).to receive(:open).and_call_original
     end
 
+    describe 'before_all' do
+      helper = ScanHelper.new(
+        derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'
+      )
+    end
+
     describe 'after_each' do
       it 'raises if there is a random build failure' do
         helper = ScanHelper.new(derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr')
