@@ -61,11 +61,11 @@ describe TestCenter::Helper::MultiScanManager do
         @mocked_scan_config = {
           destination: 'platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74'
         }
-        allow(::Scan).to receive(:config).and_call_original
       end
 
       describe 'before_all' do
         it 'does not set up the iOS destination if it is set' do
+          allow_any_instance_of(ScanHelper).to receive(:delete_multi_scan_cloned_simulators)
           allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
 
           helper = ScanHelper.new(
@@ -81,6 +81,9 @@ describe TestCenter::Helper::MultiScanManager do
         end
   
         it 'sets up the "iOS destination" if it is not set' do
+          allow_any_instance_of(ScanHelper).to receive(:delete_multi_scan_cloned_simulators)
+          allow(FastlaneCore::Configuration).to receive(:create).and_return(@mocked_scan_config)
+
           helper = ScanHelper.new(
             {
               derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
@@ -90,8 +93,39 @@ describe TestCenter::Helper::MultiScanManager do
             true
           )
           
-          allow(FastlaneCore::Configuration).to receive(:create).and_return(@mocked_scan_config)
           expect(::Scan).to receive(:config=).with(@mocked_scan_config)
+          helper.before_all
+        end
+
+        it 'deletes cloned simulators' do
+          allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
+          mocked_simulators = [
+            OpenStruct.new(
+              name: 'iPad Pro Clone 1 for TestCenter::Helper::MultiScanManager::ScanHelper<123>'
+            ),
+            OpenStruct.new(
+              name: 'iPad Pro Clone 2 for TestCenter::Helper::MultiScanManager::ScanHelper<456>'
+            ),
+            OpenStruct.new(
+              name: 'iPad Pro Clone 3 for TestCenter::Helper::MultiScanManager::ScanHelper<789>'
+            ),
+            OpenStruct.new(
+              name: 'iPad Pro Clone 4 for TestCenter::Helper::MultiScanManager::ScanHelper<147>'
+            )
+          ]
+          allow(FastlaneCore::DeviceManager).to receive(:simulators).and_return(mocked_simulators)
+          helper = ScanHelper.new(
+            {
+              derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+              project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
+              scheme: 'Atlas'
+            },
+            true
+          )
+
+          mocked_simulators.each do |mocked_simulator|
+            expect(mocked_simulator).to receive(:delete)
+          end
           helper.before_all
         end
       end

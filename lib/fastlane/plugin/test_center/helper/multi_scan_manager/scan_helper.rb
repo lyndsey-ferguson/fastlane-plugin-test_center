@@ -13,9 +13,7 @@ module TestCenter
         def before_all
           if @parallelize
             setup_scan_config
-            FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
-              simulator.delete if /-batchclone-/ =~ simulator.name
-            end
+            delete_multi_scan_cloned_simulators
           end
         end
 
@@ -25,6 +23,12 @@ module TestCenter
               Fastlane::Actions::ScanAction.available_options,
               @scan_options
             )
+          end
+        end
+
+        def delete_multi_scan_cloned_simulators
+          FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
+            simulator.delete if /TestCenter::Helper::MultiScanManager::ScanHelper<\d+>/ =~ simulator.name
           end
         end
 
