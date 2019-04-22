@@ -5,7 +5,7 @@ module TestCenter
       require 'colorize'
       require 'pry-byebug'
       require_relative './device_manager'
-      
+
       class Parallelization
         def initialize(batch_count, output_directory, testrun_completed_block)
           @batch_count = batch_count
@@ -14,6 +14,13 @@ module TestCenter
           
           @simulators ||= []
 
+          if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            @simhelper = SimulatorHelper.new(
+              parallelize: true,
+              batch_count: batch_count
+            )
+            @simhelper.setup
+          end
           if @batch_count < 1
             raise FastlaneCore::FastlaneCrash.new({}), "batch_count (#{@batch_count}) < 1, this should never happen"
           end
@@ -25,24 +32,28 @@ module TestCenter
         end
 
         def setup_simulators(devices, batch_deploymentversions)
-          FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
-            simulator.delete if /-batchclone-/ =~ simulator.name
-          end
-
-          (0...@batch_count).each do |batch_index|
-            found_simulator_devices = []
-            if devices.count > 0
-              found_simulator_devices = detect_simulator(devices, batch_deploymentversions[batch_index])
-            else
-              found_simulator_devices = Scan::DetectValues.detect_simulator(devices, 'iOS', 'IPHONEOS_DEPLOYMENT_TARGET', 'iPhone 5s', nil)
+          if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            @simulators = @simhelper.clone_destination_simulators
+          else
+            FastlaneCore::DeviceManager.simulators('iOS').each do |simulator|
+              simulator.delete if /-batchclone-/ =~ simulator.name
             end
-            @simulators[batch_index] ||= []
-            found_simulator_devices.each do |found_simulator_device|
-              device_for_batch = found_simulator_device.clone
-              new_name = "#{found_simulator_device.name.gsub(/[^a-zA-Z\d]/,'')}-batchclone-#{batch_index + 1}"
-              device_for_batch.rename(new_name)
-              device_for_batch.boot
-              @simulators[batch_index] << device_for_batch
+
+            (0...@batch_count).each do |batch_index|
+              found_simulator_devices = []
+              if devices.count > 0
+                found_simulator_devices = detect_simulator(devices, batch_deploymentversions[batch_index])
+              else
+                found_simulator_devices = Scan::DetectValues.detect_simulator(devices, 'iOS', 'IPHONEOS_DEPLOYMENT_TARGET', 'iPhone 5s', nil)
+              end
+              @simulators[batch_index] ||= []
+              found_simulator_devices.each do |found_simulator_device|
+                device_for_batch = found_simulator_device.clone
+                new_name = "#{found_simulator_device.name.gsub(/[^a-zA-Z\d]/,'')}-batchclone-#{batch_index + 1}"
+                device_for_batch.rename(new_name)
+                device_for_batch.boot
+                @simulators[batch_index] << device_for_batch
+              end
             end
           end
         end

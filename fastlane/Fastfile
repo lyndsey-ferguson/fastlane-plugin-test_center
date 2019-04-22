@@ -12,13 +12,13 @@ end
 
 lane :testing do
   test_run_block = lambda do |testrun_info|
-    failed_test_count = testrun_info[:failed].size
-    passed_test_count = testrun_info[:passing].size
     try_attempt = testrun_info[:try_count]
     batch = testrun_info[:batch]
 
     UI.message("Everything is fine, let's continue try #{try_attempt + 1} for batch #{batch}")
   end
+
+  ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN'] = 'true'
 
   multi_scan(
     project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
