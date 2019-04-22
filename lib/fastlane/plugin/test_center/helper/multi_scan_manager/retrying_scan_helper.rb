@@ -1,7 +1,7 @@
 module TestCenter
   module Helper
     module MultiScanManager
-      require 'pry-byebug'
+      require_relative 'device_manager'
 
       class RetryingScanHelper
 
@@ -14,15 +14,31 @@ module TestCenter
           if @parallelize
             setup_scan_config
             delete_multi_scan_cloned_simulators
+            clone_destination_simulators
           end
         end
 
         def setup_scan_config
-          unless ::Scan.config&.fetch(:destination)
+          unless ::Scan.config&.has_key?(:destination)
             ::Scan.config = FastlaneCore::Configuration.create(
               Fastlane::Actions::ScanAction.available_options,
               @scan_options
             )
+          end
+        end
+
+        def clone_destination_simulators
+          batch_count = @scan_options[:batch_count] || 0
+          destination_simulator_ids = Scan.config[:destination].map do |destination|
+            destination.split(',id=').last
+          end
+          original_simulators = FastlaneCore::DeviceManager.simulators('iOS').find_all do |simulator|
+            destination_simulator_ids.include?(simulator.udid)
+          end
+          (0...batch_count).each do |batch_index|
+            original_simulators.each do |simulator|
+              simulator.clone
+            end
           end
         end
 
