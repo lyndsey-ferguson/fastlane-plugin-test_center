@@ -1,11 +1,11 @@
 describe TestCenter::Helper::MultiScanManager do
-  describe 'retrying_scan', retrying_scan:true do
+  describe 'retrying_scan', refactor_retrying_scan:true do
     RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan
     RetryingScanHelper ||= TestCenter::Helper::MultiScanManager::RetryingScanHelper
 
     before(:each) do
       @mock_retrying_scan_helper = OpenStruct.new
-      allow(@mock_retrying_scan_helper).to receive(:after_each)
+      allow(@mock_retrying_scan_helper).to receive(:refactor_retrying_scan)
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
     end
@@ -48,7 +48,7 @@ describe TestCenter::Helper::MultiScanManager do
         end
         expect(Fastlane::Actions::ScanAction).not_to receive(:run).ordered
         allow(@mock_retrying_scan_helper)
-          .to receive(:after_each)
+          .to receive(:refactor_retrying_scan)
           .and_raise(FastlaneCore::Interface::FastlaneBuildFailure.new('something is seriously wrong!'))
 
         retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)

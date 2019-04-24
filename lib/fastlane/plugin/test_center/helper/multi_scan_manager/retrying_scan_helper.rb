@@ -10,10 +10,10 @@ module TestCenter
           @parallelize = parallelize
         end
         
-        def before_all
+        def before_testrun
         end
 
-        def after_each(exception)
+        def after_testrun(exception)
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
           elsif exception.kind_of?(FastlaneCore::Interface::FastlaneBuildFailure)
             derived_data_path = File.expand_path(@scan_options[:derived_data_path])

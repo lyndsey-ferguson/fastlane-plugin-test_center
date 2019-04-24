@@ -1,7 +1,7 @@
 require 'pry-byebug'
 
 describe TestCenter::Helper::MultiScanManager do
-  describe 'retrying_scan_helper', retrying_scan_helper:true do
+  describe 'retrying_scan_helper', refactor_retrying_scan:true do
 
     RetryingScanHelper ||= TestCenter::Helper::MultiScanManager::RetryingScanHelper
     before(:each) do
@@ -9,7 +9,7 @@ describe TestCenter::Helper::MultiScanManager do
       allow(File).to receive(:open).and_call_original
     end
 
-    describe 'after_each' do
+    describe 'after_testrun' do
       it 'raises if there is a random build failure' do
         helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
 
@@ -25,7 +25,7 @@ describe TestCenter::Helper::MultiScanManager do
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
 
         expect {
-          helper.after_each(
+          helper.after_testrun(
             FastlaneCore::Interface::FastlaneBuildFailure.new('chaos')
           )
         }.to(
@@ -49,7 +49,7 @@ describe TestCenter::Helper::MultiScanManager do
         allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
         
-        helper.after_each(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
+        helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
       end
     end
   end
