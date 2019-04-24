@@ -5,9 +5,8 @@ module TestCenter
 
       class RetryingScanHelper
 
-        def initialize(scan_options, parallelize = false)
-          @scan_options = scan_options
-          @parallelize = parallelize
+        def initialize(options)
+          @options = options
         end
         
         def before_testrun
@@ -15,8 +14,13 @@ module TestCenter
 
         def after_testrun(exception)
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
+            if @options[:reset_simulators]
+              @options[:simulators].each do |simulator|
+                simulator.reset
+              end
+            end
           elsif exception.kind_of?(FastlaneCore::Interface::FastlaneBuildFailure)
-            derived_data_path = File.expand_path(@scan_options[:derived_data_path])
+            derived_data_path = File.expand_path(@options[:derived_data_path])
             test_session_logs = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult/*_Test/Diagnostics/**/Session-*.log")
             test_session_logs.sort! { |logfile1, logfile2| File.mtime(logfile1) <=> File.mtime(logfile2) }
             test_session = File.open(test_session_logs.last)
@@ -28,12 +32,17 @@ module TestCenter
             when /Test operation failure: Lost connection to testmanagerd/
               FastlaneCore::UI.error("Test Manager Daemon unexpectedly disconnected from test runner")
               FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
-              if @scan_options[:quit_core_simulator_service]
+              if @options[:quit_core_simulator_service]
                 Fastlane::Actions::RestartCoreSimulatorServiceAction.run
               else
               end
             else
               raise exception
+            end
+            if @options[:reset_simulators]
+              @options[:simulators].each do |simulator|
+                simulator.reset
+              end
             end
           end
         end
