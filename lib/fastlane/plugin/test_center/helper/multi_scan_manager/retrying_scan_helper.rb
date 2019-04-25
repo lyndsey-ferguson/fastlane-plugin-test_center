@@ -12,11 +12,13 @@ module TestCenter
         end
         
         def before_testrun
-          remove_preexisting_test_result_bundles if @options[:result_bundle]
-          set_json_env if @options.fetch(:output_types, '').split(',').include?('json')
+          remove_preexisting_test_result_bundles
+          set_json_env
         end
 
         def set_json_env
+          return unless @options.fetch(:output_types, '').split(',').include?('json')
+
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
             @options[:output_directory],
             'report.json'
@@ -24,10 +26,14 @@ module TestCenter
         end
 
         def reset_json_env
+          return unless @options.fetch(:output_types, '').split(',').include?('json')
+
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
         end
 
         def remove_preexisting_test_result_bundles
+          return unless @options[:result_bundle]
+
           absolute_output_directory = File.absolute_path(@options[:output_directory])
           glob_pattern = "#{absolute_output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
@@ -37,43 +43,55 @@ module TestCenter
         def after_testrun(exception = nil)
           @testrun_count = @testrun_count + 1
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
-            if @options[:reset_simulators]
-              @options[:simulators].each do |simulator|
-                simulator.reset
-              end
-            end
+            handle_test_failure
           elsif exception.kind_of?(FastlaneCore::Interface::FastlaneBuildFailure)
-            derived_data_path = File.expand_path(@options[:derived_data_path])
-            test_session_logs = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult/*_Test/Diagnostics/**/Session-*.log")
-            test_session_logs.sort! { |logfile1, logfile2| File.mtime(logfile1) <=> File.mtime(logfile2) }
-            test_session = File.open(test_session_logs.last)
-            backwards_seek_offset = -1 * [1000, test_session.stat.size].min
-            test_session.seek(backwards_seek_offset, IO::SEEK_END)
-            case test_session.read
-            when /Test operation failure: Test runner exited before starting test execution/
-              FastlaneCore::UI.message("Test runner for simulator <udid> failed to start")
-            when /Test operation failure: Lost connection to testmanagerd/
-              FastlaneCore::UI.error("Test Manager Daemon unexpectedly disconnected from test runner")
-              FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
-              if @options[:quit_core_simulator_service]
-                Fastlane::Actions::RestartCoreSimulatorServiceAction.run
-              else
-              end
+            handle_build_failure(exception)
+          else
+            handle_success
+          end
+        end
+
+        def handle_success
+          move_test_result_bundle_for_next_run
+          reset_json_env
+        end
+
+        def handle_test_failure
+          @options[:reset_simulators] && @options[:simulators].each do |simulator|
+            simulator.reset
+          end
+        end
+
+        def handle_build_failure(exception)
+          derived_data_path = File.expand_path(@options[:derived_data_path])
+          test_session_logs = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult/*_Test/Diagnostics/**/Session-*.log")
+          test_session_logs.sort! { |logfile1, logfile2| File.mtime(logfile1) <=> File.mtime(logfile2) }
+          test_session = File.open(test_session_logs.last)
+          backwards_seek_offset = -1 * [1000, test_session.stat.size].min
+          test_session.seek(backwards_seek_offset, IO::SEEK_END)
+          case test_session.read
+          when /Test operation failure: Test runner exited before starting test execution/
+            FastlaneCore::UI.message("Test runner for simulator <udid> failed to start")
+          when /Test operation failure: Lost connection to testmanagerd/
+            FastlaneCore::UI.error("Test Manager Daemon unexpectedly disconnected from test runner")
+            FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
+            if @options[:quit_core_simulator_service]
+              Fastlane::Actions::RestartCoreSimulatorServiceAction.run
             else
-              raise exception
-            end
-            if @options[:reset_simulators]
-              @options[:simulators].each do |simulator|
-                simulator.reset
-              end
             end
           else
-            move_test_result_bundle_for_next_run if @options[:result_bundle]
-            reset_json_env if @options.fetch(:output_types, '').split(',').include?('json')
+            raise exception
+          end
+          if @options[:reset_simulators]
+            @options[:simulators].each do |simulator|
+              simulator.reset
+            end
           end
         end
 
         def move_test_result_bundle_for_next_run
+          return unless @options[:result_bundle]
+
           absolute_output_directory = File.absolute_path(@options[:output_directory])
           glob_pattern = "#{absolute_output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
