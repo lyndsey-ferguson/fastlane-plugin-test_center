@@ -8,10 +8,23 @@ module TestCenter
         def initialize(options)
           @options = options
           @testrun_count = 0
+          @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
         end
         
         def before_testrun
           remove_preexisting_test_result_bundles if @options[:result_bundle]
+          set_json_env if @options.fetch(:output_types, '').split(',').include?('json')
+        end
+
+        def set_json_env
+          ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
+            @options[:output_directory],
+            'report.json'
+          )
+        end
+
+        def reset_json_env
+          ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
         end
 
         def remove_preexisting_test_result_bundles
@@ -55,7 +68,8 @@ module TestCenter
               end
             end
           else
-            move_test_result_bundle_for_next_run
+            move_test_result_bundle_for_next_run if @options[:result_bundle]
+            reset_json_env if @options.fetch(:output_types, '').split(',').include?('json')
           end
         end
 

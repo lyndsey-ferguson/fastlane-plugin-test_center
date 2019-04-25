@@ -8,6 +8,11 @@ describe TestCenter::Helper::MultiScanManager do
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
       allow(FileUtils).to receive(:rm_rf).and_call_original
+      @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
+    end
+
+    after(:each) do
+      ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
     end
 
     describe 'before_testrun' do
@@ -19,6 +24,18 @@ describe TestCenter::Helper::MultiScanManager do
           result_bundle: true
         )
         expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
+        helper.before_testrun
+      end
+
+      it 'sets the JSON xcpretty output option' do
+        allow(ENV).to receive(:[]=).and_call_original
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          output_types: 'json',
+          output_files: 'report.json'
+        )
+        expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './path/to/output/directory/report.json')
         helper.before_testrun
       end
     end
@@ -103,11 +120,23 @@ describe TestCenter::Helper::MultiScanManager do
           result_bundle: true
         )
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
-        byebug
         helper.after_testrun
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
         helper.after_testrun
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
+        helper.after_testrun
+      end
+
+      it 'resets the JSON xcpretty output option' do
+        ENV['XCPRETTY_JSON_FILE_OUTPUT'] = './original/path/to/output/directory/xcpretty.json'
+        allow(ENV).to receive(:[]=).and_call_original
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          output_types: 'json',
+          output_files: 'report.json'
+        )
+        expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './original/path/to/output/directory/xcpretty.json')
         helper.after_testrun
       end
     end
@@ -116,19 +145,10 @@ end
 
 # describe 'scan_helper' do
 #   describe 'before a scan' do
-#     skip 'clears out pre-existing test bundles before scan'
-#     skip 'sets up JSON xcpretty output option'
-#     skip 'resets the simulators'
 #     skip 'gets the scan options'
-
-#     describe 'the options' do
-#     end
-
 #   end
 
 #   describe 'after a scan' do
-#     skip 'updates the test bundle name after a scan'
-#     skip 'resets the JSON xcpretty output option'
 #     skip 'sends info about the last test run to the test_run callback'
 #     skip 'updates the reportnamer'
 #   end
