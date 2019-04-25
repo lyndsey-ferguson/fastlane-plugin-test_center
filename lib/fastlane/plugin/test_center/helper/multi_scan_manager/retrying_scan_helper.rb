@@ -7,6 +7,7 @@ module TestCenter
 
         def initialize(options)
           @options = options
+          @testrun_count = 0
         end
         
         def before_testrun
@@ -15,12 +16,13 @@ module TestCenter
 
         def remove_preexisting_test_result_bundles
           absolute_output_directory = File.absolute_path(@options[:output_directory])
-          glob_pattern = "#{absolute_output_directory}/.*\.test_result"
+          glob_pattern = "#{absolute_output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           FileUtils.rm_rf(preexisting_test_result_bundles)
         end
 
-        def after_testrun(exception)
+        def after_testrun(exception = nil)
+          @testrun_count = @testrun_count + 1
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
             if @options[:reset_simulators]
               @options[:simulators].each do |simulator|
@@ -52,7 +54,24 @@ module TestCenter
                 simulator.reset
               end
             end
+          else
+            move_test_result_bundle_for_next_run
           end
+        end
+
+        def move_test_result_bundle_for_next_run
+          absolute_output_directory = File.absolute_path(@options[:output_directory])
+          glob_pattern = "#{absolute_output_directory}/*.test_result"
+          preexisting_test_result_bundles = Dir.glob(glob_pattern)
+          unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|
+            test_result =~ /.*-\d+\.test_result/
+          end
+          src_test_bundle = unnumbered_test_result_bundles.first
+          dst_test_bundle_parent_dir = File.dirname(src_test_bundle)
+          dst_test_bundle_basename = File.basename(src_test_bundle, '.test_result')
+          dst_test_bundle = "#{dst_test_bundle_parent_dir}/#{dst_test_bundle_basename}-#{@testrun_count}.test_result"
+          FileUtils.mkdir_p(dst_test_bundle)
+          FileUtils.mv(src_test_bundle, dst_test_bundle)
         end
       end
     end

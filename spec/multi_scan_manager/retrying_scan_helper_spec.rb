@@ -11,13 +11,13 @@ describe TestCenter::Helper::MultiScanManager do
     end
 
     describe 'before_testrun' do
-      it 'clears out pre-existing test bundles before a scan' do
+      it 'clears out pre-existing test bundles' do
+        allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result'])
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           result_bundle: true
         )
-        expect(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result'])
         expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
         helper.before_testrun
       end
@@ -92,6 +92,23 @@ describe TestCenter::Helper::MultiScanManager do
           expect(cloned_simulator).to receive(:reset)
         end
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
+      end
+
+      it 'renames the resultant test bundle' do
+        allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result', './AtomicDragon-99.test_result'])
+        allow(FileUtils).to receive(:mkdir_p)
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          result_bundle: true
+        )
+        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
+        byebug
+        helper.after_testrun
+        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
+        helper.after_testrun
+        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
+        helper.after_testrun
       end
     end
   end
