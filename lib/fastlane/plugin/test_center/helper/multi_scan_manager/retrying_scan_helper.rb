@@ -10,6 +10,14 @@ module TestCenter
         end
         
         def before_testrun
+          remove_preexisting_test_result_bundles if @options[:result_bundle]
+        end
+
+        def remove_preexisting_test_result_bundles
+          absolute_output_directory = File.absolute_path(@options[:output_directory])
+          glob_pattern = "#{absolute_output_directory}/.*\.test_result"
+          preexisting_test_result_bundles = Dir.glob(glob_pattern)
+          FileUtils.rm_rf(preexisting_test_result_bundles)
         end
 
         def after_testrun(exception)

@@ -7,6 +7,20 @@ describe TestCenter::Helper::MultiScanManager do
     before(:each) do
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
+      allow(FileUtils).to receive(:rm_rf).and_call_original
+    end
+
+    describe 'before_testrun' do
+      it 'clears out pre-existing test bundles before a scan' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          result_bundle: true
+        )
+        expect(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result'])
+        expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
+        helper.before_testrun
+      end
     end
 
     describe 'after_testrun' do
@@ -84,18 +98,13 @@ describe TestCenter::Helper::MultiScanManager do
 end
 
 # describe 'scan_helper' do
-#   describe 'before the first scan' do
-#     skip 'quits com.apple.CoreSimulator.CoreSimulatorService'
-#     skip 'creates the clones of simulators'
-#   end
-
 #   describe 'before a scan' do
 #     skip 'clears out pre-existing test bundles before scan'
 #     skip 'sets up JSON xcpretty output option'
 #     skip 'resets the simulators'
+#     skip 'gets the scan options'
 
 #     describe 'the options' do
-#       skip 'updates the reportnamer'
 #     end
 
 #   end
@@ -104,6 +113,7 @@ end
 #     skip 'updates the test bundle name after a scan'
 #     skip 'resets the JSON xcpretty output option'
 #     skip 'sends info about the last test run to the test_run callback'
+#     skip 'updates the reportnamer'
 #   end
 
 # end
