@@ -38,6 +38,19 @@ describe TestCenter::Helper::MultiScanManager do
         expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './path/to/output/directory/report.json')
         helper.before_testrun
       end
+
+      describe 'scan_options' do
+        it 'has the tests to be tested' do
+          helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+
+          expect(helper.scan_options).to include(
+            only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+        end
+      end
     end
 
     describe 'after_testrun' do
@@ -139,18 +152,50 @@ describe TestCenter::Helper::MultiScanManager do
         expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './original/path/to/output/directory/xcpretty.json')
         helper.after_testrun
       end
+
+      describe 'scan_options' do
+        it 'has only the failing tests' do
+          helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: './path/to/output/directory',
+            only_testing: [
+              'BagOfTests/CoinTossingUITests/testResultIsTails',
+              'BagOfTests/CoinTossingUITests/testResultIsHeads'
+            ]
+          )
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(%r{path/to/output/directory/report.junit}).and_return(true)
+          allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+            failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+          helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+          expect(helper.scan_options).to include(
+            only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+        end
+
+        skip 'continually increments the report suffix for html, junit, and json'
+      end
     end
   end
 end
 
 # describe 'scan_helper' do
 #   describe 'before a scan' do
-#     skip 'gets the scan options'
+#     describe 'scan_options' do
+#       skip 'does not have any non-scan options'
+#       skip 'has the output directory'
+#       skip 'has the test_result option'
+#       skip 'has the build log path'
+#       skip 'has the desintation for sims and not device(s)'
+#       skip 'has the scheme'
+#       skip 'has code coverage'
+#     end
 #   end
 
 #   describe 'after a scan' do
 #     skip 'sends info about the last test run to the test_run callback'
-#     skip 'updates the reportnamer'
+#     skip 'updates the reportnamer
 #   end
 
 # end

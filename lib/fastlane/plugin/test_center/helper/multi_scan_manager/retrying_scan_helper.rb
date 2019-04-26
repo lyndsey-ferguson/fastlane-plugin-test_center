@@ -40,6 +40,14 @@ module TestCenter
           FileUtils.rm_rf(preexisting_test_result_bundles)
         end
 
+        def scan_options
+          return {
+            only_testing: @options[:only_testing]
+          }
+        end
+
+        # after_testrun methods
+
         def after_testrun(exception = nil)
           @testrun_count = @testrun_count + 1
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
@@ -57,9 +65,29 @@ module TestCenter
         end
 
         def handle_test_failure
-          @options[:reset_simulators] && @options[:simulators].each do |simulator|
-            simulator.reset
-          end
+          reset_simulators
+          update_scan_options
+        end
+
+        def update_scan_options
+          update_only_testing
+        end
+
+        def update_only_testing
+          report_filepath = File.join(@options[:output_directory], 'report.junit')
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestsFromJunitAction.available_options,
+            {
+              junit: File.absolute_path(report_filepath)
+            }
+          )
+          @options[:only_testing] = Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+        end
+        
+        def reset_simulators
+          return unless @options[:reset_simulators]
+
+          @options[:simulators].each(&:reset)
         end
 
         def handle_build_failure(exception)
