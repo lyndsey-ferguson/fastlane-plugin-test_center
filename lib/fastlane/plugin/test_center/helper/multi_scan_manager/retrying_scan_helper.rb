@@ -41,9 +41,10 @@ module TestCenter
         end
 
         def scan_options
-          return {
-            only_testing: @options[:only_testing]
-          }
+          valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+          @options.select do |k,v|
+            valid_scan_keys.include?(k)
+          end
         end
 
         # after_testrun methods

@@ -50,6 +50,17 @@ describe TestCenter::Helper::MultiScanManager do
             only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
           )
         end
+
+        it 'does not have any non-scan options' do
+          helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+            batch_count: 4,
+            parallelize: true
+          )
+          expect(helper.scan_options.keys).not_to include(:batch_count, :parallelize)
+          expect(helper.scan_options.keys).to include(:derived_data_path, :only_testing)
+        end
       end
     end
 
@@ -183,7 +194,6 @@ end
 # describe 'scan_helper' do
 #   describe 'before a scan' do
 #     describe 'scan_options' do
-#       skip 'does not have any non-scan options'
 #       skip 'has the output directory'
 #       skip 'has the test_result option'
 #       skip 'has the build log path'
