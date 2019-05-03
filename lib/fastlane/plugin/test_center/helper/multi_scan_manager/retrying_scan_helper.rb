@@ -9,24 +9,29 @@ module TestCenter
           @options = options
           @testrun_count = 0
           @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
+
+          @reportnamer = ReportNameHelper.new(
+            options[:output_types],
+            options[:output_files],
+            options[:custom_report_file_name]
+          )
         end
         
         def before_testrun
           remove_preexisting_test_result_bundles
-          set_json_env
         end
 
         def set_json_env
-          return unless @options.fetch(:output_types, '').split(',').include?('json')
+          return unless @reportnamer.includes_json?
 
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
             @options[:output_directory],
-            'report.json'
+            @reportnamer.json_last_reportname
           )
         end
 
         def reset_json_env
-          return unless @options.fetch(:output_types, '').split(',').include?('json')
+          return unless @reportnamer.includes_json?
 
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
         end
@@ -41,10 +46,10 @@ module TestCenter
         end
 
         def scan_options
+          set_json_env
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          @options.select do |k,v|
-            valid_scan_keys.include?(k)
-          end
+          @options.select { |k,v| valid_scan_keys.include?(k) }
+                  .merge(@reportnamer.scan_options)
         end
 
         # after_testrun methods
@@ -68,6 +73,7 @@ module TestCenter
         def handle_test_failure
           reset_simulators
           update_scan_options
+          @reportnamer.increment
         end
 
         def update_scan_options
@@ -75,7 +81,7 @@ module TestCenter
         end
 
         def update_only_testing
-          report_filepath = File.join(@options[:output_directory], 'report.junit')
+          report_filepath = File.join(@options[:output_directory], @reportnamer.junit_last_reportname)
           config = FastlaneCore::Configuration.create(
             Fastlane::Actions::TestsFromJunitAction.available_options,
             {

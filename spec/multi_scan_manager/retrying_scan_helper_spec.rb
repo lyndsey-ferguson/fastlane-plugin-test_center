@@ -27,18 +27,6 @@ describe TestCenter::Helper::MultiScanManager do
         helper.before_testrun
       end
 
-      it 'sets the JSON xcpretty output option' do
-        allow(ENV).to receive(:[]=).and_call_original
-        helper = RetryingScanHelper.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
-          output_types: 'json',
-          output_files: 'report.json'
-        )
-        expect(ENV).to receive(:[]=).with('XCPRETTY_JSON_FILE_OUTPUT', './path/to/output/directory/report.json')
-        helper.before_testrun
-      end
-
       describe 'scan_options' do
         it 'has the tests to be tested' do
           helper = RetryingScanHelper.new(
@@ -185,7 +173,81 @@ describe TestCenter::Helper::MultiScanManager do
           )
         end
 
-        skip 'continually increments the report suffix for html, junit, and json'
+        it 'continually increments the report suffix for html and junit files' do
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(%r{path/to/output/directory/coinTossResult(-\d)?.junit}).and_return(true)
+          allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+            failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+
+          helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: './path/to/output/directory',
+            only_testing: [
+              'BagOfTests/CoinTossingUITests/testResultIsTails',
+              'BagOfTests/CoinTossingUITests/testResultIsHeads'
+            ],
+            output_files: 'coinTossResult.html,coinTossResult.junit',
+            output_types: 'html,junit',
+          )
+          scan_options = helper.scan_options
+          expect(scan_options.keys).to include(:output_files, :output_types)
+          expect(scan_options[:output_files].split(',')).to include(
+            'coinTossResult.html', 'coinTossResult.junit'
+          )
+          
+          helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+
+          scan_options = helper.scan_options
+          expect(scan_options.keys).to include(:output_files, :output_types)
+          expect(scan_options[:output_files].split(',')).to include(
+            'coinTossResult-2.html', 'coinTossResult-2.junit'
+          )
+
+          helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+
+          scan_options = helper.scan_options
+          expect(scan_options.keys).to include(:output_files, :output_types)
+          expect(scan_options[:output_files].split(',')).to include(
+            'coinTossResult-3.html', 'coinTossResult-3.junit'
+          )
+          
+        end
+
+        it 'continually increments the report suffix for json' do
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xml}).and_return(true)
+          allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+            failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          )
+
+          helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: './path/to/output/directory',
+            only_testing: [
+              'BagOfTests/CoinTossingUITests/testResultIsTails',
+              'BagOfTests/CoinTossingUITests/testResultIsHeads'
+            ],
+            output_files: 'coinTossResult.json',
+            output_types: 'json',
+          )
+          
+          json_files = []
+          allow(ENV).to receive(:[]=) do |k, v|
+            json_files << v if k == 'XCPRETTY_JSON_FILE_OUTPUT'
+          end
+
+          (1..3).each do
+            scan_options = helper.scan_options
+            helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+          end
+
+          expect(json_files).to include(
+            './path/to/output/directory/coinTossResult.json',
+            './path/to/output/directory/coinTossResult-2.json', 
+            './path/to/output/directory/coinTossResult-3.json'
+          )
+        end
       end
     end
   end
