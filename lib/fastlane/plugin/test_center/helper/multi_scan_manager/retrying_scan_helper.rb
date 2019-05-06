@@ -80,6 +80,13 @@ module TestCenter
 
         def update_scan_options
           update_only_testing
+          turn_off_code_coverage
+        end
+
+        def turn_off_code_coverage
+          # Turn off code coverage as code coverage reports are not merged and
+          # the first, more valuable, report will be overwritten
+          @options.delete(:code_coverage)
         end
 
         def update_only_testing

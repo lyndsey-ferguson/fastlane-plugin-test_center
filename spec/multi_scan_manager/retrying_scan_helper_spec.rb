@@ -316,6 +316,40 @@ describe TestCenter::Helper::MultiScanManager do
         )
         expect(helper.scan_options[:destination]).to eq(['platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74'])
       end
+
+      it 'has the correct scheme option' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          scheme: 'Thundercats'
+        )
+        expect(helper.scan_options[:scheme]).to eq('Thundercats')
+      end
+
+      it 'has the correct code_coverage option on the first run' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          code_coverage: true
+        )
+        expect(helper.scan_options[:code_coverage]).to eq(true)
+      end
+
+      it 'does not have code_coverage after runs that have test failures' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          code_coverage: true
+        )
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        expect(helper.scan_options).not_to have_key(:code_coverage)
+      end
     end
   end
 end
@@ -323,8 +357,6 @@ end
 # describe 'scan_helper' do
 #   describe 'before a scan' do
 #     describe 'scan_options' do
-#       skip 'has the desintation for sims and not device(s)'
-#       skip 'has the scheme'
 #       skip 'has code coverage'
 #     end
 #   end
