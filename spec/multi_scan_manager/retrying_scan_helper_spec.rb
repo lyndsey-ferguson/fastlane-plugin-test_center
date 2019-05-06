@@ -260,18 +260,61 @@ describe TestCenter::Helper::MultiScanManager do
         expect(helper.scan_options[:output_directory]).to eq('./path/to/output/directory')
       end
 
-      it 'has the correct test_result option' do
+      it 'has the correct result_bundle option' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
-          test_result: true
+          result_bundle: true
         )
-        expect(helper.scan_options[:test_result]).to be_true
+        expect(helper.scan_options[:result_bundle]).to be_truthy
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory'
         )
-        expect(helper.scan_options[:test_result]).to be_false
+        expect(helper.scan_options[:result_bundle]).to be_falsey
+      end
+
+      it 'has the correct buildlog_path option' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          buildlog_path: './path/to/output/build_log/directory'
+        )
+        expect(helper.scan_options[:buildlog_path]).to eq('./path/to/output/build_log/directory')
+      end
+
+      it 'raises an exception if given :device or :devices' do
+        expect {
+          RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: './path/to/output/directory',
+            device: 'iPhone 6'
+          )
+        }.to(
+          raise_error(ArgumentError) do |error|
+            expect(error.message).to match("Do not use the :device or :devices option. Instead use the :destination option.")
+          end
+        )
+        expect {
+          RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: './path/to/output/directory',
+            devices: ['iPhone 6', 'iPad Air']
+          )
+        }.to(
+          raise_error(ArgumentError) do |error|
+            expect(error.message).to match("Do not use the :device or :devices option. Instead use the :destination option.")
+          end
+        )
+      end
+
+      it 'has the correct destination option' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          destination: ['platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74']
+        )
+        expect(helper.scan_options[:destination]).to eq(['platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74'])
       end
     end
   end
@@ -280,8 +323,6 @@ end
 # describe 'scan_helper' do
 #   describe 'before a scan' do
 #     describe 'scan_options' do
-#       skip 'has the test_result option'
-#       skip 'has the build log path'
 #       skip 'has the desintation for sims and not device(s)'
 #       skip 'has the scheme'
 #       skip 'has code coverage'

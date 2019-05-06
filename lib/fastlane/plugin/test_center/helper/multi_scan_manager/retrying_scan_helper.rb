@@ -6,6 +6,8 @@ module TestCenter
       class RetryingScanHelper
 
         def initialize(options)
+          raise ArgumentError, 'Do not use the :device or :devices option. Instead use the :destination option.' if (options.key?(:device) or options.key?(:devices))
+
           @options = options
           @testrun_count = 0
           @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
