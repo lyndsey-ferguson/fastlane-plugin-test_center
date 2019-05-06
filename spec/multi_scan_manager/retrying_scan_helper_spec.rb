@@ -241,7 +241,7 @@ describe TestCenter::Helper::MultiScanManager do
         end
 
         (1..3).each do
-          scan_options = helper.before_testrun
+          helper.before_testrun
           helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         end
 
@@ -250,6 +250,14 @@ describe TestCenter::Helper::MultiScanManager do
           './path/to/output/directory/coinTossResult-2.json', 
           './path/to/output/directory/coinTossResult-3.json'
         )
+      end
+
+      it 'has the correct output_directory' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory'
+        )
+        expect(helper.scan_options[:output_directory]).to eq('./path/to/output/directory')
       end
     end
   end
