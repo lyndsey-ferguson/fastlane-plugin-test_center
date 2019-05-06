@@ -19,6 +19,7 @@ module TestCenter
         
         def before_testrun
           remove_preexisting_test_result_bundles
+          set_json_env
         end
 
         def set_json_env
@@ -46,7 +47,6 @@ module TestCenter
         end
 
         def scan_options
-          set_json_env
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           @options.select { |k,v| valid_scan_keys.include?(k) }
                   .merge(@reportnamer.scan_options)
