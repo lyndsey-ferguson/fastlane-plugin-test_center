@@ -259,6 +259,20 @@ describe TestCenter::Helper::MultiScanManager do
         )
         expect(helper.scan_options[:output_directory]).to eq('./path/to/output/directory')
       end
+
+      it 'has the correct test_result option' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          test_result: true
+        )
+        expect(helper.scan_options[:test_result]).to be_true
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory'
+        )
+        expect(helper.scan_options[:test_result]).to be_false
+      end
     end
   end
 end
@@ -266,7 +280,6 @@ end
 # describe 'scan_helper' do
 #   describe 'before a scan' do
 #     describe 'scan_options' do
-#       skip 'has the output directory'
 #       skip 'has the test_result option'
 #       skip 'has the build log path'
 #       skip 'has the desintation for sims and not device(s)'
