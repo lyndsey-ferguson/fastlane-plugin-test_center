@@ -103,7 +103,13 @@ describe TestCenter::Helper::MultiScanManager do
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
       end
 
-      it 'renames the resultant test bundle' do
+      it 'renames the resultant test bundle after failure' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        
         allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result', './AtomicDragon-99.test_result'])
         allow(FileUtils).to receive(:mkdir_p)
         helper = RetryingScanHelper.new(
@@ -112,11 +118,11 @@ describe TestCenter::Helper::MultiScanManager do
           result_bundle: true
         )
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
-        helper.after_testrun
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
-        helper.after_testrun
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
-        helper.after_testrun
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
 
       it 'resets the JSON xcpretty output option' do
@@ -350,17 +356,45 @@ describe TestCenter::Helper::MultiScanManager do
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(helper.scan_options).not_to have_key(:code_coverage)
       end
+
+      it 'sends junit test_run info to the call back after a success' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+          failed: []
+        )
+        
+        actual_testrun_info = {}
+        test_run_block = lambda do |testrun_info|
+          actual_testrun_info = testrun_info
+        end
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          testrun_completed_block: test_run_block
+        )
+        helper.after_testrun
+        expect(actual_testrun_info).to include(
+          failed: [],
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+          batch: 1,
+          try_count: 1,
+          report_filepath: File.absolute_path('./path/to/output/directory/report.junit')
+        )
+      end
     end
   end
 end
 
 # describe 'scan_helper' do
 #   describe 'before a scan' do
-#     describe 'scan_options' do
-#       skip 'has code coverage'
-#     end
+#     skip 'prints to the console a message that a test_run is being started'
+#     skip 'prints to the console when a test_run has failures'
+#     skip 'prints to the console when a test_run has potentially recoverable fatal failures'
+#     skip 'prints to the console when a test_run has unrecoverable fatal failures'
 #   end
-
 #   describe 'after a scan' do
 #     skip 'sends info about the last test run to the test_run callback'
 #     skip 'updates the reportnamer

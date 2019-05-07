@@ -68,14 +68,53 @@ module TestCenter
         end
 
         def handle_success
+          send_callback_testrun_info
           move_test_result_bundle_for_next_run
           reset_json_env
         end
-
+        
         def handle_test_failure
           reset_simulators
+          move_test_result_bundle_for_next_run
           update_scan_options
           @reportnamer.increment
+        end
+
+        def send_callback_testrun_info
+          return unless @options[:testrun_completed_block]
+
+          report_filepath = File.join(@options[:output_directory], @reportnamer.junit_last_reportname)
+
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestsFromJunitAction.available_options,
+            {
+              junit: File.absolute_path(report_filepath)
+            }
+          )
+          junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
+          info = {
+            failed: junit_results[:failed],
+            passing: junit_results[:passing],
+            batch: 1,
+            try_count: @testrun_count,
+            report_filepath: File.absolute_path(report_filepath)
+          }
+
+          if @reportnamer.includes_html?
+            html_report_filepath = File.join(@options[:output_directory], @reportnamer.html_last_reportname)
+            info[:html_report_filepath] = html_report_filepath
+          end
+          if @reportnamer.includes_json?
+            json_report_filepath = File.join(@options[:output_directory], @reportnamer.json_last_reportname)
+            info[:json_report_filepath] = json_report_filepath
+          end
+          if @options[:result_bundle]
+            test_result_suffix = '.test_result'
+            test_result_suffix.prepend("-#{@reportnamer.report_count}") unless @reportnamer.report_count.zero?
+            test_result_bundlepath = File.join(@options[:output_directory], @options[:scheme]) + test_result_suffix
+            info[:test_result_bundlepath] = test_result_bundlepath
+          end
+          @options[:testrun_completed_block].call(info)
         end
 
         def update_scan_options
