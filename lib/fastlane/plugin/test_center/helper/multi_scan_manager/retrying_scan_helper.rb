@@ -83,25 +83,30 @@ module TestCenter
           @reportnamer.increment
         end
 
-        def send_callback_testrun_info
+        def send_callback_testrun_info(additional_info = {})
           return unless @options[:testrun_completed_block]
 
-          report_filepath = File.join(@options[:output_directory], @reportnamer.junit_last_reportname)
+          report_filepath = nil
+          junit_results = {}
+          unless additional_info.key?(:test_operation_failure)
+            report_filepath = File.absolute_path(File.join(@options[:output_directory], @reportnamer.junit_last_reportname))
+  
+            config = FastlaneCore::Configuration.create(
+              Fastlane::Actions::TestsFromJunitAction.available_options,
+              {
+                junit: File.absolute_path(report_filepath)
+              }
+            )
+            junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
+          end
 
-          config = FastlaneCore::Configuration.create(
-            Fastlane::Actions::TestsFromJunitAction.available_options,
-            {
-              junit: File.absolute_path(report_filepath)
-            }
-          )
-          junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
           info = {
             failed: junit_results[:failed],
             passing: junit_results[:passing],
             batch: 1,
             try_count: @testrun_count,
-            report_filepath: File.absolute_path(report_filepath)
-          }
+            report_filepath: report_filepath
+          }.merge(additional_info)
 
           if @reportnamer.includes_html?
             html_report_filepath = File.join(@options[:output_directory], @reportnamer.html_last_reportname)
@@ -149,6 +154,8 @@ module TestCenter
         end
 
         def handle_build_failure(exception)
+          test_operation_failure = ''
+
           derived_data_path = File.expand_path(@options[:derived_data_path])
           test_session_logs = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult/*_Test/Diagnostics/**/Session-*.log")
           test_session_logs.sort! { |logfile1, logfile2| File.mtime(logfile1) <=> File.mtime(logfile2) }
@@ -158,13 +165,14 @@ module TestCenter
           case test_session.read
           when /Test operation failure: Test runner exited before starting test execution/
             FastlaneCore::UI.message("Test runner for simulator <udid> failed to start")
+            test_operation_failure = 'Test runner exited before starting test execution'
           when /Test operation failure: Lost connection to testmanagerd/
             FastlaneCore::UI.error("Test Manager Daemon unexpectedly disconnected from test runner")
             FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
             if @options[:quit_core_simulator_service]
               Fastlane::Actions::RestartCoreSimulatorServiceAction.run
-            else
             end
+            test_operation_failure = 'Lost connection to testmanagerd'
           else
             raise exception
           end
@@ -173,6 +181,7 @@ module TestCenter
               simulator.reset
             end
           end
+          send_callback_testrun_info(test_operation_failure: test_operation_failure)
         end
 
         def move_test_result_bundle_for_next_run

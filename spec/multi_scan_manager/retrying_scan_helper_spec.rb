@@ -385,9 +385,9 @@ describe TestCenter::Helper::MultiScanManager do
         )
       end
 
-      it 'sends junit test_run info to the call back after a failure' do
+      it 'sends junit test_run info to the call back after a test failure' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           passing: [],
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
@@ -403,14 +403,45 @@ describe TestCenter::Helper::MultiScanManager do
           output_directory: './path/to/output/directory',
           testrun_completed_block: test_run_block
         )
-        helper.after_testrun
-        helper.after_testrun
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(actual_testrun_info).to include(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
           passing: [],
           batch: 1,
           try_count: 2,
-          report_filepath: File.absolute_path('./path/to/output/directory/report.junit')
+          report_filepath: File.absolute_path('./path/to/output/directory/report-2.junit')
+        )
+      end
+
+      it 'sends junit test_run info to the call back after an infrastructure failure' do
+        session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
+        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
+  
+        allow(Dir).to receive(:glob)
+                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
+
+        allow(File).to receive(:open).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+
+        actual_testrun_info = {}
+        test_run_block = lambda do |testrun_info|
+          actual_testrun_info = testrun_info
+        end
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          testrun_completed_block: test_run_block
+        )
+        helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
+        expect(actual_testrun_info).to include(
+          failed: nil,
+          passing: nil,
+          test_operation_failure: 'Test runner exited before starting test execution',
+          batch: 1,
+          try_count: 1,
+          report_filepath: nil
         )
       end
     end
