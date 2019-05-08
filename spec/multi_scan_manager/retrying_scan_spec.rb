@@ -5,7 +5,11 @@ describe TestCenter::Helper::MultiScanManager do
 
     before(:each) do
       @mock_retrying_scan_helper = OpenStruct.new
-      allow(@mock_retrying_scan_helper).to receive(:refactor_retrying_scan)
+      @mock_retrying_scan_helper_testrun_count = 0
+      allow(@mock_retrying_scan_helper).to receive(:after_testrun)
+      allow(@mock_retrying_scan_helper).to receive(:testrun_count) do
+        @mock_retrying_scan_helper_testrun_count += 1
+      end
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
     end
@@ -17,7 +21,7 @@ describe TestCenter::Helper::MultiScanManager do
         retrying_scan.run
       end
 
-      it 'is called three times if each test run fails twice' do
+      it 'is called three times if there are two failed test runs' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
         end
@@ -48,7 +52,7 @@ describe TestCenter::Helper::MultiScanManager do
         end
         expect(Fastlane::Actions::ScanAction).not_to receive(:run).ordered
         allow(@mock_retrying_scan_helper)
-          .to receive(:refactor_retrying_scan)
+          .to receive(:after_testrun)
           .and_raise(FastlaneCore::Interface::FastlaneBuildFailure.new('something is seriously wrong!'))
 
         retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
