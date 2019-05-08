@@ -27,8 +27,18 @@ describe TestCenter::Helper::MultiScanManager do
         helper.before_testrun
       end
 
-      describe 'scan_options' do
-        
+      it 'prints to the console a message that a test_run is being started' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          only_testing: [
+            'BagOfTests/CoinTossingUITests/testResultIsTails',
+            'BagOfTests/CoinTossingUITests/testResultIsHeads',
+            'BagOfTests/CoinTossingUITests/testResultIsOnEdge'
+          ]
+        )
+        expect(FastlaneCore::UI).to receive(:message).with(/Starting scan #1 with 3 tests/)
+        helper.before_testrun
       end
     end
 
@@ -487,7 +497,6 @@ end
 
 # describe 'scan_helper' do
 #   describe 'before a scan' do
-#     skip 'prints to the console a message that a test_run is being started'
 #   end
 #   describe 'after a scan' do
 #     skip 'collates the reports after a success'
