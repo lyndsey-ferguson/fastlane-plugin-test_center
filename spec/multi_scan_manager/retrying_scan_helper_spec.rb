@@ -414,7 +414,7 @@ describe TestCenter::Helper::MultiScanManager do
         )
       end
 
-      it 'sends junit test_run info to the call back after an infrastructure failure' do
+      it 'sends junit test_run info to the call back after a recoverable infrastructure failure' do
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
   
@@ -444,6 +444,43 @@ describe TestCenter::Helper::MultiScanManager do
           report_filepath: nil
         )
       end
+
+      it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure' do
+        session_log_io = StringIO.new('Test operation failure: Launch session expired before checking in')
+        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
+  
+        allow(Dir).to receive(:glob)
+                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
+
+        allow(File).to receive(:open).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+
+        actual_testrun_info = {}
+        test_run_block = lambda do |testrun_info|
+          actual_testrun_info = testrun_info
+        end
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          testrun_completed_block: test_run_block
+        )
+        expect {
+          helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('no check-in'))
+        }.to(
+          raise_error(FastlaneCore::Interface::FastlaneBuildFailure) do |error|
+            expect(error.message).to match("no check-in")
+          end
+        )
+        expect(actual_testrun_info).to include(
+          failed: nil,
+          passing: nil,
+          test_operation_failure: 'Launch session expired before checking in',
+          batch: 1,
+          try_count: 1,
+          report_filepath: nil
+        )
+      end
     end
   end
 end
@@ -451,13 +488,5 @@ end
 # describe 'scan_helper' do
 #   describe 'before a scan' do
 #     skip 'prints to the console a message that a test_run is being started'
-#     skip 'prints to the console when a test_run has failures'
-#     skip 'prints to the console when a test_run has potentially recoverable fatal failures'
-#     skip 'prints to the console when a test_run has unrecoverable fatal failures'
 #   end
-#   describe 'after a scan' do
-#     skip 'sends info about the last test run to the test_run callback'
-#     skip 'updates the reportnamer
-#   end
-
 # end
