@@ -489,4 +489,7 @@ end
 #   describe 'before a scan' do
 #     skip 'prints to the console a message that a test_run is being started'
 #   end
+#   describe 'after a scan' do
+#     skip 'collates the reports after a success'
+#   end
 # end
