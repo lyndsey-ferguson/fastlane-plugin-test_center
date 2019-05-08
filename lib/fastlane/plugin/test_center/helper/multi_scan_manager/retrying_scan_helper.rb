@@ -74,8 +74,21 @@ module TestCenter
           send_callback_testrun_info
           move_test_result_bundle_for_next_run
           reset_json_env
+          collate_reports
         end
         
+        def collate_reports
+          absolute_output_directory = File.absolute_path(@options[:output_directory])
+
+          TestCenter::Helper::MultiScanManager::ReportCollator.new(
+            source_reports_directory_glob: absolute_output_directory,
+            output_directory: absolute_output_directory,
+            reportnamer: @reportnamer,
+            scheme: @options[:scheme],
+            result_bundle: @options[:result_bundle]
+          ).collate
+        end
+
         def handle_test_failure
           send_callback_testrun_info
           reset_simulators
