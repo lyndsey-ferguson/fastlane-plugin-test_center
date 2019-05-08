@@ -384,6 +384,35 @@ describe TestCenter::Helper::MultiScanManager do
           report_filepath: File.absolute_path('./path/to/output/directory/report.junit')
         )
       end
+
+      it 'sends junit test_run info to the call back after a failure' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          passing: [],
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        
+        actual_testrun_info = {}
+        test_run_block = lambda do |testrun_info|
+          actual_testrun_info = testrun_info
+        end
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          testrun_completed_block: test_run_block
+        )
+        helper.after_testrun
+        helper.after_testrun
+        expect(actual_testrun_info).to include(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+          passing: [],
+          batch: 1,
+          try_count: 2,
+          report_filepath: File.absolute_path('./path/to/output/directory/report.junit')
+        )
+      end
     end
   end
 end

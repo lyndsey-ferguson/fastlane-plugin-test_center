@@ -9,9 +9,7 @@ module TestCenter
         end
 
         def run
-          try_count = 0
           begin
-            try_count += 1
             config = FastlaneCore::Configuration.create(
               Fastlane::Actions::ScanAction.available_options,
               @scan_options.reject do |option, _|
@@ -19,11 +17,13 @@ module TestCenter
               end
             )
             Fastlane::Actions::ScanAction.run(config)
+            @retrying_scan_helper.after_testrun
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
-            retry if try_count < 3
+            @retrying_scan_helper.after_testrun(e)
+            retry if @retrying_scan_helper.testrun_count < 3
           rescue FastlaneCore::Interface::FastlaneBuildFailure => e
-            @retrying_scan_helper.refactor_retrying_scan(e)
-            retry if try_count < 3
+            @retrying_scan_helper.after_testrun(e)
+            retry if @retrying_scan_helper.testrun_count < 3
           end
         end
       end

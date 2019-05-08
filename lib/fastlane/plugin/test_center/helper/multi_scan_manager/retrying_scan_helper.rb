@@ -5,6 +5,8 @@ module TestCenter
 
       class RetryingScanHelper
 
+        attr_reader :testrun_count
+
         def initialize(options)
           raise ArgumentError, 'Do not use the :device or :devices option. Instead use the :destination option.' if (options.key?(:device) or options.key?(:devices))
 
@@ -74,6 +76,7 @@ module TestCenter
         end
         
         def handle_test_failure
+          send_callback_testrun_info
           reset_simulators
           move_test_result_bundle_for_next_run
           update_scan_options
