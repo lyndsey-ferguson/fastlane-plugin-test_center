@@ -24,6 +24,12 @@ module TestCenter
             Method:   -_savePayload:
             Thread:   <NSThread: 0x7fa6ea516110>{number = 1, name = main}
             Please file a bug at https://bugreport.apple.com with this warning message and any useful information you can provide.
+
+            It may be due to:
+            2019-05-09 14:17:30.933 xcodebuild[86893:2045058]  IDETestOperationsObserverDebug: Failed to move logarchive from /Users/lyndsey.ferguson/Library/Developer/CoreSimulator/Devices/0D312041-2D60-4221-94CC-3B0040154D74/data/tmp/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive to diagnostics location /Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/Test-Transient Testing-2019.05.09_14-17-04--0400.xcresult/1_Test/Diagnostics/iPhone 5s_0D312041-2D60-4221-94CC-3B0040154D74/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive: Error Domain=NSCocoaErrorDomain Code=4 \"“test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive” couldn’t be moved to “iPhone 5s_0D312041-2D60-4221-94CC-3B0040154D74” because either the former doesn’t exist, or the folder containing the latter doesn’t exist.\" UserInfo={NSSourceFilePathErrorKey=/Users/lyndsey.ferguson/Library/Developer/CoreSimulator/Devices/0D312041-2D60-4221-94CC-3B0040154D74/data/tmp/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive, NSUserStringVariant=(
+              Move
+              ), NSDestinationFilePath=/Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/Test-Transient Testing-2019.05.09_14-17-04--0400.xcresult/1_Test/Diagnostics/iPhone 5s_0D312041-2D60-4221-94CC-3B0040154D74/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive, NSFilePath=/Users/lyndsey.ferguson/Library/Developer/CoreSimulator/Devices/0D312041-2D60-4221-94CC-3B0040154D74/data/tmp/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive, NSUnderlyingError=0x7fdf96c6de90 {Error Domain=NSPOSIXErrorDomain Code=2 \"No such file or directory\"}}
+
             """
             Scan::Runner.new.run
             @retrying_scan_helper.after_testrun
