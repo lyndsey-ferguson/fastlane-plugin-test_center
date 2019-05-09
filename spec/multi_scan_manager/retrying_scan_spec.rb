@@ -1,3 +1,4 @@
+require 'pry-byebug'
 describe TestCenter::Helper::MultiScanManager do
   describe 'retrying_scan', refactor_retrying_scan:true do
     RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan
@@ -5,6 +6,7 @@ describe TestCenter::Helper::MultiScanManager do
 
     before(:each) do
       @mock_retrying_scan_helper = OpenStruct.new
+      allow(RetryingScanHelper).to receive(:new).and_return(@mock_retrying_scan_helper)
       @mock_retrying_scan_helper_testrun_count = 0
       allow(@mock_retrying_scan_helper).to receive(:after_testrun)
       allow(@mock_retrying_scan_helper).to receive(:testrun_count) do
@@ -17,7 +19,7 @@ describe TestCenter::Helper::MultiScanManager do
     describe 'scan' do
       it 'is called once if there are no failures' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).once
-        retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
+        retrying_scan = RetryingScan.new
         retrying_scan.run
       end
 
@@ -28,10 +30,8 @@ describe TestCenter::Helper::MultiScanManager do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
         end
-        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
-          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
-        end
-        retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
+        retrying_scan = RetryingScan.new(try_count: 3)
         test_result = retrying_scan.run
         expect(test_result).to be(true)
       end
@@ -49,7 +49,7 @@ describe TestCenter::Helper::MultiScanManager do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests #4'
         end
-        retrying_scan = RetryingScan.new(try_count: 4, @mock_retrying_scan_helper)
+        retrying_scan = RetryingScan.new(try_count: 4)
         test_result = retrying_scan.run
         expect(test_result).to be(false)
       end
@@ -60,7 +60,7 @@ describe TestCenter::Helper::MultiScanManager do
         end
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once
 
-        retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
+        retrying_scan = RetryingScan.new(try_count: 3)
         
         test_result = retrying_scan.run
         expect(test_result).to be(true)
@@ -75,7 +75,7 @@ describe TestCenter::Helper::MultiScanManager do
           .to receive(:after_testrun)
           .and_raise(FastlaneCore::Interface::FastlaneBuildFailure.new('something is seriously wrong!'))
 
-        retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
+        retrying_scan = RetryingScan.new
 
         expect { retrying_scan.run }.to(
           raise_error(FastlaneCore::Interface::FastlaneBuildFailure) do |error|

@@ -3,27 +3,31 @@ module TestCenter
   module Helper
     module MultiScanManager
       class RetryingScan
-        def initialize(scan_options)
+        def initialize(scan_options = {})
           @scan_options = scan_options
           @retrying_scan_helper = RetryingScanHelper.new(scan_options)
         end
 
         def run
+          try_count = @scan_options[:try_count] || 1
           begin
+            valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
             config = FastlaneCore::Configuration.create(
               Fastlane::Actions::ScanAction.available_options,
-              @scan_options.reject do |option, _|
-                %i[quit_core_simulator_service].include?(option)
-              end
+              @scan_options.select { |k,v| valid_scan_keys.include?(k) }
             )
+
             Fastlane::Actions::ScanAction.run(config)
             @retrying_scan_helper.after_testrun
+            true
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
             @retrying_scan_helper.after_testrun(e)
-            retry if @retrying_scan_helper.testrun_count < 3
+            retry if @retrying_scan_helper.testrun_count < try_count
+            false
           rescue FastlaneCore::Interface::FastlaneBuildFailure => e
             @retrying_scan_helper.after_testrun(e)
-            retry if @retrying_scan_helper.testrun_count < 3
+            retry if @retrying_scan_helper.testrun_count < try_count
+            false
           end
         end
       end
