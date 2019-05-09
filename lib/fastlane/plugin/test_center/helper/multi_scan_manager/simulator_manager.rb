@@ -144,6 +144,10 @@ module TestCenter
           @simulators = []
         end
 
+        def destination_for_batch(batch_index)
+          @simulators[batch_index]
+        end
+
         def devices(batch_index)
           if batch_index > @batch_count
             simulator_count = [@batch_count, @simulators.count].max

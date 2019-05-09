@@ -59,8 +59,9 @@ module TestCenter
               retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
                 @scan_options.merge(
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: output_directory
-                )
+                  output_directory: output_directory,
+                  destination: @parallelizer&.destination_for_batch(current_batch_index) || Scan.config[:destination]
+                ).reject { |key| %i[device devices].include?(key) }
               )
               retrying_scan.run
             else
