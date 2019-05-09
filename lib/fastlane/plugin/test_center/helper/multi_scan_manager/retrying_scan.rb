@@ -3,9 +3,9 @@ module TestCenter
   module Helper
     module MultiScanManager
       class RetryingScan
-        def initialize(scan_options, retrying_scan_helper)
+        def initialize(scan_options)
           @scan_options = scan_options
-          @retrying_scan_helper = retrying_scan_helper
+          @retrying_scan_helper = RetryingScanHelper.new(scan_options)
         end
 
         def run

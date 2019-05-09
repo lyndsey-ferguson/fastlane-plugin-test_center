@@ -55,27 +55,37 @@ module TestCenter
           @testables_count = @test_collector.testables.size
           all_tests_passed = each_batch do |test_batch, current_batch_index|
             output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
-            reset_for_new_testable(output_directory)
-            FastlaneCore::UI.header("Starting test run on batch '#{current_batch_index}'")
-            @interstitial.batch = current_batch_index
-            @interstitial.output_directory = output_directory
-            @interstitial.before_all
-            testrun_passed = correcting_scan(
-              {
-                only_testing: test_batch.map(&:shellsafe_testidentifier),
-                output_directory: output_directory
-              },
-              current_batch_index,
-              @reportnamer
-            )
-            all_tests_passed = testrun_passed && all_tests_passed
-            TestCenter::Helper::MultiScanManager::ReportCollator.new(
-              source_reports_directory_glob: output_directory,
-              output_directory: output_directory,
-              reportnamer: @reportnamer,
-              scheme: @scan_options[:scheme],
-              result_bundle: @scan_options[:result_bundle]
-            ).collate
+            if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+              retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
+                @scan_options.merge(
+                  only_testing: test_batch.map(&:shellsafe_testidentifier),
+                  output_directory: output_directory
+                )
+              )
+              retrying_scan.run
+            else
+              reset_for_new_testable(output_directory)
+              FastlaneCore::UI.header("Starting test run on batch '#{current_batch_index}'")
+              @interstitial.batch = current_batch_index
+              @interstitial.output_directory = output_directory
+              @interstitial.before_all
+              testrun_passed = correcting_scan(
+                {
+                  only_testing: test_batch.map(&:shellsafe_testidentifier),
+                  output_directory: output_directory
+                },
+                current_batch_index,
+                @reportnamer
+              )
+              all_tests_passed = testrun_passed && all_tests_passed
+              TestCenter::Helper::MultiScanManager::ReportCollator.new(
+                source_reports_directory_glob: output_directory,
+                output_directory: output_directory,
+                reportnamer: @reportnamer,
+                scheme: @scan_options[:scheme],
+                result_bundle: @scan_options[:result_bundle]
+              ).collate
+            end
             testrun_passed && all_tests_passed
           end
           all_tests_passed

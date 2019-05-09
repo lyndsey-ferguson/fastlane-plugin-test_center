@@ -21,7 +21,7 @@ describe TestCenter::Helper::MultiScanManager do
         retrying_scan.run
       end
 
-      it 'is called three times if there are two failed test runs' do
+      it 'succeeds on the third try if there are two failed test runs' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
         end
@@ -32,10 +32,29 @@ describe TestCenter::Helper::MultiScanManager do
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
         end
         retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
-        retrying_scan.run
+        test_result = retrying_scan.run
+        expect(test_result).to be(true)
       end
 
-      it 'is called twice if the first run generates a build exception that can be recovered from' do
+      it 'fails on the fourth try if there are two failed test runs and :fail_build is false' do
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests #1'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests #2'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests #3'
+        end
+        expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+          raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests #4'
+        end
+        retrying_scan = RetryingScan.new(try_count: 4, @mock_retrying_scan_helper)
+        test_result = retrying_scan.run
+        expect(test_result).to be(false)
+      end
+
+      it 'succeeds on the second tryif the first run generates a build exception that can be recovered from' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneBuildFailure, 'test operation failure'
         end
@@ -43,10 +62,11 @@ describe TestCenter::Helper::MultiScanManager do
 
         retrying_scan = RetryingScan.new({}, @mock_retrying_scan_helper)
         
-        retrying_scan.run
+        test_result = retrying_scan.run
+        expect(test_result).to be(true)
       end
 
-      it 'fails if first runner generates a build exception that cannot be recovered from' do
+      it 'throws an exception if the first run generates a build exception that cannot be recovered from and :fail_build is true' do
         expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneBuildFailure, 'something is seriously wrong!'
         end
