@@ -3,13 +3,13 @@ module TestCenter
   module Helper
     module MultiScanManager
       class RetryingScan
-        def initialize(scan_options = {})
-          @scan_options = scan_options
-          @retrying_scan_helper = RetryingScanHelper.new(scan_options)
+        def initialize(options = {})
+          @options = options
+          @retrying_scan_helper = RetryingScanHelper.new(options)
         end
 
         def run
-          try_count = @scan_options[:try_count] || 1
+          try_count = @options[:try_count] || 1
           begin
             valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
             config = FastlaneCore::Configuration.create(
