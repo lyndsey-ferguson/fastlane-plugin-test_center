@@ -24,7 +24,13 @@ module TestCenter
         def before_testrun
           remove_preexisting_test_result_bundles
           set_json_env
-          FastlaneCore::UI.message("Starting scan ##{@testrun_count + 1} with #{@options.fetch(:only_testing, []).size} tests.")
+          print_starting_scan_message
+        end
+
+        def print_starting_scan_message
+          scan_message = "Starting scan ##{@testrun_count + 1} with #{@options.fetch(:only_testing, []).size} tests"
+          scan_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+          FastlaneCore::UI.message("#{scan_message}.")
         end
 
         def set_json_env

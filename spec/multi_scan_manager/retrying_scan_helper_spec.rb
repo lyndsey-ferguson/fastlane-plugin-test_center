@@ -40,6 +40,21 @@ describe TestCenter::Helper::MultiScanManager do
         expect(FastlaneCore::UI).to receive(:message).with(/Starting scan #1 with 3 tests/)
         helper.before_testrun
       end
+
+      it 'prints to the console a message that a test_run for a batch is being started' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          only_testing: [
+            'BagOfTests/CoinTossingUITests/testResultIsTails',
+            'BagOfTests/CoinTossingUITests/testResultIsHeads',
+            'BagOfTests/CoinTossingUITests/testResultIsOnEdge'
+          ],
+          batch: 2
+        )
+        expect(FastlaneCore::UI).to receive(:message).with(/Starting scan #1 with 3 tests for batch #2/)
+        helper.before_testrun
+      end
     end
 
     describe 'after_testrun' do
@@ -523,9 +538,3 @@ describe TestCenter::Helper::MultiScanManager do
   end
 end
 
-# describe 'scan_helper' do
-#   describe 'before a scan' do
-#   end
-#   describe 'after a scan' do
-#   end
-# end
