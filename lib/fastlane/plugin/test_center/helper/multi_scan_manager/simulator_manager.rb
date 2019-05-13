@@ -3,7 +3,6 @@ module TestCenter
     module MultiScanManager
       require 'scan'
       require 'colorize'
-      require 'pry-byebug'
       require_relative './device_manager'
 
       class Parallelization

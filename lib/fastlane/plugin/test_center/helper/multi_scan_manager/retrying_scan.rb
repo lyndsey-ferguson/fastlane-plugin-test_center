@@ -1,4 +1,3 @@
-require 'pry-byebug'
 module TestCenter
   module Helper
     module MultiScanManager
