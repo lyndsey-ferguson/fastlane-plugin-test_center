@@ -8,7 +8,15 @@ module TestCenter
           @retrying_scan_helper = RetryingScanHelper.new(options)
         end
 
+        def delete_xcresults
+          derived_data_path = File.expand_path(@options[:derived_data_path])
+          xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
+          FileUtils.rm_rf(xcresults)
+        end
+
         def run
+          delete_xcresults
+          
           try_count = @options[:try_count] || 1
           begin
             valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
