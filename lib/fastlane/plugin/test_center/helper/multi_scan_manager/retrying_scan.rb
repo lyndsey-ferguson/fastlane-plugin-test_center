@@ -9,16 +9,18 @@ module TestCenter
         end
 
         def delete_xcresults
-          derived_data_path = File.expand_path(@options[:derived_data_path])
+          derived_data_path = File.expand_path(@options.fetch(:derived_data_path, ''))
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
           FileUtils.rm_rf(xcresults)
         end
 
         def run
           delete_xcresults
-          
+
           try_count = @options[:try_count] || 1
           begin
+            @retrying_scan_helper.before_testrun
+
             valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
             scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
             scan_options.each do |k,v|

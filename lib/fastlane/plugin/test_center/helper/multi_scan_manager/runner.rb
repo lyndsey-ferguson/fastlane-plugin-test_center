@@ -54,17 +54,17 @@ module TestCenter
           all_tests_passed = true
           @testables_count = @test_collector.testables.size
           all_tests_passed = each_batch do |test_batch, current_batch_index|
-            output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
             if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
               retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
                 @scan_options.merge(
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: output_directory,
+                  output_directory: @output_directory,
                   destination: @parallelizer&.destination_for_batch(current_batch_index) || Scan.config[:destination]
-                ).reject { |key| %i[device devices].include?(key) }
-              )
-              retrying_scan.run
+                  ).reject { |key| %i[device devices].include?(key) }
+                  )
+                  retrying_scan.run
             else
+              output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
               reset_for_new_testable(output_directory)
               FastlaneCore::UI.header("Starting test run on batch '#{current_batch_index}'")
               @interstitial.batch = current_batch_index
