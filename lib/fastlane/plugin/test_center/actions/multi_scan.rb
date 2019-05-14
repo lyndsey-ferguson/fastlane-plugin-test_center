@@ -341,6 +341,26 @@ module Fastlane
             output_files: 'report.json',
             fail_build: false
           )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'use the :xctestrun parameter instead of the :project parameter to find, ' \\
+            'build, and test the iOS app.'
+          )
+          Dir.mktmpdir do |derived_data_path|
+            project_path = '/Users/lyndsey.ferguson/repo/fastlane-plugin-test_center/AtomicBoy/AtomicBoy.xcodeproj'
+            command = \"bundle exec fastlane scan --build_for_testing true --project '#{project_path}' --derived_data_path #{derived_data_path} --scheme AtomicBoy\"
+            `#{command}`  
+            xctestrun_file = Dir.glob(\"#{derived_data_path}/Build/Products/AtomicBoy*.xctestrun\").first
+            multi_scan(
+              scheme: 'AtomicBoy',
+              try_count: 3,
+              fail_build: false,
+              xctestrun: xctestrun_file,
+              test_without_building: true
+            )
+          end
           "
         ]
       end
