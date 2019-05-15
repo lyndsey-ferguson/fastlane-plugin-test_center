@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 module TestCenter
   module Helper
     module MultiScanManager
@@ -15,6 +13,16 @@ module TestCenter
           FileUtils.rm_rf(xcresults)
         end
 
+        def scan_config
+          if Scan.config.nil?
+            Scan.config = FastlaneCore::Configuration.create(
+              Fastlane::Actions::ScanAction.available_options,
+              @options.select { |k,v| %i[project workspace scheme].include?(k) }
+            )
+          end
+          Scan.config
+        end
+
         def run
           delete_xcresults
 
@@ -26,15 +34,9 @@ module TestCenter
             scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
                                    .merge(@retrying_scan_helper.scan_options)
 
-            if Scan.config.nil?
-              Scan.config = FastlaneCore::Configuration.create(
-                Fastlane::Actions::ScanAction.available_options,
-                scan_options.select { |k,v| %i[project workspace scheme].include?(k) }
-              )
-            end
-
+            sc = scan_config
             scan_options.each do |k,v|
-              Scan.config.set(k,v) unless v.nil?
+              sc.set(k,v) unless v.nil?
             end
 
             # TODO: Investigate the following error:

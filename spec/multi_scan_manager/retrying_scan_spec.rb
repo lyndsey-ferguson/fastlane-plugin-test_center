@@ -7,6 +7,7 @@ describe TestCenter::Helper::MultiScanManager do
     before(:each) do
       @mock_retrying_scan_helper = OpenStruct.new
       allow(RetryingScanHelper).to receive(:new).and_return(@mock_retrying_scan_helper)
+      allow(@mock_retrying_scan_helper).to receive(:scan_options).and_return({})
       @mock_retrying_scan_helper_testrun_count = 0
       allow(@mock_retrying_scan_helper).to receive(:after_testrun)
       allow(@mock_retrying_scan_helper).to receive(:testrun_count) do
@@ -16,6 +17,7 @@ describe TestCenter::Helper::MultiScanManager do
       allow(File).to receive(:open).and_call_original
       @mock_scan_runner = OpenStruct.new
       allow(Scan::Runner).to receive(:new).and_return(@mock_scan_runner)
+      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(FastlaneCore::Configuration.new([], {}))
     end
 
     describe 'scan' do
