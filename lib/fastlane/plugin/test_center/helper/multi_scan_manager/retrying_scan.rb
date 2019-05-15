@@ -1,3 +1,5 @@
+require 'pry-byebug'
+
 module TestCenter
   module Helper
     module MultiScanManager
@@ -8,7 +10,7 @@ module TestCenter
         end
 
         def delete_xcresults
-          derived_data_path = File.expand_path(@options.fetch(:derived_data_path, ''))
+          derived_data_path = File.expand_path(@options[:derived_data_path] || '')
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
           FileUtils.rm_rf(xcresults)
         end
@@ -22,9 +24,19 @@ module TestCenter
 
             valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
             scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
-            scan_options.each do |k,v|
-              Scan.config.set(k,v)
+                                   .merge(@retrying_scan_helper.scan_options)
+
+            if Scan.config.nil?
+              Scan.config = FastlaneCore::Configuration.create(
+                Fastlane::Actions::ScanAction.available_options,
+                scan_options.select { |k,v| %i[project workspace scheme].include?(k) }
+              )
             end
+
+            scan_options.each do |k,v|
+              Scan.config.set(k,v) unless v.nil?
+            end
+
             # TODO: Investigate the following error:
             """
             2019-05-09 13:32:40.707 xcodebuild[78535:1944070] [MT] DVTAssertions: Warning in /Library/Caches/com.apple.xbs/Sources/IDEFrameworks_Fall2018/IDEFrameworks-14460.46/IDEFoundation/ProjectModel/ActionRecords/IDESchemeActionTestAttachment.m:186
