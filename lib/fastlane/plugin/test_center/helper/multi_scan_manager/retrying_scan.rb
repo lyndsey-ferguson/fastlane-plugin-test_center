@@ -8,8 +8,9 @@ module TestCenter
         end
 
         def delete_xcresults
-          derived_data_path = File.expand_path(@options[:derived_data_path] || '')
+          derived_data_path = File.expand_path(scan_config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
+          FastlaneCore::UI.message("Deleting xcresults: #{xcresults}")
           FileUtils.rm_rf(xcresults)
         end
 
@@ -23,21 +24,26 @@ module TestCenter
           Scan.config
         end
 
+        def update_scan_options
+          valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+          scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
+                                  .merge(@retrying_scan_helper.scan_options)
+
+          sc = scan_config
+          scan_options.each do |k,v|
+            sc.set(k,v) unless v.nil?
+          end
+        end
+
         def run
+          update_scan_options
           delete_xcresults
 
           try_count = @options[:try_count] || 1
           begin
             @retrying_scan_helper.before_testrun
 
-            valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-            scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
-                                   .merge(@retrying_scan_helper.scan_options)
-
-            sc = scan_config
-            scan_options.each do |k,v|
-              sc.set(k,v) unless v.nil?
-            end
+            
 
             # TODO: Investigate the following error:
             """
@@ -54,6 +60,7 @@ module TestCenter
               ), NSDestinationFilePath=/Users/lyndsey.ferguson/Library/Developer/Xcode/DerivedData/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/Test-Transient Testing-2019.05.09_14-17-04--0400.xcresult/1_Test/Diagnostics/iPhone 5s_0D312041-2D60-4221-94CC-3B0040154D74/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive, NSFilePath=/Users/lyndsey.ferguson/Library/Developer/CoreSimulator/Devices/0D312041-2D60-4221-94CC-3B0040154D74/data/tmp/test-session-systemlogs-2019.05.09_14-17-04--0400.logarchive, NSUnderlyingError=0x7fdf96c6de90 {Error Domain=NSPOSIXErrorDomain Code=2 \"No such file or directory\"}}
 
             """
+            update_scan_options
             Scan::Runner.new.run
             @retrying_scan_helper.after_testrun
             true

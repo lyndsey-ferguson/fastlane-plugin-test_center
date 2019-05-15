@@ -17,7 +17,7 @@ describe TestCenter::Helper::MultiScanManager do
       allow(File).to receive(:open).and_call_original
       @mock_scan_runner = OpenStruct.new
       allow(Scan::Runner).to receive(:new).and_return(@mock_scan_runner)
-      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(FastlaneCore::Configuration.new([], {}))
+      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(FastlaneCore::Configuration.new(Fastlane::Actions::ScanAction.available_options, { derived_data_path: ''} ))
     end
 
     describe 'scan' do
