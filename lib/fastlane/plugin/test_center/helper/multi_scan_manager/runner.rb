@@ -6,6 +6,7 @@ module TestCenter
       require 'plist'
       require 'json'
       require 'shellwords'
+      require 'snapshot/reset_simulators'
       require_relative './simulator_manager'
 
       class Runner
@@ -55,11 +56,42 @@ module TestCenter
           @testables_count = @test_collector.testables.size
           all_tests_passed = each_batch do |test_batch, current_batch_index|
             if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+              byebug
+              destination = @parallelizer&.destination_for_batch(current_batch_index) || Scan&.config&.fetch(:destination)
+              if destination.nil?
+                app_infoplist ||= XCTestrunInfo.new(@scan_options[:xctestrun])
+                
+                batch_deploymentversions = @test_collector.test_batches.map do |test_batch|
+                  testable = test_batch.first.split('/').first.gsub('\\', '')
+                  # TODO: investigate the reason for this call that doesn't seem to do
+                  # anything other than query for and then discard MinimumOSVersion
+                  app_infoplist.app_plist_for_testable(testable)['MinimumOSVersion']
+                end
+
+                device_description = @scan_options[:device]
+                device_name = 'iPhone 5s'
+                device_version = batch_deploymentversions[current_batch_index]
+                unless device_description.nil?
+                  /(?<device_name>.*)\s+\((?<device_version>.*)\)/ =~ device_description
+                end
+
+                all_runtime_type = ::Snapshot::ResetSimulators.runtimes
+                # TODO: add check for any version equal to or greater, sort ascending, and pick first
+                ios_versions_ids = ::Snapshot::ResetSimulators.filter_runtimes(all_runtime_type, 'iOS', [device_version])
+
+                device_type = `xcrun simctl list devicetypes`.scan(/(.*)\s\((.*)\)/)
+                  .find { |name, device_id| name == device_name }
+
+                command = "xcrun simctl create '#{device_name}' #{device_type} #{ios_versions_ids.first[1]}"
+                UI.command(command) if ::FastlaneCore::Globals.verbose?
+                udid = `#{command}`
+                destination = "platform=iOS Simulator,id=#{udid}"
+              end
               retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
                 @scan_options.merge(
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
                   output_directory: @output_directory,
-                  destination: @parallelizer&.destination_for_batch(current_batch_index) || Scan.config[:destination]
+                  destination: destination
                   ).reject { |key| %i[device devices].include?(key) }
                   )
                   retrying_scan.run
