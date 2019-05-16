@@ -84,7 +84,7 @@ module Fastlane
       end
 
       def self.prepare_for_testing(scan_options)
-        if params[:test_without_building] || params[:skip_build]
+        if scan_options[:test_without_building] || scan_options[:skip_build]
           prepare_scan_config(scan_options)
         else
           build_for_testing(scan_options)
@@ -94,7 +94,7 @@ module Fastlane
       def self.prepare_scan_config(scan_options)
         Scan.config ||= FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          @scan_options.select { |k,v| %i[project workspace scheme].include?(k) }
+          scan_options.select { |k,v| %i[project workspace scheme].include?(k) }
         )
       end
 
