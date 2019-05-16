@@ -24,22 +24,26 @@ module TestCenter
           @given_output_files = multi_scan_options[:output_files]
           @parallelize = multi_scan_options[:parallelize]
           @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
-          @scan_options = multi_scan_options.reject do |option, _|
-            %i[
-              output_directory
-              only_testing
-              skip_testing
-              clean
-              try_count
-              batch_count
-              custom_report_file_name
-              fail_build
-              testrun_completed_block
-              output_types
-              output_files
-              parallelize
-              quit_simulators
-            ].include?(option)
+          if  ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            @scan_options = multi_scan_options
+          else
+            @scan_options = multi_scan_options.reject do |option, _|
+              %i[
+                output_directory
+                only_testing
+                skip_testing
+                clean
+                try_count
+                batch_count
+                custom_report_file_name
+                fail_build
+                testrun_completed_block
+                output_types
+                output_files
+                parallelize
+                quit_simulators
+              ].include?(option)
+            end
           end
           @scan_options[:clean] = false
           @scan_options[:disable_concurrent_testing] = true
@@ -56,51 +60,11 @@ module TestCenter
           @testables_count = @test_collector.testables.size
           all_tests_passed = each_batch do |test_batch, current_batch_index|
             if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
-              # destination = @parallelizer&.destination_for_batch(current_batch_index) || Scan&.config&.fetch(:destination)
-              # if destination.nil?
-              #   app_infoplist ||= XCTestrunInfo.new(@scan_options[:xctestrun])
-                
-              #   batch_deploymentversions = @test_collector.test_batches.map do |test_batch|
-              #     testable = test_batch.first.split('/').first.gsub('\\', '')
-              #     # TODO: investigate the reason for this call that doesn't seem to do
-              #     # anything other than query for and then discard MinimumOSVersion
-              #     app_infoplist.app_plist_for_testable(testable)['MinimumOSVersion']
-              #   end
-
-              #   device_description = @scan_options[:device]
-              #   device_name = 'iPhone 5s'
-              #   device_version = batch_deploymentversions[current_batch_index]
-              #   unless device_description.nil?
-              #     /(?<device_name>.*)\s+\((?<device_version>.*)\)/ =~ device_description
-              #   end
-              #   # TODO: check for an existing simulator that can serve
-              #   all_runtimes = ::Snapshot::ResetSimulators.runtimes
-
-              #   all_ios_runtimes = all_runtimes.select { |v, id| v[/^iOS/] }
-              #   ios_runtimes_greater_than_equal = all_ios_runtimes.select do |versionstr, _|
-              #     _, version = versionstr.split(' ')
-              #     Gem::Version.new(device_version) <= Gem::Version.new(version)
-              #   end
-              #   ios_runtimes_greater_than_equal.sort! do |a, b|
-              #     version_a = a.first.split(' ').last
-              #     version_b = b.first.split(' ').last
-              #     Gem::Version.new(version_a) <=> Gem::Version.new(version_b)
-              #   end
-                
-              #   runtime = ios_runtimes_greater_than_equal.first.last
-              #   device_type = `xcrun simctl list devicetypes`.scan(/(.*)\s\((.*)\)/)
-              #     .find { |name, device_id| name == device_name }
-
-              #   command = "xcrun simctl create '#{device_name}' #{device_type.last} #{runtime}"
-              #   UI.command(command) if ::FastlaneCore::Globals.verbose?
-              #   udid = `#{command}`.chomp
-              #   destination = "platform=iOS Simulator,id=#{udid}"
-              # end
               retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
                 @scan_options.merge(
-                  # destination: destination,
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: @output_directory
+                  output_directory: @output_directory,
+                  try_count: @try_count
                 ).reject { |key| %i[device devices].include?(key) }
               )
               retrying_scan.run
