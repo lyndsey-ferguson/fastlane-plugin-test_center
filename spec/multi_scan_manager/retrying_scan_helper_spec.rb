@@ -7,6 +7,9 @@ describe TestCenter::Helper::MultiScanManager do
     before(:each) do
       allow(Dir).to receive(:glob).and_call_original
       allow(File).to receive(:open).and_call_original
+      allow(Scan).to receive(:config).and_return(derived_data_path: '')
+      allow(Scan).to receive(:config=)
+      allow(FastlaneCore::UI).to receive(:message).and_call_original
       allow(FileUtils).to receive(:rm_rf).and_call_original
       @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
     end
@@ -24,6 +27,16 @@ describe TestCenter::Helper::MultiScanManager do
           result_bundle: true
         )
         expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
+        helper.before_testrun
+      end
+
+      it 'clears out pre-existing xcresult directory' do
+        allow(Dir).to receive(:glob).with(%r{/.*/path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/.*\.xcresult}).and_return(['./AtomicDragon.xcresult'])
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory'
+        )
+        expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.xcresult'])
         helper.before_testrun
       end
 

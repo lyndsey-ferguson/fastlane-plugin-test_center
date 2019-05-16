@@ -23,8 +23,17 @@ module TestCenter
         
         def before_testrun
           remove_preexisting_test_result_bundles
+          delete_xcresults # has to be performed _after_ moving a *.test_result
+
           set_json_env
           print_starting_scan_message
+        end
+
+        def delete_xcresults
+          derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
+          xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
+          FastlaneCore::UI.message("Deleting xcresults: #{xcresults}")
+          FileUtils.rm_rf(xcresults)
         end
 
         def print_starting_scan_message

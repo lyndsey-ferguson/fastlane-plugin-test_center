@@ -15,11 +15,9 @@ module Fastlane
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
-        unless params[:test_without_building] || params[:skip_build]
-          build_for_testing(
-            params._values
-          )
-        end
+        
+        prepare_for_testing(params._values)
+        
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(params.values)
         tests_passed = runner.scan
         if params[:fail_build] && !tests_passed
@@ -85,28 +83,36 @@ module Fastlane
         }
       end
 
-      def self.build_for_testing(scan_options)
-        options_to_remove = %i[
-          try_count
-          batch_count
-          output_files
-          parallelize
-          quit_simulators
-          testrun_completed_block
-          test_without_building
-          output_types
-        ]
-        config = FastlaneCore::Configuration.create(
-          Fastlane::Actions::ScanAction.available_options,
-          scan_options.merge(build_for_testing: true).reject { |k, _| options_to_remove.include?(k) }
-        )
-        Fastlane::Actions::ScanAction.run(config)
-        remove_build_report_files
+      def self.prepare_for_testing(scan_options)
+        if params[:test_without_building] || params[:skip_build]
+          prepare_scan_config(scan_options)
+        else
+          build_for_testing(scan_options)
+        end
+      end
 
-        scan_options.merge!(
-          test_without_building: true,
-          derived_data_path: Scan.config[:derived_data_path]
-        ).delete(:build_for_testing)
+      def self.prepare_scan_config(scan_options)
+        Scan.config ||= FastlaneCore::Configuration.create(
+          Fastlane::Actions::ScanAction.available_options,
+          @scan_options.select { |k,v| %i[project workspace scheme].include?(k) }
+        )
+      end
+
+      def self.build_for_testing(scan_options)
+          valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+          scan_options = scan_options.select { |k,v| valid_scan_keys.include?(k) }
+
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::ScanAction.available_options,
+            scan_options.merge(build_for_testing: true)
+          )
+          Scan::Runner.new.run
+          remove_build_report_files
+
+          scan_options.merge!(
+            test_without_building: true,
+            derived_data_path: Scan.config[:derived_data_path]
+          ).delete(:build_for_testing)
       end
 
       def self.remove_build_report_files
