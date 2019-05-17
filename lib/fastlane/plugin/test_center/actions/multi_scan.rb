@@ -102,17 +102,22 @@ module Fastlane
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           scan_options = scan_options.select { |k,v| valid_scan_keys.include?(k) }
 
-          config = FastlaneCore::Configuration.create(
+          Scan.config = FastlaneCore::Configuration.create(
             Fastlane::Actions::ScanAction.available_options,
             scan_options.merge(build_for_testing: true)
+          )
+          values = Scan.config.values(ask: false)
+          values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+          FastlaneCore::PrintTable.print_values(
+            config: values,
+            hide_keys: [:destination, :slack_url],
+            title: "Summary for scan #{Fastlane::VERSION}"
           )
           Scan::Runner.new.run
           remove_build_report_files
 
-          scan_options.merge!(
-            test_without_building: true,
-            derived_data_path: Scan.config[:derived_data_path]
-          ).delete(:build_for_testing)
+          Scan.config._values.delete(:build_for_testing)
+          scan_options[:derived_data_path] = Scan.config[:derived_data_path]
       end
 
       def self.remove_build_report_files

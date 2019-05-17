@@ -64,7 +64,8 @@ module TestCenter
                 @scan_options.merge(
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
                   output_directory: @output_directory,
-                  try_count: @try_count
+                  try_count: @try_count,
+                  batch: current_batch_index
                 ).reject { |key| %i[device devices].include?(key) }
               )
               retrying_scan.run

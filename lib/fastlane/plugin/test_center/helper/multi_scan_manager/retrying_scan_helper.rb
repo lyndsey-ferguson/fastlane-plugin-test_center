@@ -83,25 +83,28 @@ module TestCenter
           else
             handle_success
           end
+          collate_reports
         end
 
         def handle_success
           send_callback_testrun_info
           move_test_result_bundle_for_next_run
           reset_json_env
-          collate_reports
         end
         
         def collate_reports
           absolute_output_directory = File.absolute_path(@options[:output_directory])
-
-          TestCenter::Helper::MultiScanManager::ReportCollator.new(
+          report_collator_options = {
             source_reports_directory_glob: absolute_output_directory,
             output_directory: absolute_output_directory,
             reportnamer: @reportnamer,
             scheme: @options[:scheme],
             result_bundle: @options[:result_bundle]
-          ).collate
+          }
+          if @options[:batch_count]
+            report_collator_options[:suffix] = "-batch-#{@options[:batch]}"
+          end
+          TestCenter::Helper::MultiScanManager::ReportCollator.new(report_collator_options).collate
         end
 
         def handle_test_failure
@@ -132,7 +135,7 @@ module TestCenter
           info = {
             failed: junit_results[:failed],
             passing: junit_results[:passing],
-            batch: 1,
+            batch: @options[:batch] || 1,
             try_count: @testrun_count,
             report_filepath: report_filepath
           }.merge(additional_info)

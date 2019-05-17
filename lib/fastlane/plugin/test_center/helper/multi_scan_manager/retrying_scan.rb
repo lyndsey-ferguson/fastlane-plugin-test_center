@@ -24,6 +24,14 @@ module TestCenter
             @retrying_scan_helper.before_testrun
             update_scan_options
 
+            values = Scan.config.values(ask: false)
+            values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+            FastlaneCore::PrintTable.print_values(
+              config: values,
+              hide_keys: [:destination, :slack_url],
+              title: "Summary for scan #{Fastlane::VERSION}"
+            )
+
             Scan::Runner.new.run
             @retrying_scan_helper.after_testrun
             true

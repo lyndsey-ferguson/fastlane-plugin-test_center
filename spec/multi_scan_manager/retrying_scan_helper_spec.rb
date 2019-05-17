@@ -12,6 +12,9 @@ describe TestCenter::Helper::MultiScanManager do
       allow(FastlaneCore::UI).to receive(:message).and_call_original
       allow(FileUtils).to receive(:rm_rf).and_call_original
       @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
+      mocked_report_collator = OpenStruct.new
+      allow(mocked_report_collator).to receive(:collate)
+      allow(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).and_return(mocked_report_collator)
     end
 
     after(:each) do
@@ -97,7 +100,7 @@ describe TestCenter::Helper::MultiScanManager do
       end
 
       it 'does not raise if there is a test runner early exit failure' do
-        helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'})
+        helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr', output_directory: ''})
         
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
@@ -121,7 +124,8 @@ describe TestCenter::Helper::MultiScanManager do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           simulators: cloned_simulators,
-          reset_simulators: true
+          reset_simulators: true,
+          output_directory: ''
         )
         
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
@@ -202,6 +206,59 @@ describe TestCenter::Helper::MultiScanManager do
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun
+      end
+
+      it 'collates the reports after successive failures' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        mocked_report_collator = OpenStruct.new
+        expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
+          .with(
+            source_reports_directory_glob: File.absolute_path('./path/to/output/directory'),
+            output_directory: File.absolute_path('./path/to/output/directory'),
+            reportnamer: anything,
+            scheme: 'AtomicUITests',
+            result_bundle: nil
+          )
+          .and_return(mocked_report_collator)
+        expect(mocked_report_collator).to receive(:collate)
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          scheme: 'AtomicUITests',
+          output_directory: './path/to/output/directory'
+        )
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+      end
+
+      it 'will collate the reports into a file that has the batch information' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.(junit|html)}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        
+        expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
+          source_reports_directory_glob: File.absolute_path('./path/to/output/directory'),
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          reportnamer: anything,
+          scheme: 'AtomicUITests',
+          result_bundle: anything,
+          suffix: "-batch-2"
+        )
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          scheme: 'AtomicUITests',
+          output_directory: './path/to/output/directory',
+          batch: 2,
+          batch_count: 3,
+          output_types: 'junit,html',
+          output_files: 'report.junit,report.html'
+        )
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
     end
 

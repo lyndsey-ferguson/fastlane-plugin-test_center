@@ -1,15 +1,16 @@
 module Fastlane
   module Actions
-    class RestartCoreSimulatorServiceAction < Action
+    class QuitCoreSimulatorServiceAction < Action
       def self.run(params)
         launchctl_list_count = 0
+        commands = []
         while Actions.sh('launchctl list | grep com.apple.CoreSimulator.CoreSimulatorService || true', log: false) != ''
           UI.crash!('Unable to quit com.apple.CoreSimulator.CoreSimulatorService after 10 tries') if (launchctl_list_count += 1) > 10
-          commands << Actions.sh('launchctl stop com.apple.CoreSimulator.CoreSimulatorService &> /dev/null || true', log: false)
+          commands << Actions.sh('launchctl remove com.apple.CoreSimulator.CoreSimulatorService &> /dev/null || true', log: false)
           UI.verbose('Waiting for com.apple.CoreSimulator.CoreSimulatorService to quit')
-          sleep(0.25)
+          sleep(0.5)
         end
-        commands << Actions.sh('launchctl start com.apple.CoreSimulator.CoreSimulatorService &> /dev/null || true', log: false)
+        commands
       end
 
       #####################################################
@@ -17,12 +18,12 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Restarts the com.apple.CoreSimulator.CoreSimulatorService."
+        "Force-quits the com.apple.CoreSimulator.CoreSimulatorService."
       end
 
       def self.details
         "Sometimes the com.apple.CoreSimulator.CoreSimulatorService can hang. " \
-        "Use this action to force-restart it."
+        "Use this action to force-quit it."
       end
 
       def self.authors
