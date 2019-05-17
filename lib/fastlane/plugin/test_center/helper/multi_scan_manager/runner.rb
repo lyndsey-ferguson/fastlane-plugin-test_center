@@ -65,7 +65,7 @@ module TestCenter
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
                   output_directory: @output_directory,
                   try_count: @try_count,
-                  batch: current_batch_index
+                  batch: current_batch_index + 1
                 ).reject { |key| %i[device devices].include?(key) }
               )
               retrying_scan.run
@@ -94,6 +94,19 @@ module TestCenter
               ).collate
             end
             testrun_passed && all_tests_passed
+          end
+          if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            TestCenter::Helper::MultiScanManager::ReportCollator.new(
+              source_reports_directory_glob: @output_directory,
+              output_directory: @output_directory,
+              reportnamer: @reportnamer = ReportNameHelper.new(
+                @given_output_types,
+                @given_output_files,
+                @given_custom_report_file_name
+              ),
+              scheme: @scan_options[:scheme],
+              result_bundle: @scan_options[:result_bundle]
+            ).collate
           end
           all_tests_passed
         end

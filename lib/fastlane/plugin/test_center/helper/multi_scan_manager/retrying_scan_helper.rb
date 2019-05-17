@@ -102,7 +102,7 @@ module TestCenter
             result_bundle: @options[:result_bundle]
           }
           if @options[:batch_count]
-            report_collator_options[:suffix] = "-batch-#{@options[:batch]}"
+            report_collator_options[:suffix] = "batch-#{@options[:batch]}"
           end
           TestCenter::Helper::MultiScanManager::ReportCollator.new(report_collator_options).collate
         end
