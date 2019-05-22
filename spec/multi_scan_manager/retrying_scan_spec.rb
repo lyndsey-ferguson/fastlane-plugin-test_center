@@ -1,4 +1,3 @@
-require 'pry-byebug'
 describe TestCenter::Helper::MultiScanManager do
   describe 'retrying_scan', refactor_retrying_scan:true do
     RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan

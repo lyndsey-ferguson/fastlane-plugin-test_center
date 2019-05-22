@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 describe TestCenter::Helper::MultiScanManager do
   describe 'simulator_helper', refactor_retrying_scan:true do
     SimulatorHelper ||= TestCenter::Helper::MultiScanManager::SimulatorHelper

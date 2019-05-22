@@ -43,15 +43,16 @@ module TestCenter
           glob = "#{@source_reports_directory_glob}/#{@reportnamer.junit_fileglob}"
           report_files = sort_globbed_files(glob)
           if report_files.size > 1
+            collated_file =  File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
             config = create_config(
               CollateJunitReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
+                collated_report: collated_file
               }
             )
             CollateJunitReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.junit_numbered_fileglob}")
+            FileUtils.rm_rf(report_files - [collated_file])
           end
         end
 
@@ -60,15 +61,16 @@ module TestCenter
 
           report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.html_fileglob}")
           if report_files.size > 1
+            collated_file = File.absolute_path(File.join(@output_directory, @reportnamer.html_reportname(@suffix)))
             config = create_config(
               CollateJunitReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.html_reportname(@suffix)))
+                collated_report: collated_file
               }
             )
             CollateHtmlReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.html_numbered_fileglob}")
+            FileUtils.rm_rf(report_files - [collated_file])
           end
         end
 
@@ -76,17 +78,17 @@ module TestCenter
           return unless @reportnamer.includes_json?
 
           report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.json_fileglob}")
-
           if report_files.size > 1
+            collated_file = File.absolute_path(File.join(@output_directory, @reportnamer.json_reportname(@suffix)))
             config = create_config(
               CollateJsonReportsAction,
               {
                 reports: report_files,
-                collated_report: File.absolute_path(File.join(@output_directory, @reportnamer.json_reportname(@suffix)))
+                collated_report: collated_file
               }
             )
             CollateJsonReportsAction.run(config)
-            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@reportnamer.json_numbered_fileglob}")
+            FileUtils.rm_rf(report_files - [collated_file])
           end
         end
 
@@ -94,17 +96,17 @@ module TestCenter
           return unless @result_bundle
 
           test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
-
           if test_result_bundlepaths.size > 1
+            collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}.test_result'")
             config = create_config(
               CollateTestResultBundlesAction,
               {
                 bundles: test_result_bundlepaths,
-                collated_bundle: "#{File.join(@output_directory, @scheme)}.test_result'"
+                collated_bundle: collated_test_result_bundlepath
               }
             )
             CollateTestResultBundlesAction.run(config)
-            delete_globbed_intermediatefiles("#{@source_reports_directory_glob}/#{@scheme}-[1-9]*.test_result")
+            FileUtils.rm_rf(report_files - [collated_test_result_bundlepath])
           end
         end
       end

@@ -58,8 +58,10 @@ module TestCenter
         def scan
           all_tests_passed = true
           @testables_count = @test_collector.testables.size
+          FileUtils.rm_rf(Dir.glob("#{@output_directory}/**/*.{junit,html,xml,json}"))
           all_tests_passed = each_batch do |test_batch, current_batch_index|
             if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+              FastlaneCore::UI.important("Investigate using rbspy for perf problems: https://github.com/rbspy/rbspy")
               retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
                 @scan_options.merge(
                   only_testing: test_batch.map(&:shellsafe_testidentifier),
@@ -96,9 +98,15 @@ module TestCenter
             testrun_passed && all_tests_passed
           end
           if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            absolute_output_directory = File.absolute_path(@output_directory)
+            source_reports_directory_glob = absolute_output_directory
+
+            if @batch_count > 1
+              source_reports_directory_glob = File.join(absolute_output_directory, "batch-*")
+            end
             TestCenter::Helper::MultiScanManager::ReportCollator.new(
-              source_reports_directory_glob: @output_directory,
-              output_directory: @output_directory,
+              source_reports_directory_glob: source_reports_directory_glob,
+              output_directory: absolute_output_directory,
               reportnamer: @reportnamer = ReportNameHelper.new(
                 @given_output_types,
                 @given_output_files,
@@ -107,6 +115,9 @@ module TestCenter
               scheme: @scan_options[:scheme],
               result_bundle: @scan_options[:result_bundle]
             ).collate
+            if @batch_count > 1
+              FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
+            end
           end
           all_tests_passed
         end

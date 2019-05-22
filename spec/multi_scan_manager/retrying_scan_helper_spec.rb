@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 describe TestCenter::Helper::MultiScanManager do
   describe 'retrying_scan_helper', refactor_retrying_scan:true do
 
@@ -66,7 +64,9 @@ describe TestCenter::Helper::MultiScanManager do
             'BagOfTests/CoinTossingUITests/testResultIsHeads',
             'BagOfTests/CoinTossingUITests/testResultIsOnEdge'
           ],
-          batch: 2
+          batch: 2,
+          output_files: 'coinTossResult.html,coinTossResult.junit',
+          output_types: 'html,junit'
         )
         expect(FastlaneCore::UI).to receive(:message).with(/Starting scan #1 with 3 tests for batch #2/)
         helper.before_testrun
@@ -236,18 +236,17 @@ describe TestCenter::Helper::MultiScanManager do
 
       it 'will collate the reports into a file that has the batch information' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.(junit|html)}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-3/report(-\d)?\.(junit|html)}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
-          source_reports_directory_glob: File.absolute_path('./path/to/output/directory'),
-          output_directory: File.absolute_path('./path/to/output/directory'),
+          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/batch-3'),
+          output_directory: File.absolute_path('./path/to/output/directory/batch-3'),
           reportnamer: anything,
           scheme: 'AtomicUITests',
-          result_bundle: anything,
-          suffix: "-batch-2"
+          result_bundle: anything
         )
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
@@ -343,9 +342,50 @@ describe TestCenter::Helper::MultiScanManager do
         expect(scan_options[:output_files].split(',')).to include(
           'coinTossResult-3.html', 'coinTossResult-3.junit'
         )
-        
       end
 
+      it 'continually increments the report suffix for batched html and junit files' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-2/coinTossResult(-\d)?.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          only_testing: [
+            'BagOfTests/CoinTossingUITests/testResultIsTails',
+            'BagOfTests/CoinTossingUITests/testResultIsHeads'
+          ],
+          output_files: 'coinTossResult.html,coinTossResult.junit',
+          output_types: 'html,junit',
+          batch: true,
+          batch_count: 2
+        )
+        scan_options = helper.scan_options
+        expect(scan_options.keys).to include(:output_files, :output_types)
+        expect(scan_options[:output_files].split(',')).to include(
+          'coinTossResult.html', 'coinTossResult.junit'
+        )
+        
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+
+        scan_options = helper.scan_options
+        expect(scan_options.keys).to include(:output_files, :output_types)
+        expect(scan_options[:output_files].split(',')).to include(
+          'coinTossResult-2.html', 'coinTossResult-2.junit'
+        )
+
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+
+        scan_options = helper.scan_options
+        expect(scan_options.keys).to include(:output_files, :output_types)
+        expect(scan_options[:output_files].split(',')).to include(
+          'coinTossResult-3.html', 'coinTossResult-3.junit'
+        )
+      end
+ 
       it 'continually increments the report suffix for json' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xml}).and_return(true)
@@ -373,11 +413,11 @@ describe TestCenter::Helper::MultiScanManager do
           helper.before_testrun
           helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         end
-
+        absolute_output_directory = File.absolute_path('./path/to/output/directory')
         expect(json_files).to include(
-          './path/to/output/directory/coinTossResult.json',
-          './path/to/output/directory/coinTossResult-2.json', 
-          './path/to/output/directory/coinTossResult-3.json'
+          File.join(absolute_output_directory, 'coinTossResult.json'),
+          File.join(absolute_output_directory, 'coinTossResult-2.json'),
+          File.join(absolute_output_directory, 'coinTossResult-3.json')
         )
       end
 

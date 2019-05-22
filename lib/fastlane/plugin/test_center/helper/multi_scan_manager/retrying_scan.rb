@@ -1,10 +1,15 @@
 module TestCenter
   module Helper
     module MultiScanManager
+
       class RetryingScan
         def initialize(options = {})
           @options = options
           @retrying_scan_helper = RetryingScanHelper.new(options)
+        end
+
+        def scan_config
+          Scan.config
         end
 
         def update_scan_options
@@ -13,7 +18,7 @@ module TestCenter
                                   .merge(@retrying_scan_helper.scan_options)
 
           scan_options.each do |k,v|
-            Scan.config.set(k,v) unless v.nil?
+            scan_config.set(k,v) unless v.nil?
           end
         end
 
@@ -23,14 +28,14 @@ module TestCenter
             # TODO move delete_xcresults to `before_testrun`
             @retrying_scan_helper.before_testrun
             update_scan_options
-
-            values = Scan.config.values(ask: false)
+            
+            values = scan_config.values(ask: false)
             values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
             FastlaneCore::PrintTable.print_values(
               config: values,
               hide_keys: [:destination, :slack_url],
               title: "Summary for scan #{Fastlane::VERSION}"
-            )
+            ) unless FastlaneCore::Helper.test?
 
             Scan::Runner.new.run
             @retrying_scan_helper.after_testrun

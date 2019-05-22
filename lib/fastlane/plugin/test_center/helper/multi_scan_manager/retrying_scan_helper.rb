@@ -13,11 +13,10 @@ module TestCenter
           @options = options
           @testrun_count = 0
           @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
-
           @reportnamer = ReportNameHelper.new(
-            options[:output_types],
-            options[:output_files],
-            options[:custom_report_file_name]
+            @options[:output_types],
+            @options[:output_files],
+            @options[:custom_report_file_name]
           )
         end
         
@@ -36,6 +35,14 @@ module TestCenter
           FileUtils.rm_rf(xcresults)
         end
 
+        def output_directory
+          absolute_output_directory = File.absolute_path(@options[:output_directory])
+          if @options[:batch]
+            absolute_output_directory = File.join(absolute_output_directory, "batch-#{@options[:batch]}")
+          end
+          absolute_output_directory
+        end
+
         def print_starting_scan_message
           scan_message = "Starting scan ##{@testrun_count + 1} with #{@options.fetch(:only_testing, []).size} tests"
           scan_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
@@ -46,7 +53,7 @@ module TestCenter
           return unless @reportnamer.includes_json?
 
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
-            @options[:output_directory],
+            output_directory,
             @reportnamer.json_last_reportname
           )
         end
@@ -60,8 +67,7 @@ module TestCenter
         def remove_preexisting_test_result_bundles
           return unless @options[:result_bundle]
 
-          absolute_output_directory = File.absolute_path(@options[:output_directory])
-          glob_pattern = "#{absolute_output_directory}/*.test_result"
+          glob_pattern = "#{output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           FileUtils.rm_rf(preexisting_test_result_bundles)
         end
@@ -70,6 +76,7 @@ module TestCenter
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           @options.select { |k,v| valid_scan_keys.include?(k) }
                   .merge(@reportnamer.scan_options)
+                  .merge(output_directory: output_directory)
         end
 
         # after_testrun methods
@@ -93,17 +100,14 @@ module TestCenter
         end
         
         def collate_reports
-          absolute_output_directory = File.absolute_path(@options[:output_directory])
+
           report_collator_options = {
-            source_reports_directory_glob: absolute_output_directory,
-            output_directory: absolute_output_directory,
+            source_reports_directory_glob: output_directory,
+            output_directory: output_directory,
             reportnamer: @reportnamer,
             scheme: @options[:scheme],
             result_bundle: @options[:result_bundle]
           }
-          if @options[:batch_count]
-            report_collator_options[:suffix] = "batch-#{@options[:batch]}"
-          end
           TestCenter::Helper::MultiScanManager::ReportCollator.new(report_collator_options).collate
         end
 
@@ -121,7 +125,7 @@ module TestCenter
           report_filepath = nil
           junit_results = {}
           unless additional_info.key?(:test_operation_failure)
-            report_filepath = File.absolute_path(File.join(@options[:output_directory], @reportnamer.junit_last_reportname))
+            report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
   
             config = FastlaneCore::Configuration.create(
               Fastlane::Actions::TestsFromJunitAction.available_options,
@@ -141,17 +145,17 @@ module TestCenter
           }.merge(additional_info)
 
           if @reportnamer.includes_html?
-            html_report_filepath = File.join(@options[:output_directory], @reportnamer.html_last_reportname)
+            html_report_filepath = File.join(output_directory, @reportnamer.html_last_reportname)
             info[:html_report_filepath] = html_report_filepath
           end
           if @reportnamer.includes_json?
-            json_report_filepath = File.join(@options[:output_directory], @reportnamer.json_last_reportname)
+            json_report_filepath = File.join(output_directory, @reportnamer.json_last_reportname)
             info[:json_report_filepath] = json_report_filepath
           end
           if @options[:result_bundle]
             test_result_suffix = '.test_result'
             test_result_suffix.prepend("-#{@reportnamer.report_count}") unless @reportnamer.report_count.zero?
-            test_result_bundlepath = File.join(@options[:output_directory], @options[:scheme]) + test_result_suffix
+            test_result_bundlepath = File.join(output_directory, @options[:scheme]) + test_result_suffix
             info[:test_result_bundlepath] = test_result_bundlepath
           end
           @options[:testrun_completed_block].call(info)
@@ -169,7 +173,7 @@ module TestCenter
         end
 
         def update_only_testing
-          report_filepath = File.join(@options[:output_directory], @reportnamer.junit_last_reportname)
+          report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
           config = FastlaneCore::Configuration.create(
             Fastlane::Actions::TestsFromJunitAction.available_options,
             {
@@ -229,8 +233,7 @@ module TestCenter
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
 
-          absolute_output_directory = File.absolute_path(@options[:output_directory])
-          glob_pattern = "#{absolute_output_directory}/*.test_result"
+          glob_pattern = "#{output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|
             test_result =~ /.*-\d+\.test_result/
