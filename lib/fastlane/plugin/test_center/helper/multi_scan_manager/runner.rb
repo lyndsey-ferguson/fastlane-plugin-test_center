@@ -61,16 +61,7 @@ module TestCenter
           FileUtils.rm_rf(Dir.glob("#{@output_directory}/**/*.{junit,html,xml,json}"))
           all_tests_passed = each_batch do |test_batch, current_batch_index|
             if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
-              FastlaneCore::UI.important("Investigate using rbspy for perf problems: https://github.com/rbspy/rbspy")
-              retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
-                @scan_options.merge(
-                  only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: @output_directory,
-                  try_count: @try_count,
-                  batch: current_batch_index + 1
-                ).reject { |key| %i[device devices].include?(key) }
-              )
-              retrying_scan.run
+              run_test_batch_through_retrying_scan(test_batch, current_batch_index)
             else
               output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
               reset_for_new_testable(output_directory)
@@ -98,28 +89,42 @@ module TestCenter
             testrun_passed && all_tests_passed
           end
           if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
-            absolute_output_directory = File.absolute_path(@output_directory)
-            source_reports_directory_glob = absolute_output_directory
-
-            if @batch_count > 1
-              source_reports_directory_glob = File.join(absolute_output_directory, "batch-*")
-            end
-            TestCenter::Helper::MultiScanManager::ReportCollator.new(
-              source_reports_directory_glob: source_reports_directory_glob,
-              output_directory: absolute_output_directory,
-              reportnamer: @reportnamer = ReportNameHelper.new(
-                @given_output_types,
-                @given_output_files,
-                @given_custom_report_file_name
-              ),
-              scheme: @scan_options[:scheme],
-              result_bundle: @scan_options[:result_bundle]
-            ).collate
-            if @batch_count > 1
-              FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
-            end
+            collate_batched_reports
           end
           all_tests_passed
+        end
+
+        def run_test_batch_through_retrying_scan(test_batch, current_batch_index)
+          FastlaneCore::UI.important("Investigate using rbspy for perf problems: https://github.com/rbspy/rbspy")
+          retrying_scan = TestCenter::Helper::MultiScanManager::RetryingScan.new(
+            @scan_options.merge(
+              only_testing: test_batch.map(&:shellsafe_testidentifier),
+              output_directory: @output_directory,
+              try_count: @try_count,
+              batch: current_batch_index + 1
+            ).reject { |key| %i[device devices].include?(key) }
+          )
+          retrying_scan.run
+        end
+  
+        def collate_batched_reports
+          return unless @batch_count > 1
+
+          absolute_output_directory = File.absolute_path(@output_directory)
+          source_reports_directory_glob = File.join(absolute_output_directory, "batch-*")
+
+          TestCenter::Helper::MultiScanManager::ReportCollator.new(
+            source_reports_directory_glob: source_reports_directory_glob,
+            output_directory: absolute_output_directory,
+            reportnamer: @reportnamer = ReportNameHelper.new(
+              @given_output_types,
+              @given_output_files,
+              @given_custom_report_file_name
+            ),
+            scheme: @scan_options[:scheme],
+            result_bundle: @scan_options[:result_bundle]
+          ).collate
+          FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
         end
 
         def each_batch
