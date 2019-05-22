@@ -236,14 +236,14 @@ describe TestCenter::Helper::MultiScanManager do
 
       it 'will collate the reports into a file that has the batch information' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-3/report(-\d)?\.(junit|html)}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-2/report(-\d)?\.(junit|html)}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
-          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/batch-3'),
-          output_directory: File.absolute_path('./path/to/output/directory/batch-3'),
+          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/batch-2'),
+          output_directory: File.absolute_path('./path/to/output/directory/batch-2'),
           reportnamer: anything,
           scheme: 'AtomicUITests',
           result_bundle: anything
@@ -265,7 +265,8 @@ describe TestCenter::Helper::MultiScanManager do
       it 'has the tests to be tested' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+          output_directory: File.absolute_path('./path/to/output/directory')
         )
 
         expect(helper.scan_options).to include(
@@ -278,7 +279,8 @@ describe TestCenter::Helper::MultiScanManager do
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
           batch_count: 4,
-          parallelize: true
+          parallelize: true,
+          output_directory: File.absolute_path('./path/to/output/directory')
         )
         expect(helper.scan_options.keys).not_to include(:batch_count, :parallelize)
         expect(helper.scan_options.keys).to include(:derived_data_path, :only_testing)
@@ -346,7 +348,7 @@ describe TestCenter::Helper::MultiScanManager do
 
       it 'continually increments the report suffix for batched html and junit files' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-2/coinTossResult(-\d)?.junit}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-3/coinTossResult(-\d)?.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
@@ -360,7 +362,7 @@ describe TestCenter::Helper::MultiScanManager do
           ],
           output_files: 'coinTossResult.html,coinTossResult.junit',
           output_types: 'html,junit',
-          batch: true,
+          batch: 3,
           batch_count: 2
         )
         scan_options = helper.scan_options
@@ -426,7 +428,7 @@ describe TestCenter::Helper::MultiScanManager do
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory'
         )
-        expect(helper.scan_options[:output_directory]).to eq('./path/to/output/directory')
+        expect(helper.scan_options[:output_directory]).to match(%r{.*/path/to/output/directory})
       end
 
       it 'has the correct result_bundle option' do
