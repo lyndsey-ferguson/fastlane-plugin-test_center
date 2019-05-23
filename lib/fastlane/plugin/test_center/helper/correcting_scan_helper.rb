@@ -230,7 +230,7 @@ module TestCenter
             scan_options.delete(:code_coverage)
             last_failed_tests = info[:failed].map(&:shellsafe_testidentifier)
             last_failed_tests = last_failed_tests.map {|failed_test| failed_test.split('/')[0...-1].join('/') } if @invocation_based_tests
-            scan_options[:only_testing] = last_failed_tests
+            scan_options[:only_testing] = last_failed_tests.uniq
             FastlaneCore::UI.message('Re-running scan on only failed tests')
             reportnamer.increment
             if @scan_options[:result_bundle]
