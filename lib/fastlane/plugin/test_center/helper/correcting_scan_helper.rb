@@ -16,6 +16,7 @@ module TestCenter
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
         @given_output_types = multi_scan_options[:output_types]
         @given_output_files = multi_scan_options[:output_files]
+        @invocation_based_tests = multi_scan_options[:invocation_based_tests] || false
         @scan_options = multi_scan_options.reject do |option, _|
           %i[
             output_directory
@@ -24,6 +25,7 @@ module TestCenter
             clean
             try_count
             batch_count
+            invocation_based_tests
             quit_simulators
             custom_report_file_name
             fail_build
@@ -71,11 +73,12 @@ module TestCenter
               FileUtils.rm_rf(Dir.glob("#{output_directory}/*.test_result"))
             end
 
+            options =  {
+              output_directory: output_directory
+            }
+            options[:only_testing] = tests_batch unless @invocation_based_tests
             tests_passed = correcting_scan(
-              {
-                only_testing: tests_batch,
-                output_directory: output_directory
-              },
+              options,
               current_batch,
               reportnamer
             ) && tests_passed
@@ -84,9 +87,9 @@ module TestCenter
           end
         else
           options = {
-            output_directory: output_directory,
-            only_testing: testable_tests
+            output_directory: output_directory
           }
+          options[:only_testing] = testable_tests unless @invocation_based_tests
           tests_passed = correcting_scan(options, 1, reportnamer) && tests_passed
         end
         collate_reports(output_directory, reportnamer)
@@ -225,7 +228,9 @@ module TestCenter
           if try_count < @try_count
             @retry_total_count += 1
             scan_options.delete(:code_coverage)
-            scan_options[:only_testing] = info[:failed].map(&:shellsafe_testidentifier)
+            last_failed_tests = info[:failed].map(&:shellsafe_testidentifier)
+            last_failed_tests = last_failed_tests.map {|failed_test| failed_test.split('/')[0...-1].join('/') } if @invocation_based_tests
+            scan_options[:only_testing] = last_failed_tests
             FastlaneCore::UI.message('Re-running scan on only failed tests')
             reportnamer.increment
             if @scan_options[:result_bundle]

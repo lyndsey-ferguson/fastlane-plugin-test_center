@@ -87,6 +87,7 @@ module Fastlane
           quit_simulators
           testrun_completed_block
           test_without_building
+          invocation_based_tests
           output_types
           output_files
         ]
@@ -155,6 +156,14 @@ module Fastlane
             verify_block: proc do |count|
               UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :invocation_based_tests,
+            description: "Set to true If your test suit have invocation based tests like Kiwi",
+            type: Boolean,
+            is_string: false,
+            default_value: false,
+            optional: true
           ),
           FastlaneCore::ConfigItem.new(
             key: :quit_simulators,
