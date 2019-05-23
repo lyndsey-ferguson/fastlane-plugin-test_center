@@ -107,6 +107,10 @@ Do you have multiple test targets and the normal operation of `:scan` is providi
 
 `test_result` bundles are particularly useful because they contain screenshots of the UI when a UI test fails so you can review what was actually there compared to what you expected.
 
+#### Invocation based tests
+
+If your tests are invocation based like [Kiwi](https://github.com/kiwi-bdd/Kiwi) you need to set `:invocation_based_tests` to handle these tests, because unlike `XCTest`s the list of tests cannot be deterimned before running and also you can't try an exact test (The reruns run the whole file where the test failed).
+
 <details>
     <summary>Example Code (expand to view):</summary>
 <!-- multi_scan examples: begin -->

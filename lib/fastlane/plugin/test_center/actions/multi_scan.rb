@@ -326,6 +326,19 @@ module Fastlane
             output_files: 'report.json',
             fail_build: false
           )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'multi_scan also works with invocation based tests.'
+          )
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            try_count: 3,
+            invocation_based_tests: true,
+            fail_build: false
+          )
           "
         ]
       end
