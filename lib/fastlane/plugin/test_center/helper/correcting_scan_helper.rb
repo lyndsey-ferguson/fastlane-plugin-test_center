@@ -16,7 +16,7 @@ module TestCenter
         @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
         @given_output_types = multi_scan_options[:output_types]
         @given_output_files = multi_scan_options[:output_files]
-        @invocation_based_tests = multi_scan_options[:invocation_based_tests] || false
+        @invocation_based_tests = multi_scan_options[:invocation_based_tests]
         @scan_options = multi_scan_options.reject do |option, _|
           %i[
             output_directory
@@ -229,7 +229,7 @@ module TestCenter
             @retry_total_count += 1
             scan_options.delete(:code_coverage)
             last_failed_tests = info[:failed].map(&:shellsafe_testidentifier)
-            last_failed_tests = last_failed_tests.map {|failed_test| failed_test.split('/')[0...-1].join('/') } if @invocation_based_tests
+            last_failed_tests = last_failed_tests.map(&:strip_testcase) if @invocation_based_tests
             scan_options[:only_testing] = last_failed_tests.uniq
             FastlaneCore::UI.message('Re-running scan on only failed tests')
             reportnamer.increment
@@ -294,5 +294,8 @@ module TestCenter
         end
       end
     end
+  end
+  def strip_testcase(test_identifier)
+    test_identifier.split('/').first(2)
   end
 end
