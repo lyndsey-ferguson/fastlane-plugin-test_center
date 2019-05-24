@@ -616,7 +616,11 @@ describe TestCenter do
               allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
                 expect(config._values).to have_key(:junit)
                 expect(config._values[:junit]).to match(expected_report_files.shift)
-                { failed: ['BagOfTests/CoinTossingUITests/testResultIsTails', 'BagOfTests/CoinTossingUITests/testResultIsTails2'] }
+                { failed: [
+                  'BagOfInvocationTests/CoinTossingKiwiUITests/testResultIsTails',
+                  'BagOfInvocationTests/CoinTossingKiwiUITests/testResultIsTails2'
+                  ]
+                }
               end
               expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
                 expect(config._values).to have_key(:output_files)
@@ -632,11 +636,11 @@ describe TestCenter do
                 expect(config._values).to have_key(:output_files)
                 expect(config._values[:output_files]).to eq('report-3.html,report-3.junit')
                 expect(config._values).to have_key(:only_testing)
-                expect(config._values[:only_testing]).to eq(['BagOfTests/CoinTossingUITests'])
+                expect(config._values[:only_testing]).to eq(['BagOfInvocationTests/CoinTossingKiwiUITests'])
                 raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
               end
 
-              expect(Fastlane::Actions).to receive(:sh).with(/killall -9 'iPhone Simulator' 'Simulator' 'SimulatorBridge'.*/, anything).at_least(3).times
+              allow(Fastlane::Actions).to receive(:sh).with(/killall -9 'iPhone Simulator' 'Simulator' 'SimulatorBridge'.*/, anything)
               result = scanner.correcting_scan(
                 {
                   output_directory: '.'
