@@ -34,7 +34,7 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys
+            @testables ||= Plist.parse_xml(@xctestrun_path).keys.select {|retrievedTestable| !Fastlane::Actions::TestsFromXctestrunAction.ignoredTestables.include?(retrievedTestable) }
           end
         end
         @testables
@@ -49,12 +49,12 @@ module TestCenter
         tests
       end
 
-      def testables_tests
+      def testables_tests(invocation_based_tests)
         unless @testables_tests
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
           else
-            config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path)
+            config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path, invocation_based_tests: invocation_based_tests)
             @testables_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
             if @skip_testing
               skipped_testable_tests = Hash.new { |h, k| h[k] = [] }

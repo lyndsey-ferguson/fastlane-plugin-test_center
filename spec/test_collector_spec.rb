@@ -23,6 +23,14 @@ describe TestCenter do
         expect(test_collector.testables).to eq(['AtomicBoyTests'])
       end
 
+      it 'remove __xctestrun_metadata__ from testables from given xctestrun' do
+        allow(Plist).to receive(:parse_xml).with('path/to/fake.xctestrun').and_return({ 'AtomicBoyTests' => [] , '__xctestrun_metadata__' => [] })
+        test_collector = TestCollector.new(
+          xctestrun: 'path/to/fake.xctestrun'
+        )
+        expect(test_collector.testables).to eq(['AtomicBoyTests'])
+      end
+
       it 'finds testables from derived xctestrun' do
         allow(File).to receive(:exist?).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return(true)
         allow(Dir).to receive(:glob).with("path/to/fake/derived_data/Build/Products/Professor*.xctestrun").and_return(['path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun'])
@@ -76,7 +84,7 @@ describe TestCenter do
             'AtomicBoyUITests/AtomicBoyUITests/testExample4'
           ]
         )
-        result = test_collector.testables_tests
+        result = test_collector.testables_tests(false)
         expect(result).to include(
           'AtomicBoyTests' => [
             'AtomicBoyTests/AtomicBoyTests/testExample1'
@@ -94,7 +102,7 @@ describe TestCenter do
           xctestrun: 'path/to/fake.xctestrun',
           only_testing: ['AtomicBoyTests']
         )
-        result = test_collector.testables_tests
+        result = test_collector.testables_tests(false)
         expect(result).to include(
           'AtomicBoyTests' => ['AtomicBoyTests']
         )
@@ -125,7 +133,7 @@ describe TestCenter do
             'AtomicBoyUITests/AtomicBoyUITests/testExample4'
           ]
         )
-        result = test_collector.testables_tests
+        result = test_collector.testables_tests(false)
         expect(result).to include(
           'AtomicBoyTests' => [
             'AtomicBoyTests/AtomicBoyTests/testExample1',
@@ -154,9 +162,9 @@ describe TestCenter do
         allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
         expect(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)
           .and_return(expected_result).once
-        result = test_collector.testables_tests
+        result = test_collector.testables_tests(false)
         expect(result).to include(expected_result)
-        result = test_collector.testables_tests
+        result = test_collector.testables_tests(false)
         expect(result).to include(expected_result)
       end
     end

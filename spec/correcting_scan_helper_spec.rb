@@ -573,7 +573,7 @@ describe TestCenter do
           end
           
           describe 'invocation based tests' do
-            it 'does not pass only_testing to correcting_scan' do
+            it 'pass only the testable in only_testing to correcting_scan' do
               scanner = CorrectingScanHelper.new(
                 xctestrun: 'path/to/fake.xctestrun',
                 output_directory: '.',
@@ -593,6 +593,7 @@ describe TestCenter do
               expect(scanner).to receive(:correcting_scan)
                 .with(
                   {
+                    only_testing: ["AtomicBoyTests"],
                     output_directory: '.'
                   },
                   anything,

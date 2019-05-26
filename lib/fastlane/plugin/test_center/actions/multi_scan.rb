@@ -10,7 +10,7 @@ module Fastlane
       def self.run(params)
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
-            config: params._values.select { |k, _| %i[try_count batch_count fail_build quit_simulators].include?(k) },
+            config: params._values.select { |k, _| %i[try_count batch_count invocation_based_tests fail_build quit_simulators].include?(k) },
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
@@ -333,8 +333,8 @@ module Fastlane
             'multi_scan also works with invocation based tests.'
           )
           multi_scan(
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy',
+            workspace: File.absolute_path('../KiwiDemo/KiwiDemo.xcworkspace'),
+            scheme: 'KiwiDemoTests',
             try_count: 3,
             invocation_based_tests: true,
             fail_build: false

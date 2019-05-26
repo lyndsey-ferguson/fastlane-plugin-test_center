@@ -5,15 +5,15 @@ module Fastlane
     class TestsFromXctestrunAction < Action
       def self.run(params)
         UI.verbose("Getting tests from xctestrun file at '#{params[:xctestrun]}'")
-        return xctestrun_tests(params[:xctestrun])
+        return xctestrun_tests(params[:xctestrun], params[:invocation_based_tests])
       end
 
-      def self.xctestrun_tests(xctestrun_path)
+      def self.xctestrun_tests(xctestrun_path, invocation_based_tests)
         xctestrun = Plist.parse_xml(xctestrun_path)
         xctestrun_rootpath = File.dirname(xctestrun_path)
         tests = Hash.new([])
         xctestrun.each do |testable_name, xctestrun_config|
-          next if testable_name == '__xctestrun_metadata__'
+          next if ignoredTestables.include? testable_name
 
           xctest_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
           test_identifiers = XCTestList.tests(xctest_path)
@@ -23,7 +23,7 @@ module Fastlane
             UI.verbose("Removing skipped tests: #{skipped_tests.join("\n\t")}")
             test_identifiers.reject! { |test_identifier| skipped_tests.include?(test_identifier) }
           end
-          if test_identifiers.empty?
+          if test_identifiers.empty? && !invocation_based_tests
             UI.error("No tests found in '#{xctest_path}'!")
             UI.important("Is the Build Setting, `ENABLE_TESTABILITY` enabled for the test target #{testable_name}?")
           end
@@ -37,6 +37,10 @@ module Fastlane
       def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
         xctest_host_path = xctestrun_config['TestHostPath'].sub('__TESTROOT__', xctestrun_rootpath)
         xctestrun_config['TestBundlePath'].sub('__TESTHOST__', xctest_host_path).sub('__TESTROOT__', xctestrun_rootpath)
+      end
+
+      def self.ignoredTestables
+        return ['__xctestrun_metadata__']
       end
 
       #####################################################
@@ -56,6 +60,14 @@ module Fastlane
             verify_block: proc do |path|
               UI.user_error!("Error: cannot find the xctestrun file '#{path}'") unless File.exist?(path)
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :invocation_based_tests,
+            description: "Set to true If your test suit have invocation based tests like Kiwi",
+            type: Boolean,
+            is_string: false,
+            default_value: false,
+            optional: true
           )
         ]
       end
