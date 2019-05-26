@@ -26,3 +26,4 @@ spec/fixtures/malformed-report.html
 AtomicBoy/AtomicBoy.xcodeproj/xcshareddata/xcschemes/AtomicBoy.xcscheme
 fastlane/report.xml
 spec/fixtures/malformed-report.html
+**/Podfile.lock
