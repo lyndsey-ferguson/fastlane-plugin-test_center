@@ -38,7 +38,8 @@ module TestCenter
         def output_directory
           absolute_output_directory = File.absolute_path(@options[:output_directory])
           if @options[:batch]
-            absolute_output_directory = File.join(absolute_output_directory, "batch-#{@options[:batch]}")
+            testable = @options.fetch(:only_testing, ['']).first.split('/').first || ''
+            absolute_output_directory = File.join(absolute_output_directory, "#{testable}-batch-#{@options[:batch]}")
           end
           absolute_output_directory
         end

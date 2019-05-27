@@ -205,7 +205,22 @@ module Fastlane
             description: 'Run each batch of tests and/or each test target in parallel on its own Simulator',
             optional: true,
             is_string: false,
-            default_value: false
+            default_value: false,
+            conflicting_options: [:parallel_simulator_count],
+            conflict_block: proc do |value|
+              UI.user_error!("You can't use 'parallelize' and 'parallel_simulator_count' options in one run")
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :parallel_simulator_count,
+            description: 'Run  simulators each batch of tests and/or each test target in parallel on its own Simulator',
+            optional: true,
+            is_string: false,
+            default_value: false,
+            conflicting_options: [:parallelize],
+            conflict_block: proc do |value|
+              UI.user_error!("You can't use 'parallelize' and 'parallel_simulator_count' options in one run")
+            end
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,

@@ -108,10 +108,20 @@ module TestCenter
         end
   
         def collate_batched_reports
-          return unless @batch_count > 1
+          return false unless @batch_count > 1
 
-          absolute_output_directory = File.absolute_path(@output_directory)
-          source_reports_directory_glob = File.join(absolute_output_directory, "batch-*")
+          @test_collector.testables.each do |testable|
+            collate_batched_reports_for_testable(testable)
+          end
+          true
+        end
+
+        def collate_batched_reports_for_testable(testable)
+          absolute_output_directory = File.join(
+            File.absolute_path(@output_directory),
+            testable
+          )
+          source_reports_directory_glob = "#{absolute_output_directory}-batch-*"
 
           TestCenter::Helper::MultiScanManager::ReportCollator.new(
             source_reports_directory_glob: source_reports_directory_glob,
@@ -125,6 +135,7 @@ module TestCenter
             result_bundle: @scan_options[:result_bundle]
           ).collate
           FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
+          true
         end
 
         def each_batch

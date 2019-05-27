@@ -236,14 +236,14 @@ describe TestCenter::Helper::MultiScanManager do
 
       it 'will collate the reports into a file that has the batch information' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-2/report(-\d)?\.(junit|html)}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-2/report(-\d)?\.(junit|html)}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
-          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/batch-2'),
-          output_directory: File.absolute_path('./path/to/output/directory/batch-2'),
+          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
+          output_directory: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
           reportnamer: anything,
           scheme: 'AtomicUITests',
           result_bundle: anything
@@ -252,6 +252,7 @@ describe TestCenter::Helper::MultiScanManager do
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
           output_directory: './path/to/output/directory',
+          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
           batch: 2,
           batch_count: 3,
           output_types: 'junit,html',
@@ -348,7 +349,7 @@ describe TestCenter::Helper::MultiScanManager do
 
       it 'continually increments the report suffix for batched html and junit files' do
         allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/batch-3/coinTossResult(-\d)?.junit}).and_return(true)
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-3/coinTossResult(-\d)?.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )

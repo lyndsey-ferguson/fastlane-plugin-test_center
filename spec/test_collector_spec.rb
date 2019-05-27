@@ -159,6 +159,57 @@ describe TestCenter do
         result = test_collector.testables_tests
         expect(result).to include(expected_result)
       end
+
+      it 'has more testables than the number of requested batches' do
+        mock_xctestrun = {
+          'AtomicBoyTests' => [
+            'AtomicBoyTests/AtomicBoyTests/testExample1',
+            'AtomicBoyTests/AtomicBoyTests/testExample2',
+            'AtomicBoyTests/AtomicBoyTests/testExample3',
+            'AtomicBoyTests/AtomicBoyTests/testExample4'
+          ],
+          'AtomicBoyUITests' => [
+            'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+            'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+            'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+            'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+          ],
+          'AtomicGirlTests' => [
+            'AtomicGirlTests/AtomicGirlTests/testExample1',
+            'AtomicGirlTests/AtomicGirlTests/testExample2',
+            'AtomicGirlTests/AtomicGirlTests/testExample3',
+            'AtomicGirlTests/AtomicGirlTests/testExample4'
+          ],
+          'AtomicGirlUITests' => [
+            'AtomicGirlUITests/AtomicGirlUITests/testExample1',
+            'AtomicGirlUITests/AtomicGirlUITests/testExample2',
+            'AtomicGirlUITests/AtomicGirlUITests/testExample3',
+            'AtomicGirlUITests/AtomicGirlUITests/testExample4'
+          ],
+          'AtomicPuppyTests' => [
+            'AtomicPuppyTests/AtomicPuppyTests/testExample1',
+            'AtomicPuppyTests/AtomicPuppyTests/testExample2',
+            'AtomicPuppyTests/AtomicPuppyTests/testExample3',
+            'AtomicPuppyTests/AtomicPuppyTests/testExample4'
+          ],
+          'AtomicPuppyUITests' => [
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample1',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample2',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample3',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample4'
+          ]
+        }
+        allow(Plist).to receive(:parse_xml).and_return(mock_xctestrun)
+        allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+        expect(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)
+          .and_return(mock_xctestrun)
+
+        test_collector = TestCollector.new(
+          xctestrun: 'path/to/fake.xctestrun',
+          batch_count: 3
+        )
+        expect(test_collector.test_batches.size).to eq(12)
+      end
     end
   end
 end
