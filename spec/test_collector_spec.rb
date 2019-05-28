@@ -84,7 +84,7 @@ describe TestCenter do
             'AtomicBoyUITests/AtomicBoyUITests/testExample4'
           ]
         )
-        result = test_collector.testables_tests(false)
+        result = test_collector.testables_tests
         expect(result).to include(
           'AtomicBoyTests' => [
             'AtomicBoyTests/AtomicBoyTests/testExample1'
@@ -102,7 +102,7 @@ describe TestCenter do
           xctestrun: 'path/to/fake.xctestrun',
           only_testing: ['AtomicBoyTests']
         )
-        result = test_collector.testables_tests(false)
+        result = test_collector.testables_tests
         expect(result).to include(
           'AtomicBoyTests' => ['AtomicBoyTests']
         )
@@ -133,7 +133,7 @@ describe TestCenter do
             'AtomicBoyUITests/AtomicBoyUITests/testExample4'
           ]
         )
-        result = test_collector.testables_tests(false)
+        result = test_collector.testables_tests
         expect(result).to include(
           'AtomicBoyTests' => [
             'AtomicBoyTests/AtomicBoyTests/testExample1',
@@ -162,9 +162,9 @@ describe TestCenter do
         allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
         expect(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)
           .and_return(expected_result).once
-        result = test_collector.testables_tests(false)
+        result = test_collector.testables_tests
         expect(result).to include(expected_result)
-        result = test_collector.testables_tests(false)
+        result = test_collector.testables_tests
         expect(result).to include(expected_result)
       end
     end

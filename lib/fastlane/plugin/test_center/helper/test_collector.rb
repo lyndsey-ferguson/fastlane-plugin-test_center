@@ -15,6 +15,7 @@ module TestCenter
         end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
+        @invocation_based_tests = options[:invocation_based_tests]
       end
 
       def default_derived_data_path(options)
@@ -51,7 +52,7 @@ module TestCenter
         tests
       end
 
-      def testables_tests(invocation_based_tests)
+      def testables_tests
         unless @testables_tests
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
@@ -60,7 +61,7 @@ module TestCenter
               ::Fastlane::Actions::TestsFromXctestrunAction.available_options,
               {
                 xctestrun: @xctestrun_path,
-                invocation_based_tests: invocation_based_tests    
+                invocation_based_tests: @invocation_based_tests
               }
             )
             @testables_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
