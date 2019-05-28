@@ -34,7 +34,9 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys.select {|retrievedTestable| !Fastlane::Actions::TestsFromXctestrunAction.ignoredTestables.include?(retrievedTestable) }
+            @testables ||= Plist.parse_xml(@xctestrun_path).keys.reject do |retrievedTestable| 
+              Fastlane::Actions::TestsFromXctestrunAction.ignoredTestables.include?(retrievedTestable)
+            end
           end
         end
         @testables
