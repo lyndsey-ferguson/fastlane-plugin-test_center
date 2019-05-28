@@ -55,11 +55,6 @@ module TestCenter
           @given_custom_report_file_name
         )
         output_directory = @output_directory
-        testable_tests = @test_collector.testables_tests(@invocation_based_tests)[testable]
-        if testable_tests.empty? && !@invocation_based_tests
-          FastlaneCore::UI.important("There are no tests to run in testable '#{testable}'. Skipping")
-          return true
-        end
 
         if @invocation_based_tests
           FastlaneCore::UI.header("Starting test run on testable '#{testable}'")
@@ -74,36 +69,45 @@ module TestCenter
             1,
             reportnamer
           ) && tests_passed
-        elsif @batch_count > 1 || @testables_count > 1
-          current_batch = 1
-          testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
-            if @testables_count > 1
-              output_directory = File.join(@output_directory, "results-#{testable}")
-            end
-            FastlaneCore::UI.header("Starting test run on testable '#{testable}'")
-            if @scan_options[:result_bundle]
-              FastlaneCore::UI.message("Clearing out previous test_result bundles in #{output_directory}")
-              FileUtils.rm_rf(Dir.glob("#{output_directory}/*.test_result"))
-            end
-
-            options =  {
-              output_directory: output_directory,
-              only_testing: tests_batch
-            }
-            tests_passed = correcting_scan(
-              options,
-              current_batch,
-              reportnamer
-            ) && tests_passed
-            current_batch += 1
-            reportnamer.increment
-          end
         else
-          options = {
-            output_directory: output_directory,
-            only_testing: testable_tests
-          }
-          tests_passed = correcting_scan(options, 1, reportnamer) && tests_passed
+          testable_tests = @test_collector.testables_tests[testable]
+          if testable_tests.empty?
+            FastlaneCore::UI.important("There are no tests to run in testable '#{testable}'. Skipping")
+            return true
+          end
+
+          if @batch_count > 1 || @testables_count > 1 
+            current_batch = 1
+  
+            testable_tests.each_slice((testable_tests.length / @batch_count.to_f).round).to_a.each do |tests_batch|
+              if @testables_count > 1
+                output_directory = File.join(@output_directory, "results-#{testable}")
+              end
+              FastlaneCore::UI.header("Starting test run on testable '#{testable}'")
+              if @scan_options[:result_bundle]
+                FastlaneCore::UI.message("Clearing out previous test_result bundles in #{output_directory}")
+                FileUtils.rm_rf(Dir.glob("#{output_directory}/*.test_result"))
+              end
+  
+              options =  {
+                output_directory: output_directory,
+                only_testing: tests_batch
+              }
+              tests_passed = correcting_scan(
+                options,
+                current_batch,
+                reportnamer
+              ) && tests_passed
+              current_batch += 1
+              reportnamer.increment
+            end
+          else
+            options = {
+              output_directory: output_directory,
+              only_testing: testable_tests
+            }
+            tests_passed = correcting_scan(options, 1, reportnamer) && tests_passed
+          end
         end
         collate_reports(output_directory, reportnamer)
         tests_passed

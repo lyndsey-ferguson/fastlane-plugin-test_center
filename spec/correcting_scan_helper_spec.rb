@@ -580,16 +580,6 @@ describe TestCenter do
                 invocation_based_tests: true
               )
               allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
-              expect(@mock_testcollector).to receive(:testables_tests).and_return(
-                {
-                  'AtomicBoyTests' => [
-                    'AtomicBoyTests/AtomicBoyTests/testExample1',
-                    'AtomicBoyTests/AtomicBoyTests/testExample2',
-                    'AtomicBoyTests/AtomicBoyTests/testExample3',
-                    'AtomicBoyTests/AtomicBoyTests/testExample4'
-                  ]
-                }
-              )
               expect(scanner).to receive(:correcting_scan)
                 .with(
                   {
