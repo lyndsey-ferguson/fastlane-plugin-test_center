@@ -42,7 +42,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
 
     fastfile = "lane :test do
       tests_from_xctestrun(
-        xctestrun: 'path/to/fake.xctestrun',
+        xctestrun: 'path/to/fake.xctestrun'
       )
     end"
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
