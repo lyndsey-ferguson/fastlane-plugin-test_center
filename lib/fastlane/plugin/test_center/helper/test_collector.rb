@@ -56,7 +56,13 @@ module TestCenter
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
           else
-            config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path, invocation_based_tests: invocation_based_tests)
+            config = FastlaneCore::Configuration.create(
+              ::Fastlane::Actions::TestsFromXctestrunAction.available_options,
+              {
+                xctestrun: @xctestrun_path,
+                invocation_based_tests: invocation_based_tests    
+              }
+            )
             @testables_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
             if @skip_testing
               skipped_testable_tests = Hash.new { |h, k| h[k] = [] }
