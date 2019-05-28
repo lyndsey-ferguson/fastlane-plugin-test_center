@@ -14,6 +14,7 @@ default_platform(:ios)
 platform :ios do
   desc "Run unit tests"
   lane :unit_tests do
+    cocoapods
     result = multi_scan(
       workspace: "KiwiDemo.xcworkspace",
       try_count: 3,

@@ -3,6 +3,7 @@ require_relative 'test_center_utils'
 # Retrieves the example code from each action and runs it to ensure that everything
 # is working as intended.
 lane :run_examples do
+  cocoapods(podfile: 'KiwiDemo/Podfile')
   action_examples.values.flatten.each do |example_code_snippet|
     # rubocop:disable Security/Eval
     eval(example_code_snippet)
