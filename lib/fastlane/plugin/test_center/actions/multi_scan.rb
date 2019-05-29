@@ -332,6 +332,7 @@ module Fastlane
             'example: ' \\
             'multi_scan also works with invocation based tests.'
           )
+          cocoapods(podfile: 'KiwiDemo/Podfile')
           multi_scan(
             workspace: File.absolute_path('../KiwiDemo/KiwiDemo.xcworkspace'),
             scheme: 'KiwiDemoTests',
