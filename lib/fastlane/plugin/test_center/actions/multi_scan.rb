@@ -163,7 +163,13 @@ module Fastlane
             type: Boolean,
             is_string: false,
             default_value: false,
-            optional: true
+            optional: true,
+            conflicting_options: [:batch_count],
+            conflict_block: proc do |value|
+              UI.user_error!(
+                "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
+                "because the number of tests is unkown.")
+            end
           ),
           FastlaneCore::ConfigItem.new(
             key: :quit_simulators,
