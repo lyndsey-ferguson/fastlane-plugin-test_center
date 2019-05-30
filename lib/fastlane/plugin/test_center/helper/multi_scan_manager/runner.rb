@@ -23,10 +23,11 @@ module TestCenter
           @given_output_types = multi_scan_options[:output_types]
           @given_output_files = multi_scan_options[:output_files]
           @parallelize = multi_scan_options[:parallelize]
-          @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
           if  ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+            @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
             @scan_options = multi_scan_options
           else
+            @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
             @scan_options = multi_scan_options.reject do |option, _|
               %i[
                 output_directory
@@ -53,6 +54,36 @@ module TestCenter
             @scan_options.delete(:derived_data_path)
             @parallelizer = Parallelization.new(@batch_count, @output_directory, @testrun_completed_block)
           end
+        end
+
+        def prepare_simulators
+          # get the destination
+          # clone destinations for each simulator if > 1
+          # store desintations per simulator request
+          # do we prepare the batches, or that is to say, if the
+          # batch_count is 0, after get get the batch_count from
+          # the test_collector, do we resize it?
+          # or, better, we should update the batch count before
+          # we initialize the test collector
+          # the test collector batch count should be at minimum the
+          # number of simulators 
+        end
+
+        def each_simulator
+          # 1. straight yield if parallel_simulator_count == 1
+          # 2. otherwise:
+          # - copy xc build products to temporary directory to avoid conflicts for each simulator
+          # - create the datagram sockets
+          # - use unique build log file path for each simulator
+          # - reroute stdout,stderr to a file
+          # - send
+          # - run the tests in the fork
+          # - send message to parent when complete:
+          #   - results
+          #   - console output
+          # https://github.com/mperham/sidekiq/
+          # http://rubybunny.info/articles/getting_started.html
+          # http://rubybunny.info/articles/queues.html
         end
 
         def scan
