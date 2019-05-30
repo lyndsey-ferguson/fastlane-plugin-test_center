@@ -3,6 +3,7 @@ require 'scan'
 describe Fastlane::Actions::MultiScanAction do
   before(:each) do
   end
+  # FastlaneCore::UI
 
   it 'the project is built if not given :test_without_building' do
     non_existent_project = "lane :test do
@@ -154,5 +155,26 @@ describe Fastlane::Actions::MultiScanAction do
     )
     expect(summary[:report_files][0]).to match(%r{.*/spec/fixtures/(junit|html).xml})
     expect(summary[:report_files][1]).to match(%r{.*/spec/fixtures/(junit|html).xml})
+  end
+
+  it 'Doesnt run when batch_count and invocation_based_tests are set' do
+    invocation_based_project = "lane :test do
+      multi_scan(
+        workspace: File.absolute_path('../KiwiDemo/KiwiDemo.xcworkspace'),
+        scheme: 'KiwiDemoTests',
+        try_count: 2,
+        invocation_based_tests: true,
+        batch_count: 2
+      )
+    end"
+
+    expect { Fastlane::FastFile.new.parse(invocation_based_project).runner.execute(:test) }.to(
+      raise_error(FastlaneCore::Interface::FastlaneError) do |error|
+        expect(error.message).to match(
+          "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
+          "because the number of tests is unkown."
+        )
+      end
+    )
   end
 end

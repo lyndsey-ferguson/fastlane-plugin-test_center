@@ -15,6 +15,7 @@ module TestCenter
         end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
+        @invocation_based_tests = options[:invocation_based_tests]
       end
 
       def default_derived_data_path(options)
@@ -34,7 +35,9 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys
+            @testables ||= Plist.parse_xml(@xctestrun_path).keys.reject do |retrievedTestable| 
+              Fastlane::Actions::TestsFromXctestrunAction.ignoredTestables.include?(retrievedTestable)
+            end
           end
         end
         @testables
@@ -54,7 +57,13 @@ module TestCenter
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
           else
-            config = FastlaneCore::Configuration.create(::Fastlane::Actions::TestsFromXctestrunAction.available_options, xctestrun: @xctestrun_path)
+            config = FastlaneCore::Configuration.create(
+              ::Fastlane::Actions::TestsFromXctestrunAction.available_options,
+              {
+                xctestrun: @xctestrun_path,
+                invocation_based_tests: @invocation_based_tests
+              }
+            )
             @testables_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
             if @skip_testing
               skipped_testable_tests = Hash.new { |h, k| h[k] = [] }

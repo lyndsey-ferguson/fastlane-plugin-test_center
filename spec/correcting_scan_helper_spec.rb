@@ -571,6 +571,78 @@ describe TestCenter do
               )
             end
           end
+          
+          describe 'invocation based tests' do
+            it 'pass only the testable in only_testing to correcting_scan' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                invocation_based_tests: true
+              )
+              allow(@mock_testcollector).to receive(:testables).and_return(['AtomicBoyTests'])
+              expect(scanner).to receive(:correcting_scan)
+                .with(
+                  {
+                    only_testing: ["AtomicBoyTests"],
+                    output_directory: '.'
+                  },
+                  anything,
+                  anything
+                )
+              expect(scanner).to receive(:collate_reports)
+              scanner.scan
+            end
+
+            it 'runs only testing with files after failure' do
+              scanner = CorrectingScanHelper.new(
+                xctestrun: 'path/to/fake.xctestrun',
+                output_directory: '.',
+                try_count: 3,
+                quit_simulators: true,
+                invocation_based_tests: true
+              )
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:exist?).with(%r{.*/report(-[23])?.junit}).and_return(true)
+              expected_report_files = ['.*/report.junit', '.*/report-2.junit', '.*/report-3.junit']
+              allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run) do |config|
+                expect(config._values).to have_key(:junit)
+                expect(config._values[:junit]).to match(expected_report_files.shift)
+                { failed: [
+                  'BagOfInvocationTests/CoinTossingKiwiUITests/testResultIsTails',
+                  'BagOfInvocationTests/CoinTossingKiwiUITests/testResultIsTails2'
+                  ]
+                }
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report.html,report.junit')
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report-2.html,report-2.junit')
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+              expect(Fastlane::Actions::ScanAction).to receive(:run).ordered.once do |config|
+                expect(config._values).to have_key(:output_files)
+                expect(config._values[:output_files]).to eq('report-3.html,report-3.junit')
+                expect(config._values).to have_key(:only_testing)
+                expect(config._values[:only_testing]).to eq(['BagOfInvocationTests/CoinTossingKiwiUITests'])
+                raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
+              end
+
+              allow(Fastlane::Actions).to receive(:sh).with(/killall -9 'iPhone Simulator' 'Simulator' 'SimulatorBridge'.*/, anything)
+              result = scanner.correcting_scan(
+                {
+                  output_directory: '.'
+                },
+                1,
+                ReportNameHelper.new('html,junit')
+              )
+              expect(scanner.retry_total_count).to eq(2)
+              expect(result).to eq(false)
+            end
+          end
 
           describe 'no batches' do
             before(:all) do
