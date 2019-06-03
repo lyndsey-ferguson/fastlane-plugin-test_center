@@ -15,18 +15,41 @@ module TestCenter
           end
         end
 
-        def setup_parallel_workers
+        def setup_cloned_simulators
           @simhelper = SimulatorHelper.new(
             parallelize: true,
-            batch_count: @options[:batch_count]
+            batch_count: @options[:parallel_simulator_fork_count] || @options[:batch_count]
           )
           @simhelper.setup
-          @simhelper.clone_destination_simulators
+          clones = @simhelper.clone_destination_simulators
+          at_exit do
+            clean_up_cloned_simulators(clones)
+          end
+        end
+
+        def destination_from_simulators(simulators)
+          simulators.map do |simulator|
+            "platform=iOS Simulator,id=#{simulator.udid}"
+          end
+        end
+
+        def setup_parallel_workers
+          clones = setup_cloned_simulators
           desired_worker_count = @options[:parallel_simulator_fork_count]
           @workers = []
-          (0...desired_worker_count).each do
-            @workers << ParallelTestBatchWorker.new(@options)
+          (0...desired_worker_count).each do |index|
+            @workers << ParallelTestBatchWorker.new(
+              @options.merge(
+                destination: destination_from_simulators(clones[index])
+              )
+            )
           end
+        end
+
+        def clean_up_cloned_simulators(clones)
+          return if clones.nil?
+
+          clones.flatten.each(&:delete)
         end
 
         def setup_serial_workers
