@@ -13,6 +13,88 @@ module TestCenter::Helper::MultiScanManager
       ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN'] = @use_refactored_parallelized_multi_scan
     end
 
+    describe '#run' do
+      describe 'serial batches' do  
+        it 'calls a test_worker for each test batch' do
+          mocked_testbatch_worker = OpenStruct.new
+          allow(RetryingScan).to receive(:run)
+          allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
+          allow(@mock_test_collector).to receive(:test_batches).and_return(
+            [
+              ['AtomicBoyTests/testOne'],
+              ['AtomicBoyUITests/testOne']
+            ]
+          )
+          
+          runner = Runner.new(
+            {
+              output_directory: './path/to/output/directory',
+              scheme: 'AtomicUITests'
+            }
+          )
+          allow(runner).to receive(:collate_batched_reports)
+          expect(mocked_testbatch_worker).to receive(:run) do |options|
+            expect(options).to include(batch: 1)
+          end
+          expect(mocked_testbatch_worker).to receive(:run) do |options|
+            expect(options).to include(batch: 2)
+          end
+          
+          runner.run
+        end
+      end
+
+      it 'returns true if all test_batch_worker runs return true' do
+        mocked_testbatch_worker = OpenStruct.new
+          allow(RetryingScan).to receive(:run)
+          allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
+          allow(@mock_test_collector).to receive(:test_batches).and_return(
+            [
+              ['AtomicBoyTests/testOne'],
+              ['AtomicBoyUITests/testOne']
+            ]
+          )
+          
+          runner = Runner.new(
+            {
+              output_directory: './path/to/output/directory',
+              scheme: 'AtomicUITests'
+            }
+          )
+          allow(runner).to receive(:collate_batched_reports)
+
+          expect(mocked_testbatch_worker).to receive(:run).and_return(true).twice
+          run_passed = runner.run
+          expect(run_passed).to eq(true)
+      end
+
+      it 'returns false if even one test_batch_worker runs return false' do
+        mocked_testbatch_worker = OpenStruct.new
+          allow(RetryingScan).to receive(:run)
+          allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
+          allow(@mock_test_collector).to receive(:test_batches).and_return(
+            [
+              ['AtomicBoyTests/testOne'],
+              ['AtomicBoyUITests/testOne']
+            ]
+          )
+          
+          runner = Runner.new(
+            {
+              output_directory: './path/to/output/directory',
+              scheme: 'AtomicUITests'
+            }
+          )
+          allow(runner).to receive(:collate_batched_reports)
+
+          expect(mocked_testbatch_worker).to receive(:run).and_return(true)
+          expect(mocked_testbatch_worker).to receive(:run).and_return(false)
+          
+          run_passed = runner.run
+          expect(run_passed).to eq(false)
+      end
+    end
+
     describe 'collate_batched_reports' do
       it 'does nothing if there are fewer than 2 batches' do
         runner = Runner.new({})

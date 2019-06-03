@@ -212,7 +212,7 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
-            key: :parallel_simulator_count,
+            key: :parallel_simulator_fork_count,
             description: 'Run  simulators each batch of tests and/or each test target in parallel on its own Simulator',
             optional: true,
             is_string: false,

@@ -56,71 +56,70 @@ module TestCenter
           end
         end
 
-        def prepare_simulators
-          # get the destination
-          # clone destinations for each simulator if > 1
-          # store desintations per simulator request
-          # do we prepare the batches, or that is to say, if the
-          # batch_count is 0, after get get the batch_count from
-          # the test_collector, do we resize it?
-          # or, better, we should update the batch count before
-          # we initialize the test collector
-          # the test collector batch count should be at minimum the
-          # number of simulators 
-        end
+        def run
+          all_tests_passed = true
+          pool_options = @scan_options.reject { |key| %i[device devices].include?(key) }
+          pool = TestBatchWorkerPool.new(pool_options)
+          remaining_test_batches = @test_collector.test_batches
+          current_batch_index = 0
 
-        def each_simulator
-          # 1. straight yield if parallel_simulator_count == 1
-          # 2. otherwise:
-          # - copy xc build products to temporary directory to avoid conflicts for each simulator
-          # - create the datagram sockets
-          # - use unique build log file path for each simulator
-          # - reroute stdout,stderr to a file
-          # - send
-          # - run the tests in the fork
-          # - send message to parent when complete:
-          #   - results
-          #   - console output
-          # https://github.com/mperham/sidekiq/
-          # http://rubybunny.info/articles/getting_started.html
-          # http://rubybunny.info/articles/queues.html
+          loop do
+            break if remaining_test_batches.empty?
+
+            available_workers = pool.available_workers
+            test_batches = remaining_test_batches.slice!(0, available_workers.size)
+
+            test_batches.zip(available_workers).each do |test_batch_worker_pair|
+              current_batch_index += 1
+
+              test_batch = test_batch_worker_pair.first
+              worker = test_batch_worker_pair.last
+  
+              testrun_passed = worker.run(
+                @scan_options.merge(
+                  only_testing: test_batch.map(&:shellsafe_testidentifier),
+                  output_directory: @output_directory,
+                  try_count: @try_count,
+                  batch: current_batch_index
+                ).reject { |key| %i[device devices].include?(key) }
+              )
+              all_tests_passed = testrun_passed && all_tests_passed
+            end
+          end
+          collate_batched_reports
+          all_tests_passed
         end
 
         def scan
+          return run if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+
           all_tests_passed = true
           @testables_count = @test_collector.testables.size
           FileUtils.rm_rf(Dir.glob("#{@output_directory}/**/*.{junit,html,xml,json}"))
           all_tests_passed = each_batch do |test_batch, current_batch_index|
-            if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
-              run_test_batch_through_retrying_scan(test_batch, current_batch_index)
-            else
-              output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
-              reset_for_new_testable(output_directory)
-              FastlaneCore::UI.header("Starting test run on batch '#{current_batch_index}'")
-              @interstitial.batch = current_batch_index
-              @interstitial.output_directory = output_directory
-              @interstitial.before_all
-              testrun_passed = correcting_scan(
-                {
-                  only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: output_directory
-                },
-                current_batch_index,
-                @reportnamer
-              )
-              all_tests_passed = testrun_passed && all_tests_passed
-              TestCenter::Helper::MultiScanManager::ReportCollator.new(
-                source_reports_directory_glob: output_directory,
-                output_directory: output_directory,
-                reportnamer: @reportnamer,
-                scheme: @scan_options[:scheme],
-                result_bundle: @scan_options[:result_bundle]
-              ).collate
-            end
+            output_directory = testrun_output_directory(@output_directory, test_batch, current_batch_index)
+            reset_for_new_testable(output_directory)
+            FastlaneCore::UI.header("Starting test run on batch '#{current_batch_index}'")
+            @interstitial.batch = current_batch_index
+            @interstitial.output_directory = output_directory
+            @interstitial.before_all
+            testrun_passed = correcting_scan(
+              {
+                only_testing: test_batch.map(&:shellsafe_testidentifier),
+                output_directory: output_directory
+              },
+              current_batch_index,
+              @reportnamer
+            )
+            all_tests_passed = testrun_passed && all_tests_passed
+            TestCenter::Helper::MultiScanManager::ReportCollator.new(
+              source_reports_directory_glob: output_directory,
+              output_directory: output_directory,
+              reportnamer: @reportnamer,
+              scheme: @scan_options[:scheme],
+              result_bundle: @scan_options[:result_bundle]
+            ).collate
             testrun_passed && all_tests_passed
-          end
-          if ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
-            collate_batched_reports
           end
           all_tests_passed
         end

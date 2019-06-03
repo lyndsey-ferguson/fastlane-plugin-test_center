@@ -7,26 +7,15 @@ module TestCenter
         end
 
         def setup
-          if @options[:parallelize]
-            setup_scan_config
+          if (@options[:batch_count] || @options[:parallel_simulator_fork_count] || 1) > 1
             delete_multi_scan_cloned_simulators
-          end
-        end
-
-        def setup_scan_config
-          unless ::Scan.config&._values.has_key?(:destination)
-            scan_option_keys = Scan.config.all_keys
-            ::Scan.config = FastlaneCore::Configuration.create(
-              Fastlane::Actions::ScanAction.available_options,
-              @options.select{ |k| scan_option_keys.include?(k) }
-            )
           end
         end
 
         def clone_destination_simulators
           cloned_simulators = []
 
-          batch_count = @options[:batch_count] || 0
+          batch_count = @options[:batch_count] || @options[:parallel_simulator_fork_count] || 0
           destination_simulator_ids = Scan.config[:destination].map do |destination|
             destination.split(',id=').last
           end

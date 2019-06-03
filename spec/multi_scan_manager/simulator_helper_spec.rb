@@ -48,41 +48,6 @@ describe TestCenter::Helper::MultiScanManager do
         helper.setup
       end
 
-      it 'sets up the "iOS destination" if it is not set' do
-        allow(FastlaneCore::Configuration).to receive(:create).and_return(@mocked_scan_config)
-        allow(::Scan.config).to receive(:_values).and_return({})
-
-        helper = SimulatorHelper.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
-          scheme: 'Atlas',
-          parallelize: true
-        )
-        allow(helper).to receive(:delete_multi_scan_cloned_simulators)
-        allow(helper).to receive(:delete_multi_scan_cloned_simulators)
-        allow(helper).to receive(:clone_destination_simulators)
-
-        
-        expect(::Scan).to receive(:config=).with(@mocked_scan_config)
-        helper.setup
-      end
-
-      it 'deletes cloned simulators' do
-        allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
-        
-        helper = SimulatorHelper.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
-          scheme: 'Atlas',
-          parallelize: true
-        )
-        *cloned_simulators, _ = @mocked_simulators
-        cloned_simulators.each do |cloned_simulator|
-          expect(cloned_simulator).to receive(:delete)
-        end
-        helper.setup
-      end
-
       it 'creates cloned simulators' do
         allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
         helper = SimulatorHelper.new(

@@ -22,6 +22,10 @@ module TestCenter
           end
         end
 
+        def self.run(options)
+          RetryingScan.new(options).run
+        end
+
         def run
           try_count = @options[:try_count] || 1
           begin
