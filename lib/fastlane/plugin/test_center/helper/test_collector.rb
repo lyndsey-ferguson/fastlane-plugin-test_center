@@ -21,6 +21,8 @@ module TestCenter
       end
 
       def default_derived_data_path(options)
+        # TODO: investigate if this is needed. I believe it should already have
+        # been set in multi_scan
         Scan.project = FastlaneCore::Project.new(
           options.select { |k, v| %i[workspace project].include?(k) }
         )

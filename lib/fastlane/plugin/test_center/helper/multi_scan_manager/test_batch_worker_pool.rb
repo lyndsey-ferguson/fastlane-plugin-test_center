@@ -4,7 +4,6 @@ module TestCenter
       class TestBatchWorkerPool
         def initialize(options)
           @options = options
-          setup_workers
         end
 
         def setup_workers
@@ -38,12 +37,25 @@ module TestCenter
           desired_worker_count = @options[:parallel_simulator_fork_count]
           @workers = []
           (0...desired_worker_count).each do |index|
-            @workers << ParallelTestBatchWorker.new(
-              @options.merge(
-                destination: destination_from_simulators(clones[index])
-              )
-            )
+            parallel_scan_options = @options.clone
+            parallel_scan_options[:destination] = destination_from_simulators(clones[index])
+            if @options[:xctestrun]
+              parallel_scan_options[:xctestrun] = clone_temporary_xcbuild_products_dir
+            end
+            @workers << ParallelTestBatchWorker.new(parallel_scan_options)
           end
+        end
+
+        def clone_temporary_xcbuild_products_dir
+          xctestrun_filename = File.basename(@options[:xctestrun])
+          xcproduct_dirpath = File.dirname(@options[:xctestrun])
+          tmp_xcproduct_dirpath = Dir.mktmpdir
+
+          FileUtils.copy_entry(xcproduct_dirpath, tmp_xcproduct_dirpath)
+          at_exit do
+            FileUtils.rm_rf(tmp_xcproduct_dirpath)
+          end
+          tmp_xcproduct_dirpath
         end
 
         def clean_up_cloned_simulators(clones)

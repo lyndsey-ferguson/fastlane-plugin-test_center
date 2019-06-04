@@ -60,6 +60,8 @@ module TestCenter
           all_tests_passed = true
           pool_options = @scan_options.reject { |key| %i[device devices].include?(key) }
           pool = TestBatchWorkerPool.new(pool_options)
+          pool.setup_workers
+          
           remaining_test_batches = @test_collector.test_batches
           current_batch_index = 0
 

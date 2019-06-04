@@ -1,9 +1,13 @@
+
+require 'pry-byebug'
+
 module TestCenter::Helper::MultiScanManager
   describe 'TestBatchWorkerPool', refactor_retrying_scan:true do
     describe 'serial' do
       describe '#available_workers' do
         it 'returns an array of 1 TestBatchWorker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 1)
+          pool.setup_workers
           workers = pool.available_workers
           expect(workers.size).to eq(1)
           worker = workers[0]
@@ -17,7 +21,10 @@ module TestCenter::Helper::MultiScanManager
         @mocked_simulator_helper = OpenStruct.new
         allow(@mocked_simulator_helper).to receive(:setup)
         allow(SimulatorHelper).to receive(:new).and_return(@mocked_simulator_helper)
-        
+        allow(Dir).to receive(:mktmpdir).and_return('/tmp/TestBatchWorkerPool')
+        allow(FileUtils).to receive(:copy_entry).with(anything, %r{/tmp/TestBatchWorkerPool})
+        allow(FileUtils).to receive(:rm_rf).with(%r{/tmp/TestBatchWorkerPool})
+
         cloned_simulator_1 = OpenStruct.new(udid: '123')
         cloned_simulator_2 = OpenStruct.new(udid: '456')
         cloned_simulator_3 = OpenStruct.new(udid: '789')
@@ -37,47 +44,71 @@ module TestCenter::Helper::MultiScanManager
         allow(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
       end
 
-      describe '#initialize' do
+      describe '#setup_workers' do
         it 'creates 4 copies of the simulators in the :destination option' do
           expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
-          TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+          TestBatchWorkerPool.new(parallel_simulator_fork_count: 4).setup_workers
         end
-      end
-
-      describe '#destination_from_simulators' do
-        it 'creates a :destination array with a string for one simulator' do
-          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
-          destination = pool.destination_from_simulators(@mocked_cloned_simulators[3])
-          expect(destination).to eq(["platform=iOS Simulator,id=A00"])
-        end
-
-        it 'creates a :destination array with two strings for two simulators' do
-          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
-          destination = pool.destination_from_simulators(
-            [
-              @mocked_cloned_simulators[2].first,
-              @mocked_cloned_simulators[1].first
-            ]
-          )
-          expect(destination).to eq(["platform=iOS Simulator,id=789", "platform=iOS Simulator,id=456"])
-        end
-      end
-
-      describe '#clean_up_cloned_simulators' do
-        it 'deletes the simulators that were created when the pool is created' do
-          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
-          
-          @mocked_cloned_simulators.flatten.each do |simulator|
-            expect(simulator).to receive(:delete)
+        describe '#destination_from_simulators' do
+          it 'creates a :destination array with a string for one simulator' do
+            pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+            destination = pool.destination_from_simulators(@mocked_cloned_simulators[3])
+            expect(destination).to eq(["platform=iOS Simulator,id=A00"])
           end
-          
-          pool.clean_up_cloned_simulators(@mocked_cloned_simulators)
+  
+          it 'creates a :destination array with two strings for two simulators' do
+            pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+            destination = pool.destination_from_simulators(
+              [
+                @mocked_cloned_simulators[2].first,
+                @mocked_cloned_simulators[1].first
+              ]
+            )
+            expect(destination).to eq(["platform=iOS Simulator,id=789", "platform=iOS Simulator,id=456"])
+          end
+        end
+        it 'clones a copy of the xcode build products directory' do
+          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
+          expect(pool).to receive(:clone_temporary_xcbuild_products_dir).exactly(4).times
+          pool.setup_workers
+        end
+
+        describe '#clean_up_cloned_simulators' do
+          it 'deletes the simulators that were created when the pool is created' do
+            pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+            
+            @mocked_cloned_simulators.flatten.each do |simulator|
+              expect(simulator).to receive(:delete)
+            end
+            
+            pool.clean_up_cloned_simulators(@mocked_cloned_simulators)
+          end
+        end
+
+        describe '#clone_temporary_xcbuild_products_dir' do
+          it 'makes a copy in a temporary directory of the build products directory' do
+            pool = TestBatchWorkerPool.new(
+              {
+                parallel_simulator_fork_count: 4,
+                xctestrun: './path/to/Build/Products/AtomicTornado.xctestrun'
+              }
+            )
+            allow(Dir).to receive(:mktmpdir).and_return("/tmp/1")
+
+            expect(FileUtils).to receive(:copy_entry).with(
+              %r{\./path/to/Build/Products},
+              %r{/tmp/1}
+            )
+            pool.clone_temporary_xcbuild_products_dir
+          end
         end
       end
+
 
       describe '#available_workers' do
         it 'returns an array of 4 ParallelTestBatchWorkers' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+          pool.setup_workers
           workers = pool.available_workers
           expect(workers.size).to eq(4)
           workers.each do |worker|
