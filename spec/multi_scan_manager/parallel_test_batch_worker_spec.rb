@@ -9,6 +9,17 @@ module TestCenter::Helper::MultiScanManager
         end
         worker.run({})
       end
+
+      it 'sets :state to working' do
+        worker = ParallelTestBatchWorker.new({})
+        allow(Process).to receive(:fork)
+        states = [ worker.state ]
+        allow(worker).to receive(:state=) { |new_state| states << new_state }
+        worker.run({})
+        expect(states).to eq(
+          %i[ready_to_work working]
+        )
+      end
     end
   end
 end

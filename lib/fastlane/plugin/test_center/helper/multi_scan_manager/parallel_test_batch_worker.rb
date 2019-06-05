@@ -3,8 +3,9 @@ module TestCenter
     module MultiScanManager
       class ParallelTestBatchWorker < TestBatchWorker
         def run(run_options)
+          self.state = :working
           Process.fork do
-            RetryingScan.run(@options.merge(run_options))
+            super(run_options)
           end
         end
       end

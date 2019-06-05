@@ -146,7 +146,7 @@ module TestCenter::Helper::MultiScanManager
 
 
       describe '#available_workers' do
-        it 'returns an array of 4 ParallelTestBatchWorkers' do
+        it 'returns an array of 4 ParallelTestBatchWorkers if none have started working' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
           pool.setup_workers
           workers = pool.available_workers
