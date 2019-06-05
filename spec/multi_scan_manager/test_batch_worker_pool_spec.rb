@@ -67,9 +67,16 @@ module TestCenter::Helper::MultiScanManager
             expect(destination).to eq(["platform=iOS Simulator,id=789", "platform=iOS Simulator,id=456"])
           end
         end
-        it 'clones a copy of the xcode build products directory' do
+        
+        it 'clones a copy of the xcode build products directory for each worker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
           expect(pool).to receive(:clone_temporary_xcbuild_products_dir).exactly(4).times
+          pool.setup_workers
+        end
+
+        it 'updates the :buildlog_path for each worker' do
+          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
+          expect(pool).to receive(:buildlog_path_for_worker).exactly(4).times
           pool.setup_workers
         end
 
@@ -84,6 +91,7 @@ module TestCenter::Helper::MultiScanManager
             pool.clean_up_cloned_simulators(@mocked_cloned_simulators)
           end
         end
+
 
         describe '#clone_temporary_xcbuild_products_dir' do
           it 'makes a copy in a temporary directory of the build products directory' do
@@ -100,6 +108,19 @@ module TestCenter::Helper::MultiScanManager
               %r{/tmp/1}
             )
             pool.clone_temporary_xcbuild_products_dir
+          end
+        end
+
+        describe '#buildlog_path_for_worker' do
+          it 'creates a subdirectory for each worker in the :buildlog_path' do
+            pool = TestBatchWorkerPool.new(
+              {
+                parallel_simulator_fork_count: 4,
+                buildlog_path: './path/to/build/log'
+              }
+            )
+            
+            expect(pool.buildlog_path_for_worker(1)).to match(%r{path/to/build/log/parallel-simulators-1-logs})
           end
         end
       end

@@ -36,11 +36,14 @@ module TestCenter
           clones = setup_cloned_simulators
           desired_worker_count = @options[:parallel_simulator_fork_count]
           @workers = []
-          (0...desired_worker_count).each do |index|
+          (0...desired_worker_count).each do |worker_index|
             parallel_scan_options = @options.clone
-            parallel_scan_options[:destination] = destination_from_simulators(clones[index])
+            parallel_scan_options[:destination] = destination_from_simulators(clones[worker_index])
             if @options[:xctestrun]
               parallel_scan_options[:xctestrun] = clone_temporary_xcbuild_products_dir
+            end
+            if @options[:xctestrun]
+              parallel_scan_options[:buildlog_path] = buildlog_path_for_worker(worker_index)
             end
             @workers << ParallelTestBatchWorker.new(parallel_scan_options)
           end
@@ -56,6 +59,10 @@ module TestCenter
             FileUtils.rm_rf(tmp_xcproduct_dirpath)
           end
           tmp_xcproduct_dirpath
+        end
+
+        def buildlog_path_for_worker(worker_index)
+          "#{@options[:buildlog_path]}/parallel-simulators-#{worker_index}-logs"
         end
 
         def clean_up_cloned_simulators(clones)
