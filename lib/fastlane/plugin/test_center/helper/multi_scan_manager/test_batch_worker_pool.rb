@@ -45,6 +45,7 @@ module TestCenter
             if @options[:xctestrun]
               parallel_scan_options[:buildlog_path] = buildlog_path_for_worker(worker_index)
             end
+            parallel_scan_options[:derived_data_dir] = derived_data_path_for_worker(worker_index)
             @workers << ParallelTestBatchWorker.new(parallel_scan_options)
           end
         end
@@ -63,6 +64,10 @@ module TestCenter
 
         def buildlog_path_for_worker(worker_index)
           "#{@options[:buildlog_path]}/parallel-simulators-#{worker_index}-logs"
+        end
+
+        def derived_data_path_for_worker(worker_index)
+          Dir.mktmpdir(['derived_data_dir', "-worker-#{worker_index.to_s}"])
         end
 
         def clean_up_cloned_simulators(clones)

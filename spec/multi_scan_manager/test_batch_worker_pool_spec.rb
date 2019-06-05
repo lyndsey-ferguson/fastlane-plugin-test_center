@@ -73,10 +73,16 @@ module TestCenter::Helper::MultiScanManager
           expect(pool).to receive(:clone_temporary_xcbuild_products_dir).exactly(4).times
           pool.setup_workers
         end
-
+        
         it 'updates the :buildlog_path for each worker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
           expect(pool).to receive(:buildlog_path_for_worker).exactly(4).times
+          pool.setup_workers
+        end
+
+        it 'updates the :derived_data_path for each worker' do
+          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
+          expect(pool).to receive(:derived_data_path_for_worker).exactly(4).times
           pool.setup_workers
         end
 
@@ -121,6 +127,19 @@ module TestCenter::Helper::MultiScanManager
             )
             
             expect(pool.buildlog_path_for_worker(1)).to match(%r{path/to/build/log/parallel-simulators-1-logs})
+          end
+        end
+
+        describe '#derived_data_path_for_worker' do
+          it 'creates a temporary derived data path for each worker' do
+            pool = TestBatchWorkerPool.new(
+              {
+                parallel_simulator_fork_count: 4,
+              }
+            )
+            allow(Dir).to receive(:mktmpdir).and_return("/tmp/derived_data_path/1")
+
+            expect(pool.derived_data_path_for_worker(1)).to match("/tmp/derived_data_path/1")
           end
         end
       end
