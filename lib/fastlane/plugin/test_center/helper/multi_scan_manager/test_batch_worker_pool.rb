@@ -6,8 +6,12 @@ module TestCenter
           @options = options
         end
 
+        def is_serial?
+          @options.fetch(:parallel_simulator_fork_count, 1) == 1
+        end
+
         def setup_workers
-          if @options.fetch(:parallel_simulator_fork_count, 1) == 1
+          if is_serial?
             setup_serial_workers
           else
             setup_parallel_workers
@@ -82,8 +86,35 @@ module TestCenter
           ]
         end
 
-        def available_workers
-          @workers
+        def wait_for_worker
+          if is_serial?
+            return @workers[0]
+          else
+            if_no_available_workers = Proc.new do
+              worker = nil
+              loop do
+                freed_child_proc_pid = Process.wait
+                worker = @workers.find do |w|
+                  w.pid == freed_child_proc_pid
+                end
+
+                break if worker
+              end
+              # worker.clean_up_or_whatever
+              # TODO: do not set state directly
+              worker.state == :ready_to_work
+              worker
+            end
+
+            first_ready_to_work_worker = @workers.find(if_no_available_workers) do |worker|
+              worker.state == :ready_to_work
+            end
+          end
+        end
+
+        def wait_for_all_workers
+          unless is_serial?
+          end
         end
       end
     end

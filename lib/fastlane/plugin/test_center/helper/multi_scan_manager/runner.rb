@@ -62,32 +62,22 @@ module TestCenter
           pool = TestBatchWorkerPool.new(pool_options)
           pool.setup_workers
           
-          remaining_test_batches = @test_collector.test_batches
-          current_batch_index = 0
+          remaining_test_batches = @test_collector.test_batches.clone
+          remaining_test_batches.each_with_index do |test_batch, current_batch_index|
+            worker = pool.wait_for_worker  
 
-          loop do
-            break if remaining_test_batches.empty?
-
-            available_workers = pool.available_workers
-            test_batches = remaining_test_batches.slice!(0, available_workers.size)
-
-            test_batches.zip(available_workers).each do |test_batch_worker_pair|
-              current_batch_index += 1
-
-              test_batch = test_batch_worker_pair.first
-              worker = test_batch_worker_pair.last
-  
-              testrun_passed = worker.run(
-                @scan_options.merge(
-                  only_testing: test_batch.map(&:shellsafe_testidentifier),
-                  output_directory: @output_directory,
-                  try_count: @try_count,
-                  batch: current_batch_index
-                ).reject { |key| %i[device devices].include?(key) }
-              )
-              all_tests_passed = testrun_passed && all_tests_passed
-            end
+            testrun_passed = worker.run(
+              @scan_options.merge(
+                only_testing: test_batch.map(&:shellsafe_testidentifier),
+                output_directory: @output_directory,
+                try_count: @try_count,
+                batch: current_batch_index + 1
+              ).reject { |key| %i[device devices].include?(key) }
+            )
+            all_tests_passed = testrun_passed && all_tests_passed
           end
+
+          pool.wait_for_all_workers
           collate_batched_reports
           all_tests_passed
         end

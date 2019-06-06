@@ -4,13 +4,11 @@ require 'pry-byebug'
 module TestCenter::Helper::MultiScanManager
   describe 'TestBatchWorkerPool', refactor_retrying_scan:true do
     describe 'serial' do
-      describe '#available_workers' do
+      describe '#wait_for_worker' do
         it 'returns an array of 1 TestBatchWorker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 1)
           pool.setup_workers
-          workers = pool.available_workers
-          expect(workers.size).to eq(1)
-          worker = workers[0]
+          worker = pool.wait_for_worker
           expect(worker.state).to eq(:ready_to_work)
         end
       end
@@ -145,15 +143,41 @@ module TestCenter::Helper::MultiScanManager
       end
 
 
-      describe '#available_workers' do
-        it 'returns an array of 4 ParallelTestBatchWorkers if none have started working' do
+      describe '#wait_for_worker' do
+        it 'returns 4 ParallelTestBatchWorkers if each has not started working' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
           pool.setup_workers
-          workers = pool.available_workers
-          expect(workers.size).to eq(4)
-          workers.each do |worker|
-            expect(worker.state).to eq(:ready_to_work)
+          workers =  (1..4).map do
+            worker = pool.wait_for_worker
+            worker.state = :working
+            worker
           end
+          expect(workers.uniq.size).to eq(4)
+        end
+
+        it 'returns an array of 5 ParallelTestBatchWorker when one was working' do
+          mocked_workers = [
+            OpenStruct.new(state: :ready_to_work),
+            OpenStruct.new(state: :ready_to_work),
+            OpenStruct.new(state: :ready_to_work),
+            OpenStruct.new(state: :ready_to_work)
+          ]
+          allow(ParallelTestBatchWorker).to receive(:new) { mocked_workers.shift }
+          
+          pids = [99, 1, 2, 3, 4, 5]
+          allow(Process).to receive(:wait) { pids.shift }
+
+          pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+          pool.setup_workers
+          
+          workers =  (1..5).map do |index|
+            worker = pool.wait_for_worker
+            worker.state = :working
+            worker.pid = index
+            worker
+          end
+          expect(workers.size).to eq(5)
+          expect(workers.uniq.size).to eq(4)
         end
       end
     end
