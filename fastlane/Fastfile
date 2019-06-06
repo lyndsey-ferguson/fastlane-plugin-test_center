@@ -30,7 +30,7 @@ lane :testing do
     fail_build: false,
     output_files: 'report.html',
     output_types: 'html',
-    parallelize: false,
+    parallel_simulator_fork_count: 4,
     device: 'iPad Pro (12.9-inch) (2nd generation)',
     only_testing: ["AtomicBoyUITests"],
     testrun_completed_block: test_run_block

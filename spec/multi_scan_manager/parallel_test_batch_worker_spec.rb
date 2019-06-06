@@ -20,6 +20,21 @@ module TestCenter::Helper::MultiScanManager
           %i[ready_to_work working]
         )
       end
+
+      it 'updates :pid when forking' do
+        worker = ParallelTestBatchWorker.new({})
+        allow(Process).to receive(:fork).and_return(11)
+        worker.run({})
+        expect(worker.pid).to eq(11)
+      end
+
+      it 'resets :pid when done' do
+        worker = ParallelTestBatchWorker.new({})
+        allow(Process).to receive(:fork).and_return(11)
+        worker.run({})
+        worker.state = :ready_to_work
+        expect(worker.pid).to be_nil
+      end
     end
   end
 end
