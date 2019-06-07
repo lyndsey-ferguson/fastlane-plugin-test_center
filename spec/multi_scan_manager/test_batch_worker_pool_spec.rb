@@ -96,6 +96,9 @@ module TestCenter::Helper::MultiScanManager
           end
         end
 
+        describe '#setup_cloned_simulators' do
+          skip 'provides simulator clones'
+        end
 
         describe '#clone_temporary_xcbuild_products_dir' do
           it 'makes a copy in a temporary directory of the build products directory' do

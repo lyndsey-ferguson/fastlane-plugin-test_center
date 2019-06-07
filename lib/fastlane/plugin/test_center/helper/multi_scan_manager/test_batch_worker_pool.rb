@@ -24,9 +24,9 @@ module TestCenter
             batch_count: @options[:parallel_simulator_fork_count] || @options[:batch_count]
           )
           @simhelper.setup
-          clones = @simhelper.clone_destination_simulators
+          @clones = @simhelper.clone_destination_simulators
           at_exit do
-            clean_up_cloned_simulators(clones)
+            clean_up_cloned_simulators(@clones)
           end
         end
 
@@ -37,21 +37,21 @@ module TestCenter
         end
 
         def setup_parallel_workers
-          clones = setup_cloned_simulators
+          setup_cloned_simulators
           desired_worker_count = @options[:parallel_simulator_fork_count]
           @workers = []
           (0...desired_worker_count).each do |worker_index|
-            parallel_scan_options = @options.clone
-            parallel_scan_options[:destination] = destination_from_simulators(clones[worker_index])
-            if @options[:xctestrun]
-              parallel_scan_options[:xctestrun] = clone_temporary_xcbuild_products_dir
-            end
-            if @options[:xctestrun]
-              parallel_scan_options[:buildlog_path] = buildlog_path_for_worker(worker_index)
-            end
-            parallel_scan_options[:derived_data_dir] = derived_data_path_for_worker(worker_index)
-            @workers << ParallelTestBatchWorker.new(parallel_scan_options)
+            @workers << ParallelTestBatchWorker.new(parallel_scan_options(worker_index))
           end
+        end
+
+        def parallel_scan_options(worker_index)
+          options = @options.clone
+          options[:destination] = destination_from_simulators(@clones[worker_index])
+          options[:xctestrun] = clone_temporary_xcbuild_products_dir if @options[:xctestrun]
+          options[:buildlog_path] = buildlog_path_for_worker(worker_index) if @options[:buildlog_path]
+          options[:derived_data_dir] = derived_data_path_for_worker(worker_index)
+          options
         end
 
         def clone_temporary_xcbuild_products_dir

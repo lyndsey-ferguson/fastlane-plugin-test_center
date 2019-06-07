@@ -7,6 +7,10 @@ describe TestCenter do
         allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
       end
 
+      describe '#derived_testrun_path' do
+        skip 'collects the expected xctestrun from the given project'
+      end
+      
       it 'throws an exception for a non-existent xctestrun' do
         expect { TestCollector.new(derived_data_path: 'path/to/fake/derived_data', scheme: 'Professor') }.to(
           raise_error(FastlaneCore::Interface::FastlaneError) do |error|
