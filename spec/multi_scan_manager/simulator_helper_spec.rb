@@ -48,6 +48,8 @@ describe TestCenter::Helper::MultiScanManager do
         helper.setup
       end
 
+      skip 'shuts down running simulators before cloning'
+
       it 'creates cloned simulators' do
         allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
         helper = SimulatorHelper.new(

@@ -61,7 +61,7 @@ module TestCenter
           tmp_xcproduct_dirpath = Dir.mktmpdir
           FileUtils.cp_r(xcproduct_dirpath, tmp_xcproduct_dirpath)
           at_exit do
-            FileUtils.rm_rf(tmp_xcproduct_dirpath) if Process.pid == main_pid
+            FileUtils.rm_rf(tmp_xcproduct_dirpath)
           end
           File.join(tmp_xcproduct_dirpath, File.basename(xcproduct_dirpath), xctestrun_filename)
         end

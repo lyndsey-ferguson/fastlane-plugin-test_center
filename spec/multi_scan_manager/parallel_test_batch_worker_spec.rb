@@ -3,6 +3,7 @@ module TestCenter::Helper::MultiScanManager
     describe '#run' do
       it 'calls the parent class\'s #run method in a fork block' do
         worker = ParallelTestBatchWorker.new({})
+        expect(worker).to receive(:exit!)
         expect(Process).to receive(:fork) do |&block|
           expect(RetryingScan).to receive(:run)
           block.call()
