@@ -25,8 +25,9 @@ module TestCenter
           )
           @simhelper.setup
           @clones = @simhelper.clone_destination_simulators
+          main_pid = Process.pid
           at_exit do
-            clean_up_cloned_simulators(@clones)
+            clean_up_cloned_simulators(@clones) if Process.pid == main_pid
           end
         end
 
@@ -46,11 +47,11 @@ module TestCenter
         end
 
         def parallel_scan_options(worker_index)
-          options = @options.clone
+          options = @options.reject { |key| %i[device devices].include?(key) }
           options[:destination] = destination_from_simulators(@clones[worker_index])
           options[:xctestrun] = clone_temporary_xcbuild_products_dir if @options[:xctestrun]
           options[:buildlog_path] = buildlog_path_for_worker(worker_index) if @options[:buildlog_path]
-          options[:derived_data_dir] = derived_data_path_for_worker(worker_index)
+          options[:derived_data_path] = derived_data_path_for_worker(worker_index)
           options
         end
 
@@ -58,12 +59,11 @@ module TestCenter
           xctestrun_filename = File.basename(@options[:xctestrun])
           xcproduct_dirpath = File.dirname(@options[:xctestrun])
           tmp_xcproduct_dirpath = Dir.mktmpdir
-
-          FileUtils.copy_entry(xcproduct_dirpath, tmp_xcproduct_dirpath)
+          FileUtils.cp_r(xcproduct_dirpath, tmp_xcproduct_dirpath)
           at_exit do
-            FileUtils.rm_rf(tmp_xcproduct_dirpath)
+            FileUtils.rm_rf(tmp_xcproduct_dirpath) if Process.pid == main_pid
           end
-          tmp_xcproduct_dirpath
+          File.join(tmp_xcproduct_dirpath, File.basename(xcproduct_dirpath), xctestrun_filename)
         end
 
         def buildlog_path_for_worker(worker_index)
@@ -71,7 +71,7 @@ module TestCenter
         end
 
         def derived_data_path_for_worker(worker_index)
-          Dir.mktmpdir(['derived_data_dir', "-worker-#{worker_index.to_s}"])
+          Dir.mktmpdir(['derived_data_path', "-worker-#{worker_index.to_s}"])
         end
 
         def clean_up_cloned_simulators(clones)
@@ -114,6 +114,12 @@ module TestCenter
 
         def wait_for_all_workers
           unless is_serial?
+            FastlaneCore::UI.message("TestBatchWorkerPool.wait_for_all_workers")
+            busy_worker_pids = @workers.each.select { |w| w.state == :working }.map(&:pid)
+            busy_worker_pids.each do |pid|
+              Process.wait(pid)
+            end
+            @workers.each { |w| w.state == :ready_to_work }
           end
         end
       end

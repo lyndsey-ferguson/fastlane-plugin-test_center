@@ -67,16 +67,15 @@ module TestCenter
             worker = pool.wait_for_worker  
 
             testrun_passed = worker.run(
-              @scan_options.merge(
+              {
                 only_testing: test_batch.map(&:shellsafe_testidentifier),
                 output_directory: @output_directory,
                 try_count: @try_count,
                 batch: current_batch_index + 1
-              ).reject { |key| %i[device devices].include?(key) }
+              }
             )
             all_tests_passed = testrun_passed && all_tests_passed
           end
-
           pool.wait_for_all_workers
           collate_batched_reports
           all_tests_passed

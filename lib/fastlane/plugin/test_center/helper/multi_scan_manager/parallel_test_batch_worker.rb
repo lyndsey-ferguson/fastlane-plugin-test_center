@@ -12,7 +12,11 @@ module TestCenter
         def run(run_options)
           self.state = :working
           @pid = Process.fork do
-            super(run_options)
+            begin
+              super(run_options)
+            ensure
+              exit!
+            end
           end
         end
       end

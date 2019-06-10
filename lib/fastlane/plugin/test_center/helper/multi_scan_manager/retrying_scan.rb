@@ -20,6 +20,9 @@ module TestCenter
           scan_options.each do |k,v|
             scan_config.set(k,v) unless v.nil?
           end
+          scan_config._values.delete(:device)
+          scan_config._values.delete(:devices)
+          Scan.cache = {}
         end
 
         def self.run(options)

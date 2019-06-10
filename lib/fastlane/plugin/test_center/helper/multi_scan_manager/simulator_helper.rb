@@ -22,6 +22,7 @@ module TestCenter
           original_simulators = FastlaneCore::DeviceManager.simulators('iOS').find_all do |simulator|
             destination_simulator_ids.include?(simulator.udid)
           end
+          original_simulators.each(&:shutdown)
           (0...batch_count).each do |batch_index|
             cloned_simulators << []
             original_simulators.each do |simulator|
