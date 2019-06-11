@@ -12,17 +12,26 @@ module TestCenter
           Scan.config
         end
 
+        def scan_cache
+          Scan.cache
+        end
+
+        def prepare_scan_config_for_destination
+          # this allows multi_scan's `destination` option to be picked up by `scan`
+          scan_config._values.delete(:device)
+          scan_config._values.delete(:devices)
+          scan_cache.clear
+        end
+
         def update_scan_options
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
                                   .merge(@retrying_scan_helper.scan_options)
 
+          prepare_scan_config_for_destination
           scan_options.each do |k,v|
             scan_config.set(k,v) unless v.nil?
           end
-          scan_config._values.delete(:device)
-          scan_config._values.delete(:devices)
-          Scan.cache = {}
         end
 
         def self.run(options)

@@ -1,8 +1,5 @@
-describe TestCenter::Helper::MultiScanManager do
+module TestCenter::Helper::MultiScanManager
   describe 'retrying_scan', refactor_retrying_scan:true do
-    RetryingScan ||= TestCenter::Helper::MultiScanManager::RetryingScan
-    RetryingScanHelper ||= TestCenter::Helper::MultiScanManager::RetryingScanHelper
-
     before(:each) do
       @mock_retrying_scan_helper = OpenStruct.new
       allow(RetryingScanHelper).to receive(:new).and_return(@mock_retrying_scan_helper)
@@ -16,7 +13,37 @@ describe TestCenter::Helper::MultiScanManager do
       allow(File).to receive(:open).and_call_original
       @mock_scan_runner = OpenStruct.new
       allow(Scan::Runner).to receive(:new).and_return(@mock_scan_runner)
-      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(FastlaneCore::Configuration.new(Fastlane::Actions::ScanAction.available_options, { derived_data_path: ''} ))
+      @mock_scan_config = FastlaneCore::Configuration.new(Fastlane::Actions::ScanAction.available_options, { derived_data_path: ''} )
+      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(@mock_scan_config)
+      @mock_scan_cache = { destination: ["platform=iOS Simulator,id=HungryHippo"] }
+      allow_any_instance_of(RetryingScan).to receive(:scan_cache).and_return(@mock_scan_cache)
+    end
+    
+    describe '#prepare_scan_config_for_destination' do
+      it 'removes :device and :devices' do
+        retrying_scan = RetryingScan.new
+
+        @mock_scan_config[:device] = 'iPhone 91v'
+        @mock_scan_config[:devices] = ['iPhone 92w', 'iPhone 92x']
+
+        retrying_scan.prepare_scan_config_for_destination
+        expect(@mock_scan_config[:device]).to be_nil
+        expect(@mock_scan_config[:devices]).to be_nil
+      end
+
+      it 'clears out the Scan cache' do
+        retrying_scan = RetryingScan.new
+        retrying_scan.prepare_scan_config_for_destination
+        expect(@mock_scan_cache).to be_empty
+      end
+    end
+
+    describe '#update_scan_options' do
+      it 'removes the :device and :devices options from the Scan config' do
+        retrying_scan = RetryingScan.new
+        expect(retrying_scan).to receive(:prepare_scan_config_for_destination)
+        retrying_scan.update_scan_options
+      end
     end
 
     describe 'scan' do
@@ -26,9 +53,8 @@ describe TestCenter::Helper::MultiScanManager do
         retrying_scan.run
       end
 
-      skip 'it removes the :device and :devices options from the Scan config'
       skip 'it clears out the Scan.cache'
-      
+
       it 'succeeds on the third try if there are two failed test runs' do
         expect(@mock_scan_runner).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
