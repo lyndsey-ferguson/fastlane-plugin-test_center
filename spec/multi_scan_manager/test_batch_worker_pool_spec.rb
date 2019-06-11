@@ -184,7 +184,36 @@ module TestCenter::Helper::MultiScanManager
         end
       end
 
-      skip '#wait_for_all_workers'
+      describe '#wait_for_all_workers' do
+        it 'waits for all workers and sets their state to :ready_to_work' do
+          mocked_workers = [
+            OpenStruct.new(state: :working, pid: 1),
+            OpenStruct.new(state: :working, pid: 2),
+            OpenStruct.new(state: :working, pid: 3),
+            OpenStruct.new(state: :working, pid: 4)
+          ]
+          allow(ParallelTestBatchWorker).to receive(:new) { mocked_workers.shift }
+          
+          pool = TestBatchWorkerPool.new(
+            {
+              parallel_simulator_fork_count: 4,
+            }
+          )
+          pool.setup_workers
+          expect(Process).to receive(:wait).with(1)
+          expect(Process).to receive(:wait).with(2)
+          expect(Process).to receive(:wait).with(3)
+          expect(Process).to receive(:wait).with(4)
+          
+          pool.wait_for_all_workers
+
+          workers = pool.instance_variable_get(:@workers)
+          expect(workers.size).to eq(4)
+          workers.each do |w|
+            expect(w.state).to eq(:ready_to_work)
+          end
+        end
+      end
     end
   end
 end

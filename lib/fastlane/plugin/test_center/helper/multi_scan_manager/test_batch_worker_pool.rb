@@ -119,7 +119,7 @@ module TestCenter
             busy_worker_pids.each do |pid|
               Process.wait(pid)
             end
-            @workers.each { |w| w.state == :ready_to_work }
+            @workers.each { |w| w.state = :ready_to_work }
           end
         end
       end
