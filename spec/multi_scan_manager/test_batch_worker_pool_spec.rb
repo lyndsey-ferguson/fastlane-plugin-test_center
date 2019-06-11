@@ -78,9 +78,15 @@ module TestCenter::Helper::MultiScanManager
           pool.setup_workers
         end
 
-        skip 'updates the :derived_data_path for each worker', ':derived_data_path is not being tested sufficiently' do
+        it 'updates the :derived_data_path for each worker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
-          expect(pool).to receive(:derived_data_path_for_worker).exactly(4).times
+          allow(pool).to receive(:derived_data_path_for_worker) do |index|
+            "./path/to/fake/derived_data_path/#{index}"
+          end
+          expected_indices = ['0', '1', '2', '3']
+          expect(ParallelTestBatchWorker).to receive(:new).exactly(4).times do |options|
+            expect(options[:derived_data_path]).to match(%r{path/to/fake/derived_data_path/#{expected_indices.shift}})
+          end
           pool.setup_workers
         end
 
