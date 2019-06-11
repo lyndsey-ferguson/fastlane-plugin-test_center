@@ -53,8 +53,6 @@ module TestCenter::Helper::MultiScanManager
         retrying_scan.run
       end
 
-      skip 'it clears out the Scan.cache'
-
       it 'succeeds on the third try if there are two failed test runs' do
         expect(@mock_scan_runner).to receive(:run).ordered.once do |config|
           raise FastlaneCore::Interface::FastlaneTestFailure, 'failed tests'
