@@ -97,7 +97,7 @@ module TestCenter
 
           test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
           if test_result_bundlepaths.size > 1
-            collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}.test_result'")
+            collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}.test_result")
             config = create_config(
               CollateTestResultBundlesAction,
               {
@@ -106,7 +106,7 @@ module TestCenter
               }
             )
             CollateTestResultBundlesAction.run(config)
-            FileUtils.rm_rf(report_files - [collated_test_result_bundlepath])
+            FileUtils.rm_rf(test_result_bundlepaths - [collated_test_result_bundlepath])
           end
         end
       end
