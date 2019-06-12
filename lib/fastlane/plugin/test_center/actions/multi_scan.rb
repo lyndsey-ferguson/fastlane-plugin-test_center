@@ -19,7 +19,7 @@ module Fastlane
         prepare_for_testing(params._values)
         
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(params.values)
-        tests_passed = runner.scan
+        tests_passed = runner.run
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
