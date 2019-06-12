@@ -103,8 +103,27 @@ module TestCenter::Helper::MultiScanManager
         end
 
         describe '#setup_cloned_simulators' do
-          skip 'provides simulator clones'
-          skip 'cleans up cloned simulators only when exiting from the main process'
+          it 'clones simulators' do
+            pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+            expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+            expect(pool).to receive(:at_exit) do |&block|
+              expect(pool).to receive(:clean_up_cloned_simulators)
+              block.call()
+            end
+            pool.setup_cloned_simulators
+          end
+          
+          it 'cleans up cloned simulators only when exiting from the main process' do pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
+            expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+            allow(pool).to receive(:clean_up_cloned_simulators)
+            pids = [1, 99]
+            allow(Process).to receive(:pid) { pids.shift }
+            expect(pool).to receive(:at_exit) do |&block|
+              expect(pool).not_to receive(:clean_up_cloned_simulators)
+              block.call()
+            end
+            pool.setup_cloned_simulators
+          end
         end
 
         describe '#clone_temporary_xcbuild_products_dir' do

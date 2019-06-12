@@ -29,6 +29,7 @@ module TestCenter
           at_exit do
             clean_up_cloned_simulators(@clones) if Process.pid == main_pid
           end
+          @clones
         end
 
         def destination_from_simulators(simulators)
