@@ -20,4 +20,8 @@ class String
   def shellsafe_testidentifier
     TestCenter::Helper::MUST_SHELLESCAPE_TESTIDENTIFIER ? self.shellescape : self
   end
+  
+  def strip_testcase
+    split('/').first(2).join('/')
+  end
 end

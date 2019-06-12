@@ -11,7 +11,7 @@ module Fastlane
       def self.run(params)
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
-            config: params._values.select { |k, _| %i[try_count batch_count fail_build quit_simulators].include?(k) },
+            config: params._values.select { |k, _| %i[try_count batch_count invocation_based_tests fail_build quit_simulators].include?(k) },
             title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
           )
         end
@@ -182,6 +182,20 @@ module Fastlane
             optional: true,
             verify_block: proc do |count|
               UI.user_error!("Error: Batch counts must be greater than zero") unless count > 0
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :invocation_based_tests,
+            description: "Set to true If your test suit have invocation based tests like Kiwi",
+            type: Boolean,
+            is_string: false,
+            default_value: false,
+            optional: true,
+            conflicting_options: [:batch_count],
+            conflict_block: proc do |value|
+              UI.user_error!(
+                "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
+                "because the number of tests is unkown.")
             end
           ),
           FastlaneCore::ConfigItem.new(

@@ -22,6 +22,7 @@ module TestCenter
           @given_custom_report_file_name = multi_scan_options[:custom_report_file_name]
           @given_output_types = multi_scan_options[:output_types]
           @given_output_files = multi_scan_options[:output_files]
+          @invocation_based_tests = multi_scan_options[:invocation_based_tests]
           @parallelize = multi_scan_options[:parallelize]
           if  ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
             @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
@@ -43,6 +44,7 @@ module TestCenter
                 output_files
                 parallelize
                 quit_simulators
+                invocation_based_tests
               ].include?(option)
             end
           end
@@ -57,6 +59,21 @@ module TestCenter
         end
 
         def run
+          if @invocation_based_tests
+            run_invocation_based_tests
+          else
+            run_test_batches
+          end
+        end
+        
+        def run_invocation_based_tests
+          @scan_options[:only_testing] = @scan_options[:only_testing]&.map(&:strip_testcase)&.uniq
+          @scan_options[:skip_testing] = @scan_options[:skip_testing]&.map(&:strip_testcase)&.uniq
+          
+          RetryingScan.run(@scan_options)
+        end
+        
+        def run_test_batches
           all_tests_passed = true
           pool_options = @scan_options.reject { |key| %i[device devices].include?(key) }
           pool = TestBatchWorkerPool.new(pool_options)

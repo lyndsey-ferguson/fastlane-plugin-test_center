@@ -182,6 +182,9 @@ module TestCenter
             }
           )
           @options[:only_testing] = Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+          if @options[:invocation_based_tests]
+            @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
+          end
         end
         
         def reset_simulators
