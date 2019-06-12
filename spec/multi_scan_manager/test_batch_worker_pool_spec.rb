@@ -68,7 +68,7 @@ module TestCenter::Helper::MultiScanManager
         
         it 'clones a copy of the xcode build products directory for each worker' do
           pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
-          expect(pool).to receive(:clone_temporary_xcbuild_products_dir).exactly(4).times
+          expect(pool).to receive(:xctestrun_products_clone).exactly(4).times
           pool.setup_workers
         end
         
@@ -112,7 +112,7 @@ module TestCenter::Helper::MultiScanManager
             end
             pool.setup_cloned_simulators
           end
-          
+
           it 'cleans up cloned simulators only when exiting from the main process' do pool = TestBatchWorkerPool.new(parallel_simulator_fork_count: 4)
             expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
             allow(pool).to receive(:clean_up_cloned_simulators)
@@ -126,8 +126,12 @@ module TestCenter::Helper::MultiScanManager
           end
         end
 
-        describe '#clone_temporary_xcbuild_products_dir' do
-          skip 'makes a copy in a temporary directory of the build products directory', ':xcrunpath is not being properly tested' do
+        describe '#xctestrun_products_clone' do
+          before(:each) do
+            allow(FileUtils).to receive(:cp_r).and_call_original
+          end
+
+          it 'makes a copy in a temporary directory of the build products directory' do
             pool = TestBatchWorkerPool.new(
               {
                 parallel_simulator_fork_count: 4,
@@ -136,11 +140,12 @@ module TestCenter::Helper::MultiScanManager
             )
             allow(Dir).to receive(:mktmpdir).and_return("/tmp/1")
 
-            expect(FileUtils).to receive(:copy_entry).with(
-              %r{\./path/to/Build/Products},
-              %r{/tmp/1}
+            allow(FileUtils).to receive(:cp_r).with(
+              "./path/to/Build/Products",
+              "/tmp/1"
             )
-            pool.clone_temporary_xcbuild_products_dir
+            cloned_xctestrun = pool.xctestrun_products_clone
+            expect(cloned_xctestrun).to eq("/tmp/1/Products/AtomicTornado.xctestrun")
           end
         end
 

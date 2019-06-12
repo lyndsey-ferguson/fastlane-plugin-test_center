@@ -50,13 +50,13 @@ module TestCenter
         def parallel_scan_options(worker_index)
           options = @options.reject { |key| %i[device devices].include?(key) }
           options[:destination] = destination_from_simulators(@clones[worker_index])
-          options[:xctestrun] = clone_temporary_xcbuild_products_dir if @options[:xctestrun]
+          options[:xctestrun] = xctestrun_products_clone if @options[:xctestrun]
           options[:buildlog_path] = buildlog_path_for_worker(worker_index) if @options[:buildlog_path]
           options[:derived_data_path] = derived_data_path_for_worker(worker_index)
           options
         end
 
-        def clone_temporary_xcbuild_products_dir
+        def xctestrun_products_clone
           xctestrun_filename = File.basename(@options[:xctestrun])
           xcproduct_dirpath = File.dirname(@options[:xctestrun])
           tmp_xcproduct_dirpath = Dir.mktmpdir
@@ -64,7 +64,7 @@ module TestCenter
           at_exit do
             FileUtils.rm_rf(tmp_xcproduct_dirpath)
           end
-          File.join(tmp_xcproduct_dirpath, File.basename(xcproduct_dirpath), xctestrun_filename)
+          "#{tmp_xcproduct_dirpath}/#{File.basename(xcproduct_dirpath)}/#{xctestrun_filename}"
         end
 
         def buildlog_path_for_worker(worker_index)
