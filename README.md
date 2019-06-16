@@ -186,14 +186,39 @@ multi_scan(
 
 UI.important(
   'example: ' \
+  'multi_scan also works with invocation based tests.'
+)
+Dir.chdir('../AtomicBoy') do
+  bundle_install
+  cocoapods(podfile: File.absolute_path('Podfile'))
+  multi_scan(
+    workspace: File.absolute_path('AtomicBoy.xcworkspace'),
+    scheme: 'KiwiBoy',
+    try_count: 3,
+    clean: true,
+    invocation_based_tests: true,
+    fail_build: false
+  )
+end
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
   'use the :workspace parameter instead of the :project parameter to find, ' \
   'build, and test the iOS app.'
 )
- multi_scan(
-  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-  scheme: 'AtomicBoy',
-  try_count: 3
-)
+begin
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    try_count: 3
+  )
+rescue # anything
+  UI.error('Found real failing tests!')
+end
 
 ```
 
@@ -226,7 +251,7 @@ multi_scan(
   project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
   scheme: 'Professor',
   try_count: 3,
-  custom_report_file_name: 'atomic_report.xml',
+  output_files: 'atomic_report.xml',
   output_types: 'junit',
   fail_build: false
 )
@@ -244,6 +269,7 @@ multi_scan(
   workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
   scheme: 'AtomicBoy',
   try_count: 3,
+  code_coverage: true,
   only_testing: ['AtomicBoyTests'],
   fail_build: false
 )
@@ -264,6 +290,45 @@ multi_scan(
   output_files: 'report.json',
   fail_build: false
 )
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'multi_scan parallelizes its test runs.'
+)
+multi_scan(
+  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+  scheme: 'AtomicBoy',
+  try_count: 3,
+  parallel_testrun_count: 4,
+  fail_build: false
+)
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'use the :xctestrun parameter instead of the :project parameter to find, ' \
+  'build, and test the iOS app.'
+)
+Dir.mktmpdir do |derived_data_path|
+  project_path = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
+  command = "bundle exec fastlane scan --build_for_testing true --project '#{project_path}' --derived_data_path #{derived_data_path} --scheme AtomicBoy"
+  `#{command}`
+  xctestrun_file = Dir.glob("#{derived_data_path}/Build/Products/AtomicBoy*.xctestrun").first
+  multi_scan(
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    fail_build: false,
+    xctestrun: xctestrun_file,
+    test_without_building: true
+  )
+end
 
 ```
 <!-- multi_scan examples: end -->

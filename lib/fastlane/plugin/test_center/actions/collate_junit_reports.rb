@@ -147,7 +147,7 @@ module Fastlane
       #####################################################
       # @!group Documentation
       #####################################################
-
+      # :nocov:
       def self.description
         "Combines and combines tests from multiple junit report files"
       end
@@ -217,6 +217,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

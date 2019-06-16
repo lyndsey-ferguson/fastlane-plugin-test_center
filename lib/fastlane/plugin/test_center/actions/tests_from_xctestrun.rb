@@ -47,6 +47,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Retrieves all of the tests from xctest bundles referenced by the xctestrun file"
       end
@@ -115,6 +116,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

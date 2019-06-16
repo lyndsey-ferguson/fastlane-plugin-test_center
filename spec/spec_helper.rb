@@ -3,7 +3,14 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'simplecov'
 
 # SimpleCov.minimum_coverage 95
-SimpleCov.start
+SimpleCov.start do
+  add_group "Actions", "test_center/actions"
+  add_group "Helpers", "test_center/helper"
+  add_group "MultiScan Helpers", "test_center/helper/multi_scan_manager"
+  add_filter "spec"
+  add_filter "plugin/test_center.rb"
+  add_filter "plugin/test_center/version.rb"
+end
 
 # This module is only used to check the environment is currently a testing env
 module SpecHelper

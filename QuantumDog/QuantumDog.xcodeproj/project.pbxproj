@@ -1,0 +1,569 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		26946D8122B9808100822CB0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26946D8022B9808100822CB0 /* AppDelegate.m */; };
+		26946D8322B9808200822CB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26946D8222B9808200822CB0 /* Assets.xcassets */; };
+		26946D8622B9808200822CB0 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 26946D8422B9808200822CB0 /* MainMenu.xib */; };
+		26946D8922B9808200822CB0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 26946D8822B9808200822CB0 /* main.m */; };
+		26946D9422B9808300822CB0 /* QuantumDogTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 26946D9322B9808300822CB0 /* QuantumDogTests.m */; };
+		26946D9F22B9808300822CB0 /* QuantumDogUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 26946D9E22B9808300822CB0 /* QuantumDogUITests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		26946D9022B9808300822CB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 26946D7422B9808100822CB0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 26946D7B22B9808100822CB0;
+			remoteInfo = QuantumDog;
+		};
+		26946D9B22B9808300822CB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 26946D7422B9808100822CB0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 26946D7B22B9808100822CB0;
+			remoteInfo = QuantumDog;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		26946D7C22B9808100822CB0 /* QuantumDog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuantumDog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		26946D7F22B9808100822CB0 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		26946D8022B9808100822CB0 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		26946D8222B9808200822CB0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		26946D8522B9808200822CB0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		26946D8722B9808200822CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		26946D8822B9808200822CB0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		26946D8A22B9808200822CB0 /* QuantumDog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuantumDog.entitlements; sourceTree = "<group>"; };
+		26946D8F22B9808300822CB0 /* QuantumDogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuantumDogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		26946D9322B9808300822CB0 /* QuantumDogTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuantumDogTests.m; sourceTree = "<group>"; };
+		26946D9522B9808300822CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		26946D9A22B9808300822CB0 /* QuantumDogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuantumDogUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		26946D9E22B9808300822CB0 /* QuantumDogUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuantumDogUITests.m; sourceTree = "<group>"; };
+		26946DA022B9808300822CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		26946D7922B9808100822CB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D8C22B9808300822CB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D9722B9808300822CB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		26946D7322B9808100822CB0 = {
+			isa = PBXGroup;
+			children = (
+				26946D7E22B9808100822CB0 /* QuantumDog */,
+				26946D9222B9808300822CB0 /* QuantumDogTests */,
+				26946D9D22B9808300822CB0 /* QuantumDogUITests */,
+				26946D7D22B9808100822CB0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		26946D7D22B9808100822CB0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				26946D7C22B9808100822CB0 /* QuantumDog.app */,
+				26946D8F22B9808300822CB0 /* QuantumDogTests.xctest */,
+				26946D9A22B9808300822CB0 /* QuantumDogUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		26946D7E22B9808100822CB0 /* QuantumDog */ = {
+			isa = PBXGroup;
+			children = (
+				26946D7F22B9808100822CB0 /* AppDelegate.h */,
+				26946D8022B9808100822CB0 /* AppDelegate.m */,
+				26946D8222B9808200822CB0 /* Assets.xcassets */,
+				26946D8422B9808200822CB0 /* MainMenu.xib */,
+				26946D8722B9808200822CB0 /* Info.plist */,
+				26946D8822B9808200822CB0 /* main.m */,
+				26946D8A22B9808200822CB0 /* QuantumDog.entitlements */,
+			);
+			path = QuantumDog;
+			sourceTree = "<group>";
+		};
+		26946D9222B9808300822CB0 /* QuantumDogTests */ = {
+			isa = PBXGroup;
+			children = (
+				26946D9322B9808300822CB0 /* QuantumDogTests.m */,
+				26946D9522B9808300822CB0 /* Info.plist */,
+			);
+			path = QuantumDogTests;
+			sourceTree = "<group>";
+		};
+		26946D9D22B9808300822CB0 /* QuantumDogUITests */ = {
+			isa = PBXGroup;
+			children = (
+				26946D9E22B9808300822CB0 /* QuantumDogUITests.m */,
+				26946DA022B9808300822CB0 /* Info.plist */,
+			);
+			path = QuantumDogUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		26946D7B22B9808100822CB0 /* QuantumDog */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 26946DA322B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDog" */;
+			buildPhases = (
+				26946D7822B9808100822CB0 /* Sources */,
+				26946D7922B9808100822CB0 /* Frameworks */,
+				26946D7A22B9808100822CB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QuantumDog;
+			productName = QuantumDog;
+			productReference = 26946D7C22B9808100822CB0 /* QuantumDog.app */;
+			productType = "com.apple.product-type.application";
+		};
+		26946D8E22B9808300822CB0 /* QuantumDogTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 26946DA622B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDogTests" */;
+			buildPhases = (
+				26946D8B22B9808300822CB0 /* Sources */,
+				26946D8C22B9808300822CB0 /* Frameworks */,
+				26946D8D22B9808300822CB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				26946D9122B9808300822CB0 /* PBXTargetDependency */,
+			);
+			name = QuantumDogTests;
+			productName = QuantumDogTests;
+			productReference = 26946D8F22B9808300822CB0 /* QuantumDogTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		26946D9922B9808300822CB0 /* QuantumDogUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 26946DA922B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDogUITests" */;
+			buildPhases = (
+				26946D9622B9808300822CB0 /* Sources */,
+				26946D9722B9808300822CB0 /* Frameworks */,
+				26946D9822B9808300822CB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				26946D9C22B9808300822CB0 /* PBXTargetDependency */,
+			);
+			name = QuantumDogUITests;
+			productName = QuantumDogUITests;
+			productReference = 26946D9A22B9808300822CB0 /* QuantumDogUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		26946D7422B9808100822CB0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Lyndsey Ferguson";
+				TargetAttributes = {
+					26946D7B22B9808100822CB0 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					26946D8E22B9808300822CB0 = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = 26946D7B22B9808100822CB0;
+					};
+					26946D9922B9808300822CB0 = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = 26946D7B22B9808100822CB0;
+					};
+				};
+			};
+			buildConfigurationList = 26946D7722B9808100822CB0 /* Build configuration list for PBXProject "QuantumDog" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 26946D7322B9808100822CB0;
+			productRefGroup = 26946D7D22B9808100822CB0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				26946D7B22B9808100822CB0 /* QuantumDog */,
+				26946D8E22B9808300822CB0 /* QuantumDogTests */,
+				26946D9922B9808300822CB0 /* QuantumDogUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		26946D7A22B9808100822CB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26946D8322B9808200822CB0 /* Assets.xcassets in Resources */,
+				26946D8622B9808200822CB0 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D8D22B9808300822CB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D9822B9808300822CB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		26946D7822B9808100822CB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26946D8922B9808200822CB0 /* main.m in Sources */,
+				26946D8122B9808100822CB0 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D8B22B9808300822CB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26946D9422B9808300822CB0 /* QuantumDogTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26946D9622B9808300822CB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26946D9F22B9808300822CB0 /* QuantumDogUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		26946D9122B9808300822CB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 26946D7B22B9808100822CB0 /* QuantumDog */;
+			targetProxy = 26946D9022B9808300822CB0 /* PBXContainerItemProxy */;
+		};
+		26946D9C22B9808300822CB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 26946D7B22B9808100822CB0 /* QuantumDog */;
+			targetProxy = 26946D9B22B9808300822CB0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		26946D8422B9808200822CB0 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				26946D8522B9808200822CB0 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		26946DA122B9808300822CB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		26946DA222B9808300822CB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		26946DA422B9808300822CB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuantumDog/QuantumDog.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDog/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDog;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		26946DA522B9808300822CB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuantumDog/QuantumDog.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDog/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDog;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		26946DA722B9808300822CB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDogTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDogTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuantumDog.app/Contents/MacOS/QuantumDog";
+			};
+			name = Debug;
+		};
+		26946DA822B9808300822CB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDogTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDogTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuantumDog.app/Contents/MacOS/QuantumDog";
+			};
+			name = Release;
+		};
+		26946DAA22B9808300822CB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDogUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDogUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = QuantumDog;
+			};
+			name = Debug;
+		};
+		26946DAB22B9808300822CB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B9TT7Q5D57;
+				INFOPLIST_FILE = QuantumDogUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.fergusonlyndsey.QuantumDogUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = QuantumDog;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		26946D7722B9808100822CB0 /* Build configuration list for PBXProject "QuantumDog" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26946DA122B9808300822CB0 /* Debug */,
+				26946DA222B9808300822CB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		26946DA322B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDog" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26946DA422B9808300822CB0 /* Debug */,
+				26946DA522B9808300822CB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		26946DA622B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDogTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26946DA722B9808300822CB0 /* Debug */,
+				26946DA822B9808300822CB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		26946DA922B9808300822CB0 /* Build configuration list for PBXNativeTarget "QuantumDogUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26946DAA22B9808300822CB0 /* Debug */,
+				26946DAB22B9808300822CB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 26946D7422B9808100822CB0 /* Project object */;
+}

@@ -25,11 +25,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'plist'
   spec.add_dependency 'xcodeproj'
   spec.add_dependency 'xctest_list', '>= 1.1.7'
+  spec.add_dependency 'colorize'
 
   spec.add_development_dependency 'cocoapods'
   spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'colorize'
-  spec.add_development_dependency 'fastlane', '>= 2.56.0'
+  spec.add_development_dependency 'fastlane', '>= 2.108.0'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rake'

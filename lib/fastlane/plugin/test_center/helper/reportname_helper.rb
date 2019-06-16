@@ -64,9 +64,12 @@ module TestCenter
         numbered_filename(@output_files.to_s.split(',')[junit_index])
       end
 
-      def junit_reportname
+      def junit_reportname(suffix = '')
         junit_index = @output_types.split(',').find_index('junit')
-        @output_files.to_s.split(',')[junit_index]
+        report_name = @output_files.to_s.split(',')[junit_index]
+        return report_name if suffix.empty?
+
+        "#{File.basename(report_name, '.*')}-#{suffix}#{junit_filextension}"
       end
 
       def junit_filextension
@@ -90,9 +93,12 @@ module TestCenter
         numbered_filename(@output_files.to_s.split(',')[html_index])
       end
 
-      def html_reportname
+      def html_reportname(suffix = '')
         html_index = @output_types.split(',').find_index('html')
-        @output_files.to_s.split(',')[html_index]
+        report_name = @output_files.to_s.split(',')[html_index]
+        return report_name if suffix.empty?
+
+        "#{File.basename(report_name, '.*')}-#{suffix}#{html_filextension}"
       end
 
       def html_filextension
@@ -116,9 +122,12 @@ module TestCenter
         numbered_filename(@output_files.to_s.split(',')[json_index])
       end
 
-      def json_reportname
+      def json_reportname(suffix = '')
         json_index = @output_types.split(',').find_index('json')
-        @output_files.to_s.split(',')[json_index]
+        report_name = @output_files.to_s.split(',')[json_index]
+        return report_name if suffix.empty?
+
+        "#{File.basename(report_name, '.*')}-#{suffix}#{json_filextension}"
       end
 
       def json_filextension

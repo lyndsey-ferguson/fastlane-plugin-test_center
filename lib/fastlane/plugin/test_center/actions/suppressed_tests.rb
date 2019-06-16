@@ -52,6 +52,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project"
       end
@@ -139,6 +140,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

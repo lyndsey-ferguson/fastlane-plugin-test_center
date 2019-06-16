@@ -159,6 +159,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Combines and combines tests from multiple html report files"
       end
@@ -227,6 +228,7 @@ module Fastlane
       def self.category
         :testing
       end
+      # :nocov:
     end
   end
 end
