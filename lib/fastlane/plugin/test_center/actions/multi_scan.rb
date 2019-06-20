@@ -18,7 +18,7 @@ module Fastlane
           )
         end
         # :nocov:
-        force_quit_simulator_processes if params[:force_quit_simulator]
+        force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
         
@@ -182,7 +182,7 @@ module Fastlane
       end
 
       def self.scan_options
-        ScanAction.available_options.reject { |config| config.key == :output_types }
+        ScanAction.available_options.reject { |config| %i[output_types force_quit_simulator].include?(config.key) }
       end
 
       def self.available_options
@@ -242,7 +242,11 @@ module Fastlane
             description: 'Run  simulators each batch of tests and/or each test target in parallel on its own Simulator',
             optional: true,
             is_string: false,
-            default_value: 1
+            default_value: 1,
+            verify_block: proc do |count|
+              UI.user_error!("Error: :parallel_testrun_count must be greater than zero") unless count > 0
+              UI.important("Warning: the CoreSimulatorService may fail to connect to simulators if :parallel_testrun_count is greater than 6") if count > 6
+            end
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
