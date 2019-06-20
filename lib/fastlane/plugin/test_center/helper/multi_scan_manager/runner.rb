@@ -36,12 +36,12 @@ module TestCenter
           @options[:only_testing] = @options[:only_testing]&.map(&:strip_testcase)&.uniq
           @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
           
-          RetryingScan.run(@options.reject { |key| %i[device devices].include?(key) } )
+          RetryingScan.run(@options.reject { |key| %i[device devices force_quit_simulator].include?(key) } )
         end
         
         def run_test_batches
           test_batch_results = []
-          pool_options = @options.reject { |key| %i[device devices].include?(key) }
+          pool_options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           pool_options[:test_batch_results] = test_batch_results
 
           pool = TestBatchWorkerPool.new(pool_options)

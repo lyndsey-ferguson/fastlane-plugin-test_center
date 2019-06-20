@@ -18,6 +18,8 @@ module Fastlane
           )
         end
         # :nocov:
+        params[:quit_simulators] ||= params[:force_quit_simulator]
+
         force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
@@ -182,7 +184,7 @@ module Fastlane
       end
 
       def self.scan_options
-        ScanAction.available_options.reject { |config| %i[output_types force_quit_simulator].include?(config.key) }
+        ScanAction.available_options.reject { |config| %i[output_types].include?(config.key) }
       end
 
       def self.available_options
