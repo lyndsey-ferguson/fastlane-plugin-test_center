@@ -271,6 +271,7 @@ module Fastlane::Actions
           try_count: 1
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
+        allow(options_mock).to receive(:_values).and_return(options_mock)
         summary = MultiScanAction.run(options_mock)
         expect(summary).to eq(run_summary_mock)
       end
@@ -287,6 +288,7 @@ module Fastlane::Actions
           fail_build: true
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
+        allow(options_mock).to receive(:_values).and_return(options_mock)
         expect { MultiScanAction.run(options_mock) }.to(
           raise_error(FastlaneCore::Interface::FastlaneTestFailure) do |error|
             expect(error.message).to match(/Tests have failed/)

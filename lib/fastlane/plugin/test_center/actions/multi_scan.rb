@@ -18,7 +18,7 @@ module Fastlane
           )
         end
         # :nocov:
-        params[:quit_simulators] ||= params[:force_quit_simulator]
+        params[:quit_simulators] ||= params._values[:force_quit_simulator]
 
         force_quit_simulator_processes if params[:quit_simulators]
 
@@ -112,31 +112,46 @@ module Fastlane
       end
 
       def self.build_for_testing(scan_options)
-          valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          scan_options = scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
-
-          Scan.config = FastlaneCore::Configuration.create(
-            Fastlane::Actions::ScanAction.available_options,
-            scan_options.merge(build_for_testing: true)
-          )
-          values = Scan.config.values(ask: false)
-          values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+        prepare_scan_options_for_build_for_testing(scan_options)
           
-          # :nocov:
-          unless Helper.test?
-            FastlaneCore::PrintTable.print_values(
-              config: values,
-              hide_keys: [:destination, :slack_url],
-              title: "Summary for scan #{Fastlane::VERSION}"
-            )
-          end
-          # :nocov:
+        # :nocov:
+        unless Helper.test?
+          FastlaneCore::PrintTable.print_values(
+            config: values,
+            hide_keys: [:destination, :slack_url],
+            title: "Summary for scan #{Fastlane::VERSION}"
+          )
+        end
+        # :nocov:
 
-          Scan::Runner.new.run
-          remove_build_report_files
+        remove_preexisting_xctestrun_files
+        Scan::Runner.new.run
+        update_xctestrun_after_build(scan_options)
+        remove_build_report_files
 
-          Scan.config._values.delete(:build_for_testing)
-          scan_options[:derived_data_path] = Scan.config[:derived_data_path]
+        Scan.config._values.delete(:build_for_testing)
+        scan_options[:derived_data_path] = Scan.config[:derived_data_path]
+      end
+
+      def self.prepare_scan_options_for_build_for_testing(scan_options)
+        valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+        scan_options = scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
+
+        Scan.config = FastlaneCore::Configuration.create(
+          Fastlane::Actions::ScanAction.available_options,
+          scan_options.merge(build_for_testing: true)
+        )
+        values = Scan.config.values(ask: false)
+        values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+      end
+
+      def self.update_xctestrun_after_build(scan_options)
+        scan_options[:xctestrun] = Dir.glob("#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun").first
+      end
+
+      def self.remove_preexisting_xctestrun_files
+        xctestrun_files = Dir.glob("#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun")
+        FileUtils.rm_rf(xctestrun_files)
       end
 
       def self.remove_build_report_files
