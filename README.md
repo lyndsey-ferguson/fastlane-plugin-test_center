@@ -87,7 +87,7 @@ This fastlane plugin includes the following actions:
 
 ### multi_scan 🎉
 
-Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test results, inspect partial results periodically during a test run, and provide better results reporting. 
+Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test results, reduce test run time, inspect partial results periodically during a test run, and provide better results reporting.
 
 #### Improving Usefulness
 
