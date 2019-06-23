@@ -112,8 +112,7 @@ module Fastlane
       end
 
       def self.build_for_testing(scan_options)
-        prepare_scan_options_for_build_for_testing(scan_options)
-          
+        values = prepare_scan_options_for_build_for_testing(scan_options)
         # :nocov:
         unless Helper.test?
           FastlaneCore::PrintTable.print_values(
@@ -143,6 +142,7 @@ module Fastlane
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+        values
       end
 
       def self.update_xctestrun_after_build(scan_options)

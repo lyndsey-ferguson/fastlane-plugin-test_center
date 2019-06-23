@@ -25,7 +25,7 @@ module TestCenter::Helper
 
         it 'finds testables from derived xctestrun' do
           allow(File).to receive(:exist?).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return(true)
-          allow(Dir).to receive(:glob).with("path/to/fake/derived_data/Build/Products/Professor*.xctestrun").and_return(['path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun'])
+          allow(Dir).to receive(:glob).with("path/to/fake/derived_data/Build/Products/*.xctestrun").and_return(['path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun'])
           allow(Plist).to receive(:parse_xml).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
           test_collector = TestCollector.new(
             derived_data_path: 'path/to/fake/derived_data',
@@ -38,7 +38,7 @@ module TestCenter::Helper
           FAKE_DEFAULT_DERIVED_DATA_PATH = 'path/to/fake/default_derived_data'
           XCTEST_RUN_FILENAME = 'Professor_Blahblah.xctestrun'
           allow(File).to receive(:exist?).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return(true)
-          allow(Dir).to receive(:glob).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/Professor*.xctestrun").and_return(["#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}"])
+          allow(Dir).to receive(:glob).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/*.xctestrun").and_return(["#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}"])
           allow(Plist).to receive(:parse_xml).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
           mocked_project = OpenStruct.new
           allow(mocked_project).to receive(:build_settings).and_return("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/blah1/blah2/blah3")
