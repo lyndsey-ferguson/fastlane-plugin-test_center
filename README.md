@@ -97,6 +97,10 @@ Rather than wasting time trying to account for unstable tools, or trying to twea
 
 Another issue that can cause tests to incorrectly fail comes from an issue with the iOS Simulator. If you provide a huge number of tests to the iOS Simulator, it can exhaust the available resources and cause it to fail large numbers of tests. You can get around this by running your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
 
+#### Reduce Test Run Time
+
+Make better use of your Mac resources by running batches of test runs in parallel iOS Simulators running simultaneously. Use the `:parallel_testrun_count` option to specify 2 to 6 simulators, each running a subset of your tests. It is not recommended to run more than 6 simulators in parallel as the service that backs the simulators can fail to connect to them.
+
 #### Inspect Partial Results
 
 If you have a large number of tests, and you want to inspect the overall status of how test runs are progressing, you can use the `:testrun_completed_block` callback to bailout early or make adjustments on how your tests are exercised.
