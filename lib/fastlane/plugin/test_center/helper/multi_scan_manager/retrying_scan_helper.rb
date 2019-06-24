@@ -21,7 +21,6 @@ module TestCenter
         end
         
         def before_testrun
-          remove_preexisting_test_result_bundles
           delete_xcresults # has to be performed _after_ moving a *.test_result
           quit_simulator
           set_json_env
@@ -73,14 +72,6 @@ module TestCenter
           return unless @reportnamer.includes_json?
 
           ENV['XCPRETTY_JSON_FILE_OUTPUT'] = @xcpretty_json_file_output
-        end
-
-        def remove_preexisting_test_result_bundles
-          return unless @options[:result_bundle]
-
-          glob_pattern = "#{output_directory}/*.test_result"
-          preexisting_test_result_bundles = Dir.glob(glob_pattern)
-          FileUtils.rm_rf(preexisting_test_result_bundles)
         end
 
         def scan_options
@@ -265,8 +256,7 @@ module TestCenter
           dst_test_bundle_parent_dir = File.dirname(src_test_bundle)
           dst_test_bundle_basename = File.basename(src_test_bundle, '.test_result')
           dst_test_bundle = "#{dst_test_bundle_parent_dir}/#{dst_test_bundle_basename}-#{@testrun_count}.test_result"
-          FileUtils.mkdir_p(dst_test_bundle)
-          FileUtils.mv(src_test_bundle, dst_test_bundle)
+          File.rename(src_test_bundle, dst_test_bundle)
         end
       end
     end

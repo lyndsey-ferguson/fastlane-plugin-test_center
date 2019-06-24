@@ -14,6 +14,17 @@ module TestCenter::Helper::MultiScanManager
     end
 
     describe '#run' do
+      it 'clears out pre-existing test bundles' do
+        allow(Dir).to receive(:glob).with('./path/to/output/directory/**/*.test_result').and_return(['./AtomicDragon.test_result'])
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          result_bundle: true
+        )
+        expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
+        runner.run
+      end
+
       it 'runs test batches when appropriate' do
         runner = Runner.new(
           {
