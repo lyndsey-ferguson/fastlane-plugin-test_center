@@ -28,7 +28,7 @@ module Fastlane
             UI.important("Is the Build Setting, `ENABLE_TESTABILITY` enabled for the test target #{testable_name}?")
           end
           tests[testable_name] = test_identifiers.map do |test_identifier|
-            "#{testable_name.shellsafe_testidentifier}/#{test_identifier}"
+            "#{testable_name}/#{test_identifier}"
           end
         end
         tests
