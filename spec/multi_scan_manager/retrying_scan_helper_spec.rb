@@ -200,7 +200,8 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory'
+          output_directory: './path/to/output/directory',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -228,7 +229,8 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory'
+          output_directory: './path/to/output/directory',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
@@ -255,7 +257,8 @@ module TestCenter::Helper::MultiScanManager
           batch: 2,
           batch_count: 3,
           output_types: 'junit,html',
-          output_files: 'report.junit,report.html'
+          output_files: 'report.junit,report.html',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end

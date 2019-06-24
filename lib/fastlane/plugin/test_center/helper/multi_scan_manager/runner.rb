@@ -69,12 +69,13 @@ module TestCenter
         end
   
         def collate_batched_reports
-          return false unless @batch_count > 1
+          return unless @batch_count > 1
+          return unless @options[:collate_reports]
+
 
           @test_collector.testables.each do |testable|
             collate_batched_reports_for_testable(testable)
           end
-          true
         end
 
         def collate_batched_reports_for_testable(testable)

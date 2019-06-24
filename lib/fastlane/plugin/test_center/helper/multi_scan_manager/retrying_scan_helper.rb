@@ -117,6 +117,8 @@ module TestCenter
         end
         
         def collate_reports
+          return unless @options[:collate_reports]
+
           report_collator_options = {
             source_reports_directory_glob: output_directory,
             output_directory: output_directory,

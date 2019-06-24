@@ -190,7 +190,8 @@ module TestCenter::Helper::MultiScanManager
     describe 'collate_batched_reports' do
       it 'does nothing if there are fewer than 2 batches' do
         runner = Runner.new({})
-        expect(runner.collate_batched_reports).to eq(false)
+        expect(runner).not_to receive(:collate_batched_reports_for_testable)
+        runner.collate_batched_reports
       end
 
       it 'collates batches of reports for the one testable' do
@@ -201,7 +202,8 @@ module TestCenter::Helper::MultiScanManager
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests'
+            scheme: 'AtomicUITests',
+            collate_reports: true
           }
         )
         mocked_report_collator = OpenStruct.new
@@ -216,7 +218,26 @@ module TestCenter::Helper::MultiScanManager
           .and_return(mocked_report_collator)
         expect(mocked_report_collator).to receive(:collate)
 
-        expect(runner.collate_batched_reports).to eq(true)
+        runner.collate_batched_reports
+      end
+
+      it 'does not collate reports if not desired' do
+        # allow(File).to receive(:exist?).and_call_original
+        # allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-(\d)/report(-\d)?\.junit}).and_return(true)
+        # allow(@mock_test_collector).to receive(:testables).and_return([ 'BagOfTests' ])
+        # allow(@mock_test_collector).to receive(:test_batches).and_return([ '1', '2'])
+        runner = Runner.new(
+          {
+            output_directory: './path/to/output/directory',
+            scheme: 'AtomicUITests',
+            collate_reports: false,
+            batch_count: 2
+          }
+        )
+        mocked_report_collator = OpenStruct.new
+        allow(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).and_return(mocked_report_collator)
+        expect(mocked_report_collator).not_to receive(:collate)
+        runner.collate_batched_reports
       end
 
       it 'collates batches of reports for two testables' do
@@ -227,7 +248,8 @@ module TestCenter::Helper::MultiScanManager
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests'
+            scheme: 'AtomicUITests',
+            collate_reports: true
           }
         )
         mocked_report_collator = OpenStruct.new
@@ -255,7 +277,7 @@ module TestCenter::Helper::MultiScanManager
           .and_return(mocked_report_collator)
         expect(mocked_report_collator).to receive(:collate)
 
-        expect(runner.collate_batched_reports).to eq(true)
+        runner.collate_batched_reports
       end
     end
   end
