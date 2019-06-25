@@ -19,17 +19,6 @@ module TestCenter::Helper::MultiScanManager
     end
 
     describe 'before_testrun' do
-      it 'clears out pre-existing test bundles' do
-        allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result'])
-        helper = RetryingScanHelper.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
-          result_bundle: true
-        )
-        expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
-        helper.before_testrun
-      end
-
       it 'clears out pre-existing xcresult directory' do
         allow(Dir).to receive(:glob).with(%r{/.*/path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/.*\.xcresult}).and_return(['./AtomicDragon.xcresult'])
         helper = RetryingScanHelper.new(
@@ -158,11 +147,11 @@ module TestCenter::Helper::MultiScanManager
           output_directory: './path/to/output/directory',
           result_bundle: true
         )
-        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
+        expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
-        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
+        expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
-        expect(FileUtils).to receive(:mv).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
+        expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
 
@@ -200,7 +189,8 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory'
+          output_directory: './path/to/output/directory',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -228,7 +218,8 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory'
+          output_directory: './path/to/output/directory',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
@@ -255,7 +246,8 @@ module TestCenter::Helper::MultiScanManager
           batch: 2,
           batch_count: 3,
           output_types: 'junit,html',
-          output_files: 'report.junit,report.html'
+          output_files: 'report.junit,report.html',
+          collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end

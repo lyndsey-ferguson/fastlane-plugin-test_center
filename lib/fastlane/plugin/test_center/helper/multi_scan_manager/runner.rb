@@ -25,6 +25,8 @@ module TestCenter
         end
 
         def run
+          remove_preexisting_test_result_bundles
+
           if @options[:invocation_based_tests]
             run_invocation_based_tests
           else
@@ -32,6 +34,14 @@ module TestCenter
           end
         end
         
+        def remove_preexisting_test_result_bundles
+          return unless @options[:result_bundle]
+
+          glob_pattern = "#{output_directory}/**/*.test_result"
+          preexisting_test_result_bundles = Dir.glob(glob_pattern)
+          FileUtils.rm_rf(preexisting_test_result_bundles)
+        end
+
         def run_invocation_based_tests
           @options[:only_testing] = @options[:only_testing]&.map(&:strip_testcase)&.uniq
           @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
@@ -69,12 +79,13 @@ module TestCenter
         end
   
         def collate_batched_reports
-          return false unless @batch_count > 1
+          return unless @batch_count > 1
+          return unless @options[:collate_reports]
+
 
           @test_collector.testables.each do |testable|
             collate_batched_reports_for_testable(testable)
           end
-          true
         end
 
         def collate_batched_reports_for_testable(testable)
