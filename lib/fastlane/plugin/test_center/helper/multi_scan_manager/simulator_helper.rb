@@ -28,7 +28,7 @@ module TestCenter
             original_simulators.each do |simulator|
               FastlaneCore::UI.verbose("Cloning simulator")
               cloned_simulator = simulator.clone
-              new_first_name = simulator.name.sub(/( ?\(.*| ?$)/, " Clone #{batch_index}")
+              new_first_name = simulator.name.sub(/( ?\(.*| ?$)/, " Clone #{batch_index + 1}")
               new_last_name = "#{self.class.name}<#{self.object_id}>"
               cloned_simulator.rename("#{new_first_name} #{new_last_name}")
 

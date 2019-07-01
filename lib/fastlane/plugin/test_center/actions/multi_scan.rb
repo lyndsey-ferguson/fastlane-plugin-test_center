@@ -175,8 +175,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Uses scan to run Xcode tests a given number of times, with the option " \
-        "of batching them, only re-testing failing tests."
+        "Uses scan to run Xcode tests a given number of times, with the option of batching and/or parallelizing them, only re-testing failing tests."
       end
 
       def self.details

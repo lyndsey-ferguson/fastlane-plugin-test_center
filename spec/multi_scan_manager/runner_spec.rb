@@ -13,9 +13,40 @@ module TestCenter::Helper::MultiScanManager
       ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN'] = @use_refactored_parallelized_multi_scan
     end
 
+    describe '#output_directory' do
+      it 'returns the :output_directory directly if no batches given' do
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory'
+        )
+        expect(runner.output_directory).to eq(File.absolute_path('./path/to/output/directory'))
+      end
+
+      it 'returns the \'test_results\' if no batches and output_directory given' do
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'
+        )
+        expect(runner.output_directory).to eq(File.absolute_path('./test_results'))
+      end
+
+      it 'returns the :output_directory plus the batch if batches given' do
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          only_testing: [
+            'Bag Of Tests/CoinTossingUITests/testResultIsTails',
+            'Bag Of Tests/CoinTossingUITests/testResultIsHeads',
+            'Bag Of Tests/CoinTossingUITests/testResultIsOnEdge'
+          ],
+          batch: 4
+        )
+        expect(runner.output_directory(4, ['Bag Of Tests/CoinTossingUITests/testResultIsTails'])).to eq(File.absolute_path('./path/to/output/directory/Bag Of Tests-batch-4'))
+      end
+    end
+
     describe '#run' do
       it 'clears out pre-existing test bundles' do
-        allow(Dir).to receive(:glob).with('./path/to/output/directory/**/*.test_result').and_return(['./AtomicDragon.test_result'])
+        allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/\*\.test_result}).and_return(['./AtomicDragon.test_result'])
         runner = Runner.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
@@ -228,15 +259,17 @@ module TestCenter::Helper::MultiScanManager
           )
           .and_return(mocked_report_collator)
         expect(mocked_report_collator).to receive(:collate)
+        expect(FileUtils).to receive(:cp_r).with(
+          %r{.*/path/to/output/directory/BagOfTests/\.},
+          %r{.*/path/to/output/directory}
+        )
+        allow(FileUtils).to receive(:rm_rf).and_call_original
+        expect(FileUtils).to receive(:rm_rf).with(%r{.*/path/to/output/directory/BagOfTest})
 
         runner.collate_batched_reports
       end
 
       it 'does not collate reports if not desired' do
-        # allow(File).to receive(:exist?).and_call_original
-        # allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-(\d)/report(-\d)?\.junit}).and_return(true)
-        # allow(@mock_test_collector).to receive(:testables).and_return([ 'BagOfTests' ])
-        # allow(@mock_test_collector).to receive(:test_batches).and_return([ '1', '2'])
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',

@@ -23,7 +23,7 @@ module TestCenter::Helper::MultiScanManager
         allow(Dir).to receive(:glob).with(%r{/.*/path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/.*\.xcresult}).and_return(['./AtomicDragon.xcresult'])
         helper = RetryingScanHelper.new(
           derived_data_path: 'path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory'
+          output_directory: File.absolute_path('./path/to/output/directory')
         )
         expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.xcresult'])
         helper.before_testrun
@@ -32,7 +32,7 @@ module TestCenter::Helper::MultiScanManager
       it 'prints to the console a message that a test_run is being started' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads',
@@ -46,7 +46,7 @@ module TestCenter::Helper::MultiScanManager
       it 'prints to the console a message that a test_run for a batch is being started' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads',
@@ -144,7 +144,7 @@ module TestCenter::Helper::MultiScanManager
         allow(FileUtils).to receive(:mkdir_p)
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           result_bundle: true
         )
         expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
@@ -160,7 +160,7 @@ module TestCenter::Helper::MultiScanManager
         allow(ENV).to receive(:[]=).and_call_original
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           output_types: 'json',
           output_files: 'report.json'
         )
@@ -189,7 +189,7 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -218,7 +218,7 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           collate_reports: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -241,7 +241,7 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
           only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
           batch: 2,
           batch_count: 3,
@@ -299,7 +299,7 @@ module TestCenter::Helper::MultiScanManager
       it 'has only the failing tests' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads'
@@ -325,7 +325,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads'
@@ -365,7 +365,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory/BagOfTests-batch-3'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads'
@@ -407,7 +407,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           only_testing: [
             'BagOfTests/CoinTossingUITests/testResultIsTails',
             'BagOfTests/CoinTossingUITests/testResultIsHeads'
@@ -433,24 +433,16 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'has the correct output_directory' do
-        helper = RetryingScanHelper.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory'
-        )
-        expect(helper.scan_options[:output_directory]).to match(%r{.*/path/to/output/directory})
-      end
-
       it 'has the correct result_bundle option' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           result_bundle: true
         )
         expect(helper.scan_options[:result_bundle]).to be_truthy
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory'
+          output_directory: File.absolute_path('./path/to/output/directory')
         )
         expect(helper.scan_options[:result_bundle]).to be_falsey
       end
@@ -458,7 +450,7 @@ module TestCenter::Helper::MultiScanManager
       it 'has the correct buildlog_path option' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           buildlog_path: './path/to/output/build_log/directory'
         )
         expect(helper.scan_options[:buildlog_path]).to eq('./path/to/output/build_log/directory')
@@ -468,7 +460,7 @@ module TestCenter::Helper::MultiScanManager
         expect {
           RetryingScanHelper.new(
             derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-            output_directory: './path/to/output/directory',
+            output_directory: File.absolute_path('./path/to/output/directory'),
             device: 'iPhone 6'
           )
         }.to(
@@ -479,7 +471,7 @@ module TestCenter::Helper::MultiScanManager
         expect {
           RetryingScanHelper.new(
             derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-            output_directory: './path/to/output/directory',
+            output_directory: File.absolute_path('./path/to/output/directory'),
             devices: ['iPhone 6', 'iPad Air']
           )
         }.to(
@@ -492,7 +484,7 @@ module TestCenter::Helper::MultiScanManager
       it 'has the correct destination option' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           destination: ['platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74']
         )
         expect(helper.scan_options[:destination]).to eq(['platform=iOS Simulator,id=0D312041-2D60-4221-94CC-3B0040154D74'])
@@ -501,7 +493,7 @@ module TestCenter::Helper::MultiScanManager
       it 'has the correct scheme option' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           scheme: 'Thundercats'
         )
         expect(helper.scan_options[:scheme]).to eq('Thundercats')
@@ -510,7 +502,7 @@ module TestCenter::Helper::MultiScanManager
       it 'has the correct code_coverage option on the first run' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           code_coverage: true
         )
         expect(helper.scan_options[:code_coverage]).to eq(true)
@@ -525,7 +517,7 @@ module TestCenter::Helper::MultiScanManager
         
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           code_coverage: true
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -547,7 +539,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
         )
         helper.after_testrun
@@ -575,7 +567,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -606,7 +598,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
@@ -637,7 +629,7 @@ module TestCenter::Helper::MultiScanManager
 
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
+          output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
         )
         expect {

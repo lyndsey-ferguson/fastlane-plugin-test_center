@@ -34,6 +34,7 @@ module TestCenter
         end
 
         def destination_for_worker(worker_index)
+          # each worker has its own simulators to work with
           return @options[:destination] unless @options[:platform] == :ios
 
           @clones[worker_index].map do |simulator|
@@ -53,7 +54,6 @@ module TestCenter
         def parallel_scan_options(worker_index)
           options = @options.reject { |key| %i[device devices].include?(key) }
           options[:destination] = destination_for_worker(worker_index)
-          options[:xctestrun] = xctestrun_products_clone if @options[:xctestrun]
           options[:buildlog_path] = buildlog_path_for_worker(worker_index) if @options[:buildlog_path]
           options[:derived_data_path] = derived_data_path_for_worker(worker_index)
           options[:batch_index] = worker_index
@@ -61,23 +61,16 @@ module TestCenter
           options
         end
 
-        def xctestrun_products_clone
-          xctestrun_filename = File.basename(@options[:xctestrun])
-          xcproduct_dirpath = File.dirname(@options[:xctestrun])
-          tmp_xcproduct_dirpath = Dir.mktmpdir
-          FileUtils.cp_r(xcproduct_dirpath, tmp_xcproduct_dirpath)
-          at_exit do
-            FileUtils.rm_rf(tmp_xcproduct_dirpath)
-          end
-          "#{tmp_xcproduct_dirpath}/#{File.basename(xcproduct_dirpath)}/#{xctestrun_filename}"
-        end
-
         def buildlog_path_for_worker(worker_index)
-          "#{@options[:buildlog_path]}/parallel-simulators-#{worker_index}-logs"
+          # ensure that simultaneous simulators are not writing to the same log
+          # at the same time.
+          "#{@options[:buildlog_path]}/worker-#{worker_index + 1}-logs"
         end
 
         def derived_data_path_for_worker(worker_index)
-          Dir.mktmpdir(['derived_data_path', "-worker-#{worker_index.to_s}"])
+          # ensure that simultaneous simulators are not writing diagnostics to
+          # the same location at the same time.
+          Dir.mktmpdir(['derived_data_path', "-worker-#{(worker_index + 1).to_s}"])
         end
 
         def clean_up_cloned_simulators(clones)

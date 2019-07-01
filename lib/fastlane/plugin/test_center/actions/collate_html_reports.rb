@@ -161,7 +161,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Combines and combines tests from multiple html report files"
+        "Combines multiple html report files into one html report file"
       end
 
       def self.details
