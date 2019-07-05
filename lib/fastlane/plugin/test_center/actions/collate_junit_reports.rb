@@ -149,7 +149,7 @@ module Fastlane
       #####################################################
       # :nocov:
       def self.description
-        "Combines and combines tests from multiple junit report files"
+        "Combines multiple junit report files into one junit report file"
       end
 
       def self.details

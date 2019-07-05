@@ -41,7 +41,7 @@ module TestCenter::Helper::MultiScanManager
 
     describe '#process_results' do
       it 'resets :pid when done' do
-        worker = ParallelTestBatchWorker.new({ test_batch_results: [] })
+        worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 2 })
         allow(Process).to receive(:fork).and_return(11)
         allow(File).to receive(:foreach).and_yield('')
         worker.run({})
@@ -63,7 +63,7 @@ module TestCenter::Helper::MultiScanManager
         worker.open_interprocess_communication
         
         mock_logfile = OpenStruct.new
-        expect(File).to receive(:open).with('path/to/tmpfile/parallel-test-batch-5.txt', 'w').and_return(mock_logfile)
+        expect(File).to receive(:open).with('path/to/tmpfile/parallel-test-batch-6.txt', 'w').and_return(mock_logfile)
         expect(pipes[0]).to receive(:close)
 
         expect($stdout).to receive(:reopen).with(mock_logfile)

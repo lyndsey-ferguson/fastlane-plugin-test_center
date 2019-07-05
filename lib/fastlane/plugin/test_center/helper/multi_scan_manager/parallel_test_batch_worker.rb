@@ -17,7 +17,7 @@ module TestCenter
         def process_results
           @pid = nil
           File.foreach(@log_filepath) do |line|
-            puts "[worker #{@options[:batch_index]}] #{line}"
+            puts "[worker #{@options[:batch_index] + 1}] #{line}"
           end
           state = :ready_to_work
           @options[:test_batch_results] << (@reader.gets == 'true')
@@ -32,6 +32,9 @@ module TestCenter
             begin
               reroute_stdout_to_logfile
               tests_passed = super(run_options)
+            rescue StandardError => e
+              puts e.message
+              puts e.backtrace.inspect
             ensure
               handle_child_process_results(tests_passed)
               exit!
@@ -44,7 +47,7 @@ module TestCenter
           @reader, @writer = IO.pipe
           @log_filepath = File.join(
             Dir.mktmpdir,
-            "parallel-test-batch-#{@options[:batch_index]}.txt"
+            "parallel-test-batch-#{@options[:batch_index] + 1}.txt"
           )
         end
 

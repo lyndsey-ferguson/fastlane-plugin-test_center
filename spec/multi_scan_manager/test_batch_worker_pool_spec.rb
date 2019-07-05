@@ -17,7 +17,7 @@ module TestCenter::Helper::MultiScanManager
         allow(@mocked_simulator_helper).to receive(:setup)
         allow(SimulatorHelper).to receive(:new).and_return(@mocked_simulator_helper)
         allow(Dir).to receive(:mktmpdir).and_return('/tmp/TestBatchWorkerPool')
-        allow(FileUtils).to receive(:cp_r).with(anything, %r{/tmp/TestBatchWorkerPool})
+        allow(FileUtils).to receive(:cp_r).with(anything, %r{\./path/to/output/multi_scan-worker-\d-files})
         allow(FileUtils).to receive(:rm_rf).with(%r{/tmp/TestBatchWorkerPool})
 
         cloned_simulator_1 = OpenStruct.new(udid: '123')
@@ -76,12 +76,6 @@ module TestCenter::Helper::MultiScanManager
           end
         end
         
-        it 'clones a copy of the xcode build products directory for each worker' do
-          pool = TestBatchWorkerPool.new(parallel_testrun_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
-          expect(pool).to receive(:xctestrun_products_clone).exactly(4).times
-          pool.setup_workers
-        end
-        
         it 'updates the :buildlog_path for each worker' do
           pool = TestBatchWorkerPool.new(parallel_testrun_count: 4, buildlog_path: './path/to/fake/build/logs')
           expect(pool).to receive(:buildlog_path_for_worker).exactly(4).times
@@ -89,11 +83,15 @@ module TestCenter::Helper::MultiScanManager
         end
 
         it 'updates the :derived_data_path for each worker' do
-          pool = TestBatchWorkerPool.new(parallel_testrun_count: 4, xctestrun: './path/to/fake/build/products/xctestrun')
+          pool = TestBatchWorkerPool.new(
+            parallel_testrun_count: 4, 
+            xctestrun: './path/to/fake/build/products/xctestrun',
+            output_directory: './path/to/output'
+          )
           allow(pool).to receive(:derived_data_path_for_worker) do |index|
-            "./path/to/fake/derived_data_path/#{index}"
+            "./path/to/fake/derived_data_path/#{index + 1}"
           end
-          expected_indices = ['0', '1', '2', '3']
+          expected_indices = ['1', '2', '3', '4']
           expect(ParallelTestBatchWorker).to receive(:new).exactly(4).times do |options|
             expect(options[:derived_data_path]).to match(%r{path/to/fake/derived_data_path/#{expected_indices.shift}})
           end
@@ -137,29 +135,6 @@ module TestCenter::Helper::MultiScanManager
           end
         end
 
-        describe '#xctestrun_products_clone' do
-          before(:each) do
-            allow(FileUtils).to receive(:cp_r).and_call_original
-          end
-
-          it 'makes a copy in a temporary directory of the build products directory' do
-            pool = TestBatchWorkerPool.new(
-              {
-                parallel_testrun_count: 4,
-                xctestrun: './path/to/Build/Products/AtomicTornado.xctestrun'
-              }
-            )
-            allow(Dir).to receive(:mktmpdir).and_return("/tmp/1")
-
-            allow(FileUtils).to receive(:cp_r).with(
-              "./path/to/Build/Products",
-              "/tmp/1"
-            )
-            cloned_xctestrun = pool.xctestrun_products_clone
-            expect(cloned_xctestrun).to eq("/tmp/1/Products/AtomicTornado.xctestrun")
-          end
-        end
-
         describe '#buildlog_path_for_worker' do
           it 'creates a subdirectory for each worker in the :buildlog_path' do
             pool = TestBatchWorkerPool.new(
@@ -169,7 +144,7 @@ module TestCenter::Helper::MultiScanManager
               }
             )
             
-            expect(pool.buildlog_path_for_worker(1)).to match(%r{path/to/build/log/parallel-simulators-1-logs})
+            expect(pool.buildlog_path_for_worker(1)).to match(%r{path/to/build/log/worker-2-logs})
           end
         end
 

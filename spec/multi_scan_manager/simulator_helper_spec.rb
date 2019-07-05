@@ -88,7 +88,7 @@ module TestCenter::Helper::MultiScanManager
         ]
         (0...4).each do |index|
           expect(original_device).to receive(:clone).and_return(cloned_simulators[index])
-          expect(cloned_simulators[index]).to receive(:rename).with(/iPad Pro Clone #{index} TestCenter::Helper::MultiScanManager::SimulatorHelper<\d+>/)
+          expect(cloned_simulators[index]).to receive(:rename).with(/iPad Pro Clone #{index + 1} TestCenter::Helper::MultiScanManager::SimulatorHelper<\d+>/)
         end
         result = helper.clone_destination_simulators
         expect(result).to eq(cloned_simulators.map { |s| [ s ] })

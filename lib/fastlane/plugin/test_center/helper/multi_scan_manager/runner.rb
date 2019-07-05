@@ -20,8 +20,15 @@ module TestCenter
           @batch_count = @test_collector.test_batches.size
         end
 
-        def output_directory
-          @options.fetch(:output_directory, 'test_results')
+        def output_directory(batch_index = 0, test_batch = [])
+          undecorated_output_directory = File.absolute_path(@options.fetch(:output_directory, 'test_results'))
+
+          return undecorated_output_directory if batch_index.zero?
+
+          absolute_output_directory = undecorated_output_directory
+
+          testable = test_batch.first.split('/').first || ''
+          File.join(absolute_output_directory, "#{testable}-batch-#{batch_index}")
         end
 
         def run
@@ -45,7 +52,8 @@ module TestCenter
         def run_invocation_based_tests
           @options[:only_testing] = @options[:only_testing]&.map(&:strip_testcase)&.uniq
           @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
-          
+          @options[:output_directory] = output_directory
+
           RetryingScan.run(@options.reject { |key| %i[device devices force_quit_simulator].include?(key) } )
         end
         
@@ -53,6 +61,7 @@ module TestCenter
           test_batch_results = []
           pool_options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           pool_options[:test_batch_results] = test_batch_results
+          pool_options[:xctestrun] = @test_collector.xctestrun_path
 
           pool = TestBatchWorkerPool.new(pool_options)
           pool.setup_workers
@@ -60,7 +69,7 @@ module TestCenter
           remaining_test_batches = @test_collector.test_batches.clone
           remaining_test_batches.each_with_index do |test_batch, current_batch_index|
             worker = pool.wait_for_worker              
-            FastlaneCore::UI.message("Starting test run #{current_batch_index}")
+            FastlaneCore::UI.message("Starting test run #{current_batch_index + 1}")
             worker.run(scan_options_for_worker(test_batch, current_batch_index))
           end
           pool.wait_for_all_workers
@@ -71,10 +80,9 @@ module TestCenter
         def scan_options_for_worker(test_batch, batch_index)
           {
             only_testing: test_batch.map(&:shellsafe_testidentifier),
-            output_directory: output_directory,
+            output_directory: output_directory(batch_index + 1, test_batch),
             try_count: @options[:try_count],
-            batch: batch_index + 1,
-            xctestrun: @test_collector.xctestrun_path
+            batch: batch_index + 1
           }
         end
   
@@ -82,10 +90,21 @@ module TestCenter
           return unless @batch_count > 1
           return unless @options[:collate_reports]
 
-
           @test_collector.testables.each do |testable|
             collate_batched_reports_for_testable(testable)
           end
+          move_single_testable_reports_to_final_location
+        end
+
+        def move_single_testable_reports_to_final_location
+          return unless @test_collector.testables.size == 1
+
+          report_files_dir = File.join(
+            File.absolute_path(output_directory),
+            @test_collector.testables.first
+          )
+          FileUtils.cp_r("#{report_files_dir}/.", File.absolute_path(output_directory))
+          FileUtils.rm_rf(report_files_dir)
         end
 
         def collate_batched_reports_for_testable(testable)
