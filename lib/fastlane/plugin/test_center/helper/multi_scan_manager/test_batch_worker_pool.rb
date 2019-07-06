@@ -30,6 +30,9 @@ module TestCenter
           at_exit do
             clean_up_cloned_simulators(@clones) if Process.pid == main_pid
           end
+          # boot all the simulators _before_ calling `xcodebuilt test` to avoid
+          # testmanagerd connection failures.
+          @clones.flatten.each(&:boot)
           @clones
         end
 
