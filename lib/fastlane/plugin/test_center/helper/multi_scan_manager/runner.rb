@@ -12,11 +12,19 @@ module TestCenter
         attr_reader :retry_total_count
 
         def initialize(multi_scan_options)
-          @test_collector = TestCenter::Helper::TestCollector.new(multi_scan_options)
           @options = multi_scan_options.merge(
             clean: false,
             disable_concurrent_testing: true
           )
+          @batch_count = 1 # default count. Will be updated by setup_testcollector
+          setup_testcollector
+        end
+
+        def setup_testcollector
+          return if @options[:invocation_based_tests] && @options[:only_testing].nil?
+          return if @test_collector
+
+          @test_collector = TestCenter::Helper::TestCollector.new(@options)
           @batch_count = @test_collector.test_batches.size
         end
 
@@ -34,9 +42,13 @@ module TestCenter
         def run
           remove_preexisting_test_result_bundles
 
-          if @options[:invocation_based_tests]
-            run_invocation_based_tests
-          else
+          tests_passed = false
+          if @options[:invocation_based_tests] && @options[:only_testing].nil?
+            tests_passed = run_invocation_based_tests
+          end
+
+          unless tests_passed || @options[:try_count] < 1
+            setup_testcollector  
             run_test_batches
           end
         end
@@ -50,11 +62,32 @@ module TestCenter
         end
 
         def run_invocation_based_tests
-          @options[:only_testing] = @options[:only_testing]&.map(&:strip_testcase)&.uniq
           @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
           @options[:output_directory] = output_directory
-
-          RetryingScan.run(@options.reject { |key| %i[device devices force_quit_simulator].include?(key) } )
+          @options[:destination] = Scan.config[:destination]
+          
+          options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
+          options[:try_count] = 1
+  
+          tests_passed = RetryingScan.run(options)
+          @options[:try_count] -= 1
+          
+          reportnamer = ReportNameHelper.new(
+            @options[:output_types],
+            @options[:output_files],
+            @options[:custom_report_file_name]
+          )
+          report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestsFromJunitAction.available_options,
+            {
+              junit: File.absolute_path(report_filepath)
+            }
+          )
+          @options[:only_testing] = Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+          @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
+          
+          tests_passed
         end
         
         def run_test_batches

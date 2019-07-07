@@ -49,7 +49,11 @@ module TestCenter
         end
 
         def print_starting_scan_message
-          scan_message = "Starting scan ##{@testrun_count + 1} with #{@options.fetch(:only_testing, []).size} tests"
+          if @options[:only_testing]
+            scan_message = "Starting scan ##{@testrun_count + 1} with #{@options.fetch(:only_testing, []).size} tests"
+          else
+            scan_message = "Starting scan ##{@testrun_count + 1}"
+          end
           scan_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
           FastlaneCore::UI.message("#{scan_message}.")
         end
@@ -117,7 +121,6 @@ module TestCenter
 
         def handle_test_failure
           send_callback_testrun_info
-          reset_simulators
           move_test_result_bundle_for_next_run
           update_scan_options
           @reportnamer.increment
@@ -189,12 +192,6 @@ module TestCenter
             @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
           end
         end
-        
-        def reset_simulators
-          return unless @options[:reset_simulators]
-
-          @options[:simulators].each(&:reset)
-        end
 
         def handle_build_failure(exception)
           test_operation_failure = ''
@@ -218,11 +215,6 @@ module TestCenter
             FastlaneCore::UI.error(test_session_last_messages)
             send_callback_testrun_info(test_operation_failure: test_operation_failure)
             raise exception
-          end
-          if @options[:reset_simulators]
-            @options[:simulators].each do |simulator|
-              simulator.reset
-            end
           end
           send_callback_testrun_info(test_operation_failure: test_operation_failure)
         end
