@@ -1,5 +1,5 @@
 module Fastlane
   module TestCenter
-    VERSION = "3.8.0.parallelizing.beta.6"
+    VERSION = "3.8.0.parallelizing.beta.7"
   end
 end
