@@ -17,6 +17,7 @@ module TestCenter
         end
         @only_testing = options[:only_testing]
         @skip_testing = options[:skip_testing]
+        @invocation_based_tests = options[:invocation_based_tests]
         @batch_count = options[:batch_count]
         if @batch_count == 1 && options[:parallel_testrun_count] > 1
           @batch_count = options[:parallel_testrun_count]
@@ -67,23 +68,28 @@ module TestCenter
         ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
       end
 
+      def expand_testsuites_to_tests
+        return if @invocation_based_tests
+
+        known_tests = nil
+        @testables_tests.each do |testable, tests|
+          tests.each_with_index do |test, index|
+            if test.count('/') < 2
+              known_tests ||= xctestrun_known_tests[testable]
+              test_components = test.split('/')
+              testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
+              @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) } 
+            end
+          end
+          @testables_tests[testable].flatten!
+        end
+      end
+
       def testables_tests
         unless @testables_tests
           if @only_testing
-            known_tests = nil
             @testables_tests = only_testing_to_testables_tests
-            
-            @testables_tests.each do |testable, tests|
-              tests.each_with_index do |test, index|
-                if test.count('/') < 2
-                  known_tests ||= xctestrun_known_tests[testable]
-                  test_components = test.split('/')
-                  testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
-                  @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) } 
-                end
-              end
-              @testables_tests[testable].flatten!
-            end
+            expand_testsuites_to_tests
           else
             @testables_tests = xctestrun_known_tests
             if @skip_testing

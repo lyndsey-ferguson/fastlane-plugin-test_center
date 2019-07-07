@@ -44,64 +44,94 @@ module TestCenter::Helper::MultiScanManager
       end
     end
 
-    describe '#run' do
+    describe '#remove_preexisting_test_result_bundles' do
       it 'clears out pre-existing test bundles' do
         allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/\*\.test_result}).and_return(['./AtomicDragon.test_result'])
         runner = Runner.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
-          result_bundle: true
+          result_bundle: true,
+          try_count: 1
         )
         expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.test_result'])
-        runner.run
+        runner.remove_preexisting_test_result_bundles
       end
+    end
 
-      it 'runs test batches when appropriate' do
-        runner = Runner.new(
-          {
-            output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests'
-          }
-        )
-        expect(runner).to receive(:run_test_batches)
-        runner.run
-      end
-
-      it 'runs invocation tests when appropriate' do
-        runner = Runner.new(
+    describe '#run' do
+      before(:each) do
+        @xctest_runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
+            try_count: 1
+          }
+        )
+
+        allow(@xctest_runner).to receive(:setup_testcollector)
+        allow(@xctest_runner).to receive(:run_test_batches).and_return(true)
+        allow(@xctest_runner).to receive(:run_invocation_based_tests).and_return(true)
+      end
+
+      it 'calls :remove_preexisting_test_result_bundles' do
+        expect(@xctest_runner).to receive(:remove_preexisting_test_result_bundles)
+        @xctest_runner.run
+      end
+
+      it 'runs test batches when appropriate' do
+        expect(@xctest_runner).to receive(:run_test_batches)
+        @xctest_runner.run
+      end
+
+      it 'runs invocation tests when appropriate' do
+        invocation_runner = Runner.new(
+          {
+            output_directory: './path/to/output/directory',
+            scheme: 'AtomicUITests',
+            try_count: 2,
             invocation_based_tests: true
           }
         )
-        expect(runner).to receive(:run_invocation_based_tests)
-        runner.run
+        expect(invocation_runner).to receive(:run_invocation_based_tests)
+        expect(invocation_runner).to receive(:run_test_batches)
+        invocation_runner.run
+      end
+
+      it 'does not run invocation tests when not appropriate' do
+        invocation_runner = Runner.new(
+          {
+            output_directory: './path/to/output/directory',
+            scheme: 'AtomicUITests',
+            try_count: 1,
+            invocation_based_tests: true,
+            only_testing: [ 
+              'KiwiTests/PumpkinTests',
+              'KiwiTests/SmallBirdTests',
+              'KiwiTests/CruddogTests',
+              'KiwiTests/KiwiDemoTests'
+            ]
+          }
+        )
+        expect(invocation_runner).not_to receive(:run_invocation_based_tests)
+        expect(invocation_runner).to receive(:run_test_batches)
+        invocation_runner.run
       end
     end
 
     describe '#run_invocation_based_tests' do
-      it 'strips test cases off of only_testing:' do
-        runner = Runner.new(
-          {
-            output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests',
-            only_testing: [
-              'AllMyTestTargets/testUnicorns/testcase1',
-              'AllMyTestTargets/testUnicorns/testcase2'
-            ],
-            invocation_based_tests: true
-          }
-        )
-        expect(RetryingScan).to receive(:run) do |options|
-          expect(options).to include(
-            only_testing: ['AllMyTestTargets/testUnicorns']
-          )
-        end
-        runner.run
-      end
-
       it 'strips test cases off of skip_testing:' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: [ 
+            'KiwiTests/PumpkinTests',
+            'KiwiTests/SmallBirdTests',
+            'KiwiTests/CruddogTests',
+            'KiwiTests/KiwiDemoTests'
+          ]
+        )
+        allow(Scan).to receive(:config).and_return({ destination: ['iPhone 5s,id=ABCDEFGHIJ']})
+        
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
@@ -110,9 +140,11 @@ module TestCenter::Helper::MultiScanManager
               'AllMyTestTargets/testUnicorns/testcase1',
               'AllMyTestTargets/testDragons/testcase1'
             ],
-            invocation_based_tests: true
+            invocation_based_tests: true,
+            try_count: 1
           }
         )
+        runner.instance_variable_set(:@test_collector, @mock_test_collector)
         expect(RetryingScan).to receive(:run) do |options|
           expect(options).to include(
             skip_testing: [
@@ -120,23 +152,7 @@ module TestCenter::Helper::MultiScanManager
               'AllMyTestTargets/testDragons'
             ]
           )
-        end
-        runner.run
-      end
-
-      it 'does not have only_testing: or skip_testing:' do
-        runner = Runner.new(
-          {
-            output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests',
-            invocation_based_tests: true
-          }
-        )
-        expect(RetryingScan).to receive(:run) do |options|
-          expect(options).to include(
-            skip_testing: nil,
-            only_testing: nil
-          )
+          true
         end
         runner.run
       end
@@ -158,9 +174,13 @@ module TestCenter::Helper::MultiScanManager
           runner = Runner.new(
             {
               output_directory: './path/to/output/directory',
-              scheme: 'AtomicUITests'
+              scheme: 'AtomicUITests',
+              try_count: 2
             }
           )
+          runner.instance_variable_set(:@batch_count, 2)
+          runner.instance_variable_set(:@test_collector, @mock_test_collector)
+
           allow(runner).to receive(:collate_batched_reports)
           expect(mocked_testbatch_worker).to receive(:run) do |options|
             expect(options).to include(batch: 1)
@@ -168,7 +188,6 @@ module TestCenter::Helper::MultiScanManager
           expect(mocked_testbatch_worker).to receive(:run) do |options|
             expect(options).to include(batch: 2)
           end
-          
           runner.run
         end
       end
@@ -187,9 +206,11 @@ module TestCenter::Helper::MultiScanManager
           runner = Runner.new(
             {
               output_directory: './path/to/output/directory',
-              scheme: 'AtomicUITests'
+              scheme: 'AtomicUITests',
+              try_count: 2
             }
           )
+          runner.instance_variable_set(:@test_collector, @mock_test_collector)
           allow(runner).to receive(:collate_batched_reports)
 
           expect(mocked_testbatch_worker).to receive(:run).and_return(true).twice
@@ -216,9 +237,12 @@ module TestCenter::Helper::MultiScanManager
           runner = Runner.new(
             {
               output_directory: './path/to/output/directory',
-              scheme: 'AtomicUITests'
+              scheme: 'AtomicUITests',
+              try_count: 2
             }
           )
+          runner.instance_variable_set(:@test_collector, @mock_test_collector)
+
           allow(runner).to receive(:collate_batched_reports)
 
           expect(mocked_testbatch_worker).to receive(:run) { | anytthing | test_test_batch_results << true }
@@ -248,6 +272,9 @@ module TestCenter::Helper::MultiScanManager
             collate_reports: true
           }
         )
+        runner.instance_variable_set(:@batch_count, 2)
+        runner.instance_variable_set(:@test_collector, @mock_test_collector)
+
         mocked_report_collator = OpenStruct.new
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
           .with(
@@ -296,6 +323,8 @@ module TestCenter::Helper::MultiScanManager
             collate_reports: true
           }
         )
+        runner.instance_variable_set(:@batch_count, 2)
+        runner.instance_variable_set(:@test_collector, @mock_test_collector)
         mocked_report_collator = OpenStruct.new
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
           .with(
