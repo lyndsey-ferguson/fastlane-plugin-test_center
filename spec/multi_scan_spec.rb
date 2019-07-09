@@ -312,7 +312,7 @@ module Fastlane::Actions
         raise_error(FastlaneCore::Interface::FastlaneError) do |error|
           expect(error.message).to match(
             "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
-            "because the number of tests is unkown."
+            "because the number of tests is unknown"
           )
         end
       )

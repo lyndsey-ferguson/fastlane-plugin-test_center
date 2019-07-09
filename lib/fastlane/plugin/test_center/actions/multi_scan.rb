@@ -25,7 +25,8 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
 
-        print_run_summary(params, tests_passed, runner.retry_total_count)
+        summary = run_summary(params, tests_passed, runner.retry_total_count)
+        print_run_summary(summary)
 
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
@@ -44,9 +45,7 @@ module Fastlane
         # :nocov:
       end
 
-      def self.print_run_summary(params, tests_passed, retry_total_count)
-        summary = run_summary(params, tests_passed, retry_total_count)
-        
+      def self.print_run_summary(summary)        
         return if Helper.test?
 
         # :nocov:
@@ -246,7 +245,7 @@ module Fastlane
             conflict_block: proc do |value|
               UI.user_error!(
                 "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
-                "because the number of tests is unkown.")
+                "because the number of tests is unknown")
             end
           ),
           FastlaneCore::ConfigItem.new(
@@ -284,7 +283,7 @@ module Fastlane
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
-            description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process.',
+            description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process',
             optional: true,
             is_string: false,
             default_value: nil,

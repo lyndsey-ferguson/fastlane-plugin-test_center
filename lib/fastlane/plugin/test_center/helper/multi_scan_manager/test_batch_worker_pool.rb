@@ -38,7 +38,7 @@ module TestCenter
 
         def destination_for_worker(worker_index)
           # each worker has its own simulators to work with
-          return @options[:destination] unless @options[:platform] == :ios
+          return @options[:destination] unless @options[:platform] == :ios_simulator
 
           @clones[worker_index].map do |simulator|
             "platform=iOS Simulator,id=#{simulator.udid}"
