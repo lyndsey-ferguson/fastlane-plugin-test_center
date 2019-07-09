@@ -19,7 +19,7 @@ module TestCenter
         end
 
         def setup_cloned_simulators
-          return [] unless @options[:platform] == :ios
+          return [] unless @options[:platform] == :ios_simulator
 
           @simhelper = SimulatorHelper.new(
             parallel_testrun_count: @options[:parallel_testrun_count]

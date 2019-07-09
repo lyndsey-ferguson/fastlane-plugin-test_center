@@ -5,27 +5,18 @@ module Fastlane
     require 'shellwords'
     require 'xctest_list'
     require 'plist'
-    require_relative '../helper/multi_scan_manager/runner'
 
     class MultiScanAction < Action
       def self.run(params)
-        # :nocov:
-        unless Helper.test?
-          scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          FastlaneCore::PrintTable.print_values(
-            config: params._values.reject { |k, _| scan_keys.include?(k) },
-            title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
-          )
-        end
-        # :nocov:
         params[:quit_simulators] ||= params._values[:force_quit_simulator]
 
+        print_multi_scan_parameters(params)
         force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
         
         platform = :mac
-        platform = :ios if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
+        platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
 
         runner_options = params.values.merge(platform: platform)
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
@@ -34,20 +25,36 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
 
-        summary = run_summary(params, tests_passed, runner.retry_total_count)
-        # :nocov:
-        unless Helper.test?
-          FastlaneCore::PrintTable.print_values(
-            config: summary,
-            title: "multi_scan results"
-          )
-        end
-        # :nocov:
+        print_run_summary(params, tests_passed, runner.retry_total_count)
 
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
         summary
+      end
+
+      def self.print_multi_scan_parameters(params)
+        return if Helper.test?
+        # :nocov:
+        scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+        FastlaneCore::PrintTable.print_values(
+          config: params._values.reject { |k, _| scan_keys.include?(k) },
+          title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
+        )
+        # :nocov:
+      end
+
+      def self.print_run_summary(params, tests_passed, retry_total_count)
+        summary = run_summary(params, tests_passed, retry_total_count)
+        
+        return if Helper.test?
+
+        # :nocov:
+        FastlaneCore::PrintTable.print_values(
+          config: summary,
+          title: "multi_scan results"
+        )
+        # :nocov:
       end
 
       def self.run_summary(scan_options, tests_passed, retry_total_count)
@@ -113,15 +120,7 @@ module Fastlane
 
       def self.build_for_testing(scan_options)
         values = prepare_scan_options_for_build_for_testing(scan_options)
-        # :nocov:
-        unless Helper.test?
-          FastlaneCore::PrintTable.print_values(
-            config: values,
-            hide_keys: [:destination, :slack_url],
-            title: "Summary for scan #{Fastlane::VERSION}"
-          )
-        end
-        # :nocov:
+        ScanHelper.print_scan_parameters(values)
 
         remove_preexisting_xctestrun_files
         Scan::Runner.new.run
@@ -155,6 +154,9 @@ module Fastlane
       end
 
       def self.remove_build_report_files
+        # When Scan builds, it generates empty report files. Trying to collate
+        # subsequent, valid, report files with the empty report file will fail
+        # because there is no shared XML elements
         report_options = Scan::XCPrettyReporterOptionsGenerator.generate_from_scan_config
         output_files = report_options.instance_variable_get(:@output_files)
         output_directory = report_options.instance_variable_get(:@output_directory)
