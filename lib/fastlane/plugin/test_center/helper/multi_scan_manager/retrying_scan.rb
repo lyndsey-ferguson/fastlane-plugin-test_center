@@ -44,17 +44,12 @@ module TestCenter
         def run
           try_count = @options[:try_count] || 1
           begin
-            # TODO move delete_xcresults to `before_testrun`
             @retrying_scan_helper.before_testrun
             update_scan_options
             
             values = scan_config.values(ask: false)
             values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
-            FastlaneCore::PrintTable.print_values(
-              config: values,
-              hide_keys: [:destination, :slack_url],
-              title: "Summary for scan #{Fastlane::VERSION}"
-            ) unless FastlaneCore::Helper.test?
+            ScanHelper.print_scan_parameters(values)
 
             Scan::Runner.new.run
             @retrying_scan_helper.after_testrun

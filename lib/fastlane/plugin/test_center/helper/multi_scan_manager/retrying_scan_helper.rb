@@ -1,8 +1,6 @@
 module TestCenter
   module Helper
     module MultiScanManager
-      require_relative 'device_manager'
-
       class RetryingScanHelper
 
         attr_reader :testrun_count
@@ -19,7 +17,7 @@ module TestCenter
             @options[:custom_report_file_name]
           )
         end
-        
+
         def before_testrun
           delete_xcresults # has to be performed _after_ moving a *.test_result
           quit_simulator
@@ -32,7 +30,9 @@ module TestCenter
 
           @options.fetch(:destination).each do |destination|
             if /id=(?<udid>\w+),?/ =~ destination
+              FastlaneCore::UI.verbose("Restarting Simulator #{udid}")
               `xcrun simctl shutdown #{udid} 2>/dev/null`
+              `xcrun simctl boot #{udid} 2>/dev/null`
             end
           end
         end
@@ -40,7 +40,10 @@ module TestCenter
         def delete_xcresults
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
-          FastlaneCore::UI.message("Deleting xcresults: #{xcresults}")
+          FastlaneCore::UI.verbose("Deleting xcresults:")
+          xcresults.each do |xcresult|
+            FastlaneCore::UI.verbose("  #{xcresult}")
+          end
           FileUtils.rm_rf(xcresults)
         end
 
