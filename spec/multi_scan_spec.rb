@@ -318,5 +318,4 @@ module Fastlane::Actions
       )
     end
   end
-
 end

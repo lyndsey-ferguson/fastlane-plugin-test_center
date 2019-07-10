@@ -85,9 +85,7 @@ module TestCenter
         def setup_serial_workers
           serial_scan_options = @options.reject { |key| %i[device devices].include?(key) }
           serial_scan_options[:destination] ||= Scan&.config&.fetch(:destination)
-          @workers = [
-            TestBatchWorker.new(serial_scan_options)
-          ]
+          @workers = [ TestBatchWorker.new(serial_scan_options) ]
         end
 
         def wait_for_worker

@@ -44,7 +44,7 @@ module TestCenter
 
           tests_passed = false
           if @options[:invocation_based_tests] && @options[:only_testing].nil?
-            tests_passed = run_invocation_based_tests
+            tests_passed = run_first_run_of_invocation_based_tests
           end
 
           unless tests_passed || @options[:try_count] < 1
@@ -58,14 +58,24 @@ module TestCenter
 
           glob_pattern = "#{output_directory}/**/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
-          FileUtils.rm_rf(preexisting_test_result_bundles)
+          if preexisting_test_result_bundles.size > 0
+            FastlaneCore::UI.verbose("Removing pre-existing test_result bundles: ")
+            preexisting_test_result_bundles.each do |test_result_bundle|
+              FastlaneCore::UI.verbose("  #{test_result_bundle}")
+            end
+            FileUtils.rm_rf(preexisting_test_result_bundles)
+          end
         end
 
-        def run_invocation_based_tests
+        def run_first_run_of_invocation_based_tests
+          FastlaneCore::UI.verbose("Running invocation tests")
           @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
           @options[:output_directory] = output_directory
           @options[:destination] = Scan.config[:destination]
           
+          # We do not want Scan.config to _not_ have :device :devices, we want to
+          # use :destination. We remove :force_quit_simulator as we do not want
+          # Scan to handle it as multi_scan takes care of it in its own way
           options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           options[:try_count] = 1
   
@@ -84,12 +94,28 @@ module TestCenter
               junit: File.absolute_path(report_filepath)
             }
           )
-          @options[:only_testing] = Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+          @options[:only_testing] = retrieve_failed_invocation_tests[:failed]
           @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
           
           tests_passed
         end
         
+        def retrieve_failed_invocation_tests
+          reportnamer = ReportNameHelper.new(
+            @options[:output_types],
+            @options[:output_files],
+            @options[:custom_report_file_name]
+          )
+          report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestsFromJunitAction.available_options,
+            {
+              junit: File.absolute_path(report_filepath)
+            }
+          )
+          Fastlane::Actions::TestsFromJunitAction.run(config)
+        end
+
         def run_test_batches
           test_batch_results = []
           pool_options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
@@ -141,6 +167,8 @@ module TestCenter
         end
 
         def collate_batched_reports_for_testable(testable)
+          FastlaneCore::UI.verbose("Collating results for all batches")
+
           absolute_output_directory = File.join(
             File.absolute_path(output_directory),
             testable
@@ -169,4 +197,3 @@ module TestCenter
     end
   end
 end
-

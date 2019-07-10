@@ -17,6 +17,7 @@ module TestCenter
         end
 
         def collate
+          FastlaneCore::UI.verbose("ReportCollator collating")
           collate_junit_reports
           collate_html_reports
           collate_json_reports
@@ -46,6 +47,7 @@ module TestCenter
           report_files = sort_globbed_files(glob)
           collated_file =  File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
           if report_files.size > 1
+            FastlaneCore::UI.verbose("Collating junit report files #{report_files}")
             config = create_config(
               CollateJunitReportsAction,
               {
@@ -56,6 +58,7 @@ module TestCenter
             CollateJunitReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
           elsif report_files.size == 1 && report_files.first != collated_file
+            FastlaneCore::UI.verbose("Copying junit report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
           end
@@ -67,6 +70,7 @@ module TestCenter
           report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.html_fileglob}")
           collated_file = File.absolute_path(File.join(@output_directory, @reportnamer.html_reportname(@suffix)))
           if report_files.size > 1
+            FastlaneCore::UI.verbose("Collating html report files #{report_files}")
             config = create_config(
               CollateJunitReportsAction,
               {
@@ -77,6 +81,7 @@ module TestCenter
             CollateHtmlReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
           elsif report_files.size == 1 && report_files.first != collated_file
+            FastlaneCore::UI.verbose("Copying html report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
           end
@@ -88,6 +93,7 @@ module TestCenter
           report_files = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.json_fileglob}")
           collated_file = File.absolute_path(File.join(@output_directory, @reportnamer.json_reportname(@suffix)))
           if report_files.size > 1
+            FastlaneCore::UI.verbose("Collating json report files #{report_files}")
             config = create_config(
               CollateJsonReportsAction,
               {
@@ -98,6 +104,7 @@ module TestCenter
             CollateJsonReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
           elsif report_files.size == 1 && report_files.first != collated_file
+            FastlaneCore::UI.verbose("Copying json report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
           end
@@ -109,6 +116,7 @@ module TestCenter
           test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
           collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}.test_result")
           if test_result_bundlepaths.size > 1
+            FastlaneCore::UI.verbose("Collating test_result bundles #{test_result_bundlepaths}")
             config = create_config(
               CollateTestResultBundlesAction,
               {
@@ -119,6 +127,7 @@ module TestCenter
             CollateTestResultBundlesAction.run(config)
             FileUtils.rm_rf(test_result_bundlepaths - [collated_test_result_bundlepath])
           elsif test_result_bundlepaths.size == 1 && test_result_bundlepaths.first != collated_test_result_bundlepath
+            FastlaneCore::UI.verbose("Copying test_result bundle #{test_result_bundlepaths.first}")
             FileUtils.mkdir_p(File.dirname(collated_test_result_bundlepath))
             FileUtils.mv(test_result_bundlepaths.first, collated_test_result_bundlepath)
           end

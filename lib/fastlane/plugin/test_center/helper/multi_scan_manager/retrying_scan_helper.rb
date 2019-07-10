@@ -64,10 +64,12 @@ module TestCenter
         def set_json_env
           return unless @reportnamer.includes_json?
 
-          ENV['XCPRETTY_JSON_FILE_OUTPUT'] = File.join(
+          xcpretty_json_file_output = File.join(
             output_directory,
             @reportnamer.json_last_reportname
           )
+          FastlaneCore::UI.verbose("Setting the XCPRETTY_JSON_FILE_OUTPUT to #{xcpretty_json_file_output}")
+          ENV['XCPRETTY_JSON_FILE_OUTPUT'] = xcpretty_json_file_output
         end
 
         def reset_json_env
@@ -94,10 +96,22 @@ module TestCenter
         def after_testrun(exception = nil)
           @testrun_count = @testrun_count + 1
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
+            after_testrun_message = "Scan found failing tests"
+            after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+            FastlaneCore::UI.verbose(after_testrun_message)
+
             handle_test_failure
           elsif exception.kind_of?(FastlaneCore::Interface::FastlaneBuildFailure)
+            after_testrun_message = "Scan unable to test"
+            after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+            FastlaneCore::UI.verbose(after_testrun_message)
+
             handle_build_failure(exception)
           else
+            after_testrun_message = "Scan passed the tests"
+            after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+            FastlaneCore::UI.verbose(after_testrun_message)
+
             handle_success
           end
           collate_reports
@@ -133,18 +147,7 @@ module TestCenter
           return unless @options[:testrun_completed_block]
 
           report_filepath = nil
-          junit_results = {}
-          unless additional_info.key?(:test_operation_failure)
-            report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
-  
-            config = FastlaneCore::Configuration.create(
-              Fastlane::Actions::TestsFromJunitAction.available_options,
-              {
-                junit: File.absolute_path(report_filepath)
-              }
-            )
-            junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
-          end
+          junit_results, report_filepath = failure_details(additional_info)
 
           info = {
             failed: junit_results[:failed],
@@ -154,21 +157,49 @@ module TestCenter
             report_filepath: report_filepath
           }.merge(additional_info)
 
-          if @reportnamer.includes_html?
-            html_report_filepath = File.join(output_directory, @reportnamer.html_last_reportname)
-            info[:html_report_filepath] = html_report_filepath
-          end
-          if @reportnamer.includes_json?
-            json_report_filepath = File.join(output_directory, @reportnamer.json_last_reportname)
-            info[:json_report_filepath] = json_report_filepath
-          end
-          if @options[:result_bundle]
-            test_result_suffix = '.test_result'
-            test_result_suffix.prepend("-#{@reportnamer.report_count}") unless @reportnamer.report_count.zero?
-            test_result_bundlepath = File.join(output_directory, @options[:scheme]) + test_result_suffix
-            info[:test_result_bundlepath] = test_result_bundlepath
-          end
+          update_html_failure_details(info)
+          update_json_failure_details(info)
+          update_test_result_bundle_details(info)
+          
           @options[:testrun_completed_block].call(info)
+        end
+
+        def failure_details(additional_info)
+          return [{}, nil] if additional_info.key?(:test_operation_failure)
+          
+          report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestsFromJunitAction.available_options,
+            {
+              junit: File.absolute_path(report_filepath)
+            }
+          )
+          junit_results = Fastlane::Actions::TestsFromJunitAction.run(config)
+
+          [junit_results, report_filepath]
+        end
+
+        def update_html_failure_details(info)
+          return unless @reportnamer.includes_html?
+
+          html_report_filepath = File.join(output_directory, @reportnamer.html_last_reportname)
+          info[:html_report_filepath] = html_report_filepath
+        end
+
+        def update_json_failure_details(info)
+          return unless @reportnamer.includes_json?
+          
+          json_report_filepath = File.join(output_directory, @reportnamer.json_last_reportname)
+          info[:json_report_filepath] = json_report_filepath
+        end
+
+        def update_test_result_bundle_details(info)
+          return unless @options[:result_bundle]
+          
+          test_result_suffix = '.test_result'
+          test_result_suffix.prepend("-#{@reportnamer.report_count}") unless @reportnamer.report_count.zero?
+          test_result_bundlepath = File.join(output_directory, @options[:scheme]) + test_result_suffix
+          info[:test_result_bundlepath] = test_result_bundlepath
         end
 
         def update_scan_options
@@ -196,30 +227,32 @@ module TestCenter
           end
         end
 
-        def handle_build_failure(exception)
-          test_operation_failure = ''
-
+        def handle_build_failure(exception)  
           test_session_last_messages = last_lines_of_test_session_log
-          test_operation_failure_match = /Test operation failure: (?<test_operation_failure>.*)$/ =~ test_session_last_messages
-          if test_operation_failure_match.nil?
-            test_operation_failure = 'Unknown test operation failure'
-          end
-          
-          case test_operation_failure
+          failure = retrieve_test_operation_failure(test_session_last_messages)
+          case failure
           when /Test runner exited before starting test execution/
-            FastlaneCore::UI.error(test_operation_failure)
+            FastlaneCore::UI.error(failure)
           when /Lost connection to testmanagerd/
-            FastlaneCore::UI.error(test_operation_failure)
+            FastlaneCore::UI.error(failure)
             FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
             if @options[:quit_core_simulator_service]
               Fastlane::Actions::RestartCoreSimulatorServiceAction.run
             end
           else
             FastlaneCore::UI.error(test_session_last_messages)
-            send_callback_testrun_info(test_operation_failure: test_operation_failure)
+            send_callback_testrun_info(test_operation_failure: failure)
             raise exception
           end
-          send_callback_testrun_info(test_operation_failure: test_operation_failure)
+          send_callback_testrun_info(test_operation_failure: failure)
+        end
+
+        def retrieve_test_operation_failure(test_session_last_messages)
+          test_operation_failure_match = /Test operation failure: (?<test_operation_failure>.*)$/ =~ test_session_last_messages
+          if test_operation_failure_match.nil?
+            test_operation_failure = 'Unknown test operation failure'
+          end
+          test_operation_failure
         end
 
         def last_lines_of_test_session_log

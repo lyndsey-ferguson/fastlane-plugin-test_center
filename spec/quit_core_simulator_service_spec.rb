@@ -19,7 +19,6 @@ module Fastlane::Actions
             mocked_launchctl_list_results.shift
           end
 
-
         allow(Fastlane::Actions).to receive(:sh)
           .with(/launchctl remove/, anything)
           .and_return('launchctl remove')
@@ -37,7 +36,6 @@ module Fastlane::Actions
         allow(Fastlane::Actions).to receive(:sh)
           .with(/launchctl list/, anything)
           .and_return('running')
-
 
         allow(Fastlane::Actions).to receive(:sh)
           .with(/launchctl remove/, anything)

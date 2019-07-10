@@ -3,17 +3,18 @@ module TestCenter
     module MultiScanManager
       require 'colorize'
 
-      colors = String.color_samples - %i[white black light_green]
-
+      
       class ParallelTestBatchWorker < TestBatchWorker
-
+        
         attr_reader :pid
-
+        
         def initialize(options)
           super(options)
           @pipe_endpoint = nil
-          @color = colors.sample
-          colors = colors - [@color]
+
+          @@colors ||= String.colors - %i[white black light_green default]
+          @color = @@colors.sample
+          @@colors = @@colors - [@color]
         end
 
         def state=(new_state)
@@ -23,12 +24,14 @@ module TestCenter
         def process_results
           # This is performed in the Parent process
           @pid = nil
-          worker_prefix = "[worker #{@options[:batch_index] + 1}]"
-          unless Helper.colors_disabled?
-            worker_prefix.colorize(@color)
-          end
+
+          worker_prefix = "[worker #{@options[:batch_index] + 1}] "
           File.foreach(@log_filepath) do |line|
-            puts "#{worker_prefix} #{line}"
+            unless FastlaneCore::Helper.colors_disabled?
+              worker_prefix = worker_prefix.colorize(@color)
+            end
+            print worker_prefix
+            print line
           end
           state = :ready_to_work
           @options[:test_batch_results] << (@reader.gets == 'true')

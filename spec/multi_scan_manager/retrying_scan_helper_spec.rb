@@ -231,7 +231,9 @@ module TestCenter::Helper::MultiScanManager
           quit_simulators: true
         )
         expect(helper).to receive(:`).with('xcrun simctl shutdown A00 2>/dev/null')
+        expect(helper).to receive(:`).with('xcrun simctl boot A00 2>/dev/null')
         expect(helper).to receive(:`).with('xcrun simctl shutdown BAF 2>/dev/null')
+        expect(helper).to receive(:`).with('xcrun simctl boot BAF 2>/dev/null')
         helper.quit_simulator
       end
 
@@ -498,20 +500,29 @@ module TestCenter::Helper::MultiScanManager
       it 'sends junit test_run info to the call back after a success' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
+        passing_tests = ['BagOfTests/CoinTossingUITests/testResultIsTails']
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          passing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
+          passing: passing_tests,
           failed: []
         )
-        
         actual_testrun_info = {}
         test_run_block = lambda do |testrun_info|
           actual_testrun_info = testrun_info
         end
-
+        
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
+        )
+        allow(helper).to receive(:failure_details).and_return(
+          [
+            {
+              passing: passing_tests,
+              failed: []
+            },
+            File.absolute_path('./path/to/output/directory/report.junit')
+          ]
         )
         helper.after_testrun
         expect(actual_testrun_info).to include(
@@ -526,20 +537,30 @@ module TestCenter::Helper::MultiScanManager
       it 'sends junit test_run info to the call back after a test failure' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        passing_tests = ['BagOfTests/CoinTossingUITests/testResultIsTails']
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          passing: [],
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: passing_tests,
+          failed: []
         )
-        
+
         actual_testrun_info = {}
         test_run_block = lambda do |testrun_info|
           actual_testrun_info = testrun_info
         end
-
+        
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
           testrun_completed_block: test_run_block
+        )
+        allow(helper).to receive(:failure_details).and_return(
+          [
+            {
+              passing: [],
+              failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+            },
+            File.absolute_path('./path/to/output/directory/report-2.junit')
+          ]
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -622,4 +643,3 @@ module TestCenter::Helper::MultiScanManager
     end
   end
 end
-

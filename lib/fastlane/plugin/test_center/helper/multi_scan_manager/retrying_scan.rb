@@ -55,12 +55,10 @@ module TestCenter
             @retrying_scan_helper.after_testrun
             true
           rescue FastlaneCore::Interface::FastlaneTestFailure => e
-            FastlaneCore::UI.message("retrying_scan after test failure")
             @retrying_scan_helper.after_testrun(e)
             retry if @retrying_scan_helper.testrun_count < try_count
             false
           rescue FastlaneCore::Interface::FastlaneBuildFailure => e
-            FastlaneCore::UI.message("retrying_scan after build failure")
             @retrying_scan_helper.after_testrun(e)
             retry if @retrying_scan_helper.testrun_count < try_count
             false

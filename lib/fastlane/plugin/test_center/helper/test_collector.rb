@@ -31,8 +31,7 @@ module TestCenter
 
       def derived_testrun_path(derived_data_path, scheme)
         xctestrun_files = Dir.glob("#{derived_data_path}/Build/Products/*.xctestrun")
-        xctestrun_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) }
-          .last
+        xctestrun_files.sort { |f1, f2| File.mtime(f1) <=> File.mtime(f2) }.last
       end
 
       def testables

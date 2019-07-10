@@ -70,7 +70,7 @@ module TestCenter::Helper::MultiScanManager
 
         allow(@xctest_runner).to receive(:setup_testcollector)
         allow(@xctest_runner).to receive(:run_test_batches).and_return(true)
-        allow(@xctest_runner).to receive(:run_invocation_based_tests).and_return(true)
+        allow(@xctest_runner).to receive(:run_first_run_of_invocation_based_tests).and_return(true)
       end
 
       it 'calls :remove_preexisting_test_result_bundles' do
@@ -92,7 +92,7 @@ module TestCenter::Helper::MultiScanManager
             invocation_based_tests: true
           }
         )
-        expect(invocation_runner).to receive(:run_invocation_based_tests)
+        expect(invocation_runner).to receive(:run_first_run_of_invocation_based_tests)
         expect(invocation_runner).to receive(:run_test_batches)
         invocation_runner.run
       end
