@@ -21,13 +21,10 @@ module Fastlane
         runner_options = params.values.merge(platform: platform)
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
         tests_passed = runner.run
-        if params[:fail_build] && !tests_passed
-          raise UI.test_failure!('Tests have failed')
-        end
 
         summary = run_summary(params, tests_passed, runner.retry_total_count)
         print_run_summary(summary)
-
+        
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end

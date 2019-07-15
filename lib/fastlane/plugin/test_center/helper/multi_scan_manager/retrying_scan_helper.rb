@@ -94,6 +94,8 @@ module TestCenter
         # after_testrun methods
 
         def after_testrun(exception = nil)
+          move_simulator_logs_for_next_run
+
           @testrun_count = @testrun_count + 1
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
             after_testrun_message = "Scan found failing tests"
@@ -267,6 +269,19 @@ module TestCenter
           test_session_last_messages = test_session.read
         end
 
+        def move_simulator_logs_for_next_run
+          return unless @options[:include_simulator_logs]
+
+          glob_pattern = "#{output_directory}/system_logs-*.{log,logarchive}"
+          logs = Dir.glob(glob_pattern)
+          logs.each do |log_filepath|
+            new_logname = "try-#{testrun_count}-#{File.basename(log_filepath)}"
+            new_log_filepath = "#{File.dirname(log_filepath)}/#{new_logname}"
+            FastlaneCore::UI.verbose("Moving simulator log '#{log_filepath}' to '#{new_log_filepath}'")
+            File.rename(log_filepath, new_log_filepath)
+          end
+        end
+
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
 
@@ -279,6 +294,7 @@ module TestCenter
           dst_test_bundle_parent_dir = File.dirname(src_test_bundle)
           dst_test_bundle_basename = File.basename(src_test_bundle, '.test_result')
           dst_test_bundle = "#{dst_test_bundle_parent_dir}/#{dst_test_bundle_basename}-#{@testrun_count}.test_result"
+          FastlaneCore::UI.verbose("Moving test_result '#{src_test_bundle}' to '#{dst_test_bundle}'")
           File.rename(src_test_bundle, dst_test_bundle)
         end
       end

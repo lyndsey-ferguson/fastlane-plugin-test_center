@@ -40,6 +40,7 @@ module TestCenter
         end
 
         def run
+          remove_preexisting_simulator_logs
           remove_preexisting_test_result_bundles
 
           tests_passed = false
@@ -49,14 +50,23 @@ module TestCenter
 
           unless tests_passed || @options[:try_count] < 1
             setup_testcollector  
-            run_test_batches
+            tests_passed = run_test_batches
           end
+          tests_passed
         end
         
         def should_run_tests_through_single_try?
           should_run_for_invocation_tests = @options[:invocation_based_tests] && @options[:only_testing].nil?
           should_run_for_skip_build = @options[:skip_build]
           (should_run_for_invocation_tests || should_run_for_skip_build)
+        end
+
+        def remove_preexisting_simulator_logs
+          return unless @options[:include_simulator_logs]
+
+          glob_pattern = "#{output_directory}/system_logs-*.{log,logarchive}"
+          logs = Dir.glob(glob_pattern)
+          FileUtils.rm_rf(logs)
         end
 
         def remove_preexisting_test_result_bundles
