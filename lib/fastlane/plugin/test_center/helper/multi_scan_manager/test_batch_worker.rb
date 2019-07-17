@@ -15,8 +15,10 @@ module TestCenter
 
         def run(run_options)
           self.state = :working
-          @options[:test_batch_results] << RetryingScan.run(@options.merge(run_options))
+          test_batch_worker_final_result = RetryingScan.run(@options.merge(run_options))
+          @options[:test_batch_results] << test_batch_worker_final_result
           self.state = :ready_to_work
+          test_batch_worker_final_result
         end
       end
     end

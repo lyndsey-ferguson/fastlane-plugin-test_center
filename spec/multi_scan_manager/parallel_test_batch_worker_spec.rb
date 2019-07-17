@@ -9,7 +9,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'calls the parent class\'s #run method in a fork block' do
-        worker = ParallelTestBatchWorker.new({ test_batch_results: [] })
+        worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 1 })
         expect(worker).to receive(:exit!)
         expect(worker).to receive(:open_interprocess_communication)
         expect(Process).to receive(:fork) do |&block|
@@ -21,7 +21,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'sets :state to working' do
-        worker = ParallelTestBatchWorker.new({ test_batch_results: [] })
+        worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 1 })
         allow(Process).to receive(:fork)
         states = [ worker.state ]
         allow(worker).to receive(:state=) { |new_state| states << new_state }
@@ -32,7 +32,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'updates :pid when forking' do
-        worker = ParallelTestBatchWorker.new({ test_batch_results: [] })
+        worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 1 })
         allow(Process).to receive(:fork).and_return(11)
         worker.run({})
         expect(worker.pid).to eq(11)
@@ -40,13 +40,55 @@ module TestCenter::Helper::MultiScanManager
     end
 
     describe '#process_results' do
-      it 'resets :pid when done' do
-        worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 2 })
-        allow(Process).to receive(:fork).and_return(11)
+      before(:each) do
+        @worker = ParallelTestBatchWorker.new({ test_batch_results: [], batch_index: 2 })
+        allow(@worker).to receive(:reroute_stdout_to_logfile)
+        allow(@worker).to receive(:exit!)
+        logfile = StringIO.new
+        @worker.instance_variable_set(:@logfile, logfile)
+        
         allow(File).to receive(:foreach).and_yield('')
-        worker.run({})
-        worker.process_results
-        expect(worker.pid).to be_nil
+        reader_writer = StringIO.new
+        pipes = [
+          reader_writer,
+          reader_writer
+        ]
+        allow(reader_writer).to receive(:close)
+        allow(reader_writer).to receive(:gets) do
+          reader_writer.string
+        end
+        allow(IO).to receive(:pipe).and_return(pipes)
+      end
+
+      it 'resets :pid when done' do
+        allow(Process).to receive(:fork).and_return(11)
+        @worker.run({})
+        @worker.process_results
+        expect(@worker.pid).to be_nil
+      end
+
+      it 'updates :test_batch_results with a pass' do
+        allow(Process).to receive(:fork) do |&block|          
+          allow(RetryingScan).to receive(:run).and_return(true)
+          block.call()
+        end
+        test_batch_results = @worker.instance_variable_get(:@options)[:test_batch_results]
+        allow(File).to receive(:foreach)
+        @worker.run({})
+        @worker.process_results
+        expect(test_batch_results.last).to eq(true)
+      end
+
+      it 'updates :test_batch_results with a fail' do
+        allow(Process).to receive(:fork) do |&block|          
+          allow(RetryingScan).to receive(:run).and_return(false)
+          block.call()
+        end
+        test_batch_results = @worker.instance_variable_get(:@options)[:test_batch_results]
+        allow(File).to receive(:foreach)
+        @worker.run({})
+        @worker.process_results
+        expect(test_batch_results.last).to eq(false)
       end
     end
 
