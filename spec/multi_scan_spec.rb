@@ -289,6 +289,7 @@ module Fastlane::Actions
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
         allow(options_mock).to receive(:_values).and_return(options_mock)
+        allow(MultiScanAction).to receive(:run_summary).and_return(false)
         expect { MultiScanAction.run(options_mock) }.to(
           raise_error(FastlaneCore::Interface::FastlaneTestFailure) do |error|
             expect(error.message).to match(/Tests have failed/)
