@@ -64,7 +64,7 @@ module TestCenter
         def remove_preexisting_simulator_logs
           return unless @options[:include_simulator_logs]
 
-          glob_pattern = "#{output_directory}/system_logs-*.{log,logarchive}"
+          glob_pattern = "#{output_directory}/**/system_logs-*.{log,logarchive}"
           logs = Dir.glob(glob_pattern)
           FileUtils.rm_rf(logs)
         end
