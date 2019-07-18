@@ -134,7 +134,7 @@ module TestCenter
           pool.wait_for_all_workers
           collate_batched_reports
           FastlaneCore::UI.verbose("Results for each test run: #{test_batch_results}")
-          test_batch_results.reduce(true) { |a, t| a && t }
+          test_batch_results.all?
         end
 
         def scan_options_for_worker(test_batch, batch_index)
