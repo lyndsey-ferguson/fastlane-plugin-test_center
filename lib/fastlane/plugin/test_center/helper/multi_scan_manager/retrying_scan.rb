@@ -17,19 +17,23 @@ module TestCenter
         end
         # :nocov:
 
-        def prepare_scan_config_for_destination
-          # this allows multi_scan's `destination` option to be picked up by `scan`
+        def prepare_scan_config
+          defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
+          scan_config._values.each do |k,v|
+            scan_config.set(k, defaults[k]) if defaults.key?(k)
+          end
           scan_config._values.delete(:device)
           scan_config._values.delete(:devices)
+          # this allows multi_scan's `destination` option to be picked up by `scan`
           scan_cache.clear
         end
 
         def update_scan_options
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
+          scan_options = @options.select { |k,_| valid_scan_keys.include?(k) }
                                   .merge(@retrying_scan_helper.scan_options)
 
-          prepare_scan_config_for_destination
+          prepare_scan_config
           scan_options.each do |k,v|
             scan_config.set(k,v) unless v.nil?
           end
