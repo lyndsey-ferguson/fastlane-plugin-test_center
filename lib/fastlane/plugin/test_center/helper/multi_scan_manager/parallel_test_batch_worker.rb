@@ -34,7 +34,8 @@ module TestCenter
             print line
           end
           state = :ready_to_work
-          @options[:test_batch_results] << (@reader.gets == 'true')
+
+          @options[:test_batch_results] << (@reader.gets.chomp.to_s == 'true')
         end
 
         def run(run_options)
@@ -50,11 +51,16 @@ module TestCenter
               puts e.message
               puts e.backtrace.inspect
             ensure
+              print_final_results(tests_passed)
               handle_child_process_results(tests_passed)
               exit!
             end
           end
           close_parent_process_writer
+        end
+
+        def print_final_results(tests_passed)
+          FastlaneCore::UI.verbose("All tests passed for batch #{@options[:batch_index] + 1}? #{tests_passed}")
         end
 
         def open_interprocess_communication
