@@ -100,12 +100,22 @@ module Fastlane
       end
 
       def self.prepare_for_testing(scan_options)
+        reset_scan_config_to_defaults
         if scan_options[:test_without_building] || scan_options[:skip_build]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
         else
           UI.verbose("Building the project in preparation for multi_scan testing")
           build_for_testing(scan_options)
+        end
+      end
+
+      def self.reset_scan_config_to_defaults
+        return unless Scan.config
+
+        defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
+        Scan.config._values.each do |k,v|
+          Scan.config.set(k, defaults[k]) if defaults.key?(k)
         end
       end
 

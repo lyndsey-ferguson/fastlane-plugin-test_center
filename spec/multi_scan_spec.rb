@@ -6,7 +6,7 @@ module Fastlane::Actions
       it 'builds the app if is not there yet' do
         expect(MultiScanAction).not_to receive(:prepare_scan_config)
         expect(MultiScanAction).to receive(:build_for_testing)
-
+        expect(MultiScanAction).to receive(:reset_scan_config_to_defaults)
         MultiScanAction.prepare_for_testing({})
       end
 
