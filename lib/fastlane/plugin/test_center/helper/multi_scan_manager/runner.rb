@@ -43,8 +43,8 @@ module TestCenter
           remove_preexisting_test_result_bundles
 
           tests_passed = false
-          if @options[:invocation_based_tests] && @options[:only_testing].nil?
-            tests_passed = run_first_run_of_invocation_based_tests
+          if should_run_tests_through_single_try?
+            tests_passed = run_tests_through_single_try
           end
 
           unless tests_passed || @options[:try_count] < 1
@@ -53,6 +53,12 @@ module TestCenter
           end
         end
         
+        def should_run_tests_through_single_try?
+          should_run_for_invocation_tests = @options[:invocation_based_tests] && @options[:only_testing].nil?
+          should_run_for_skip_build = @options[:skip_build]
+          (should_run_for_invocation_tests || should_run_for_skip_build)
+        end
+
         def remove_preexisting_test_result_bundles
           return unless @options[:result_bundle]
 
@@ -67,9 +73,11 @@ module TestCenter
           end
         end
 
-        def run_first_run_of_invocation_based_tests
+        def run_tests_through_single_try
           FastlaneCore::UI.verbose("Running invocation tests")
-          @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
+          if @options[:invocation_based_tests]
+            @options[:skip_testing] = @options[:skip_testing]&.map(&:strip_testcase)&.uniq
+          end
           @options[:output_directory] = output_directory
           @options[:destination] = Scan.config[:destination]
           
@@ -94,13 +102,13 @@ module TestCenter
               junit: File.absolute_path(report_filepath)
             }
           )
-          @options[:only_testing] = retrieve_failed_invocation_tests[:failed]
+          @options[:only_testing] = retrieve_failed_single_try_tests
           @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
           
           tests_passed
         end
         
-        def retrieve_failed_invocation_tests
+        def retrieve_failed_single_try_tests
           reportnamer = ReportNameHelper.new(
             @options[:output_types],
             @options[:output_files],
@@ -113,7 +121,7 @@ module TestCenter
               junit: File.absolute_path(report_filepath)
             }
           )
-          Fastlane::Actions::TestsFromJunitAction.run(config)
+          Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
         end
 
         def run_test_batches
