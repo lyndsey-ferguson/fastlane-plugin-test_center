@@ -16,6 +16,9 @@ module TestCenter
           FastlaneCore::UI.user_error!("Error: cannot find xctestrun file '#{@xctestrun_path}'")
         end
         @only_testing = options[:only_testing]
+        if @only_testing.kind_of?(String)
+          @only_testing = @only_testing.split(',')
+        end
         @skip_testing = options[:skip_testing]
         @invocation_based_tests = options[:invocation_based_tests]
         @batch_count = options[:batch_count]
