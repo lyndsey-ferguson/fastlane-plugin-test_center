@@ -66,6 +66,17 @@ module TestCenter::Helper
           expect(result).to include('AtomicBoyTests', 'AtomicBoyUITests')
         end
 
+        it 'calls to testables :only_testing with a String returns an array with a testable' do
+          expect(Plist).not_to receive(:parse_xml)
+          expect(Fastlane::Actions::TestsFromXctestrunAction).not_to receive(:run)
+          test_collector = TestCollector.new(
+            xctestrun: 'path/to/fake.xctestrun',
+            only_testing: 'AtomicBoyTests'
+          )
+          result = test_collector.testables
+          expect(result).to include('AtomicBoyTests')
+        end
+
         it 'calls to testables_tests returns Hash of only_testing' do
           expect(Fastlane::Actions::TestsFromXctestrunAction).not_to receive(:run)
           test_collector = TestCollector.new(
