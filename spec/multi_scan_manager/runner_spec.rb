@@ -83,8 +83,8 @@ module TestCenter::Helper::MultiScanManager
         @xctest_runner.run
       end
 
-      it 'runs invocation tests when appropriate' do
-        invocation_runner = Runner.new(
+      it 'runs :run_tests_through_single_try when given :invocation_based_tests' do
+        runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
@@ -92,12 +92,26 @@ module TestCenter::Helper::MultiScanManager
             invocation_based_tests: true
           }
         )
-        expect(invocation_runner).to receive(:run_first_run_of_invocation_based_tests)
-        expect(invocation_runner).to receive(:run_test_batches)
-        invocation_runner.run
+        expect(runner).to receive(:run_tests_through_single_try)
+        expect(runner).to receive(:run_test_batches)
+        runner.run
       end
 
-      it 'does not run invocation tests when not appropriate' do
+      it 'runs :run_tests_through_single_try when given :skip_build' do
+        runner = Runner.new(
+          {
+            output_directory: './path/to/output/directory',
+            scheme: 'AtomicUITests',
+            try_count: 2,
+            skip_build: true
+          }
+        )
+        expect(runner).to receive(:run_tests_through_single_try)
+        expect(runner).to receive(:run_test_batches)
+        runner.run
+      end
+
+      it 'does not run single_try_scan when not appropriate' do
         invocation_runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
@@ -112,7 +126,7 @@ module TestCenter::Helper::MultiScanManager
             ]
           }
         )
-        expect(invocation_runner).not_to receive(:run_invocation_based_tests)
+        expect(invocation_runner).not_to receive(:run_tests_through_single_try)
         expect(invocation_runner).to receive(:run_test_batches)
         invocation_runner.run
       end
