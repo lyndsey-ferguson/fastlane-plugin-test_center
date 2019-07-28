@@ -7,10 +7,12 @@ module Fastlane::Actions
         expect(MultiScanAction).not_to receive(:prepare_scan_config)
         expect(MultiScanAction).to receive(:build_for_testing)
         expect(MultiScanAction).to receive(:reset_scan_config_to_defaults)
+        expect(MultiScanAction).to receive(:use_scanfile_to_override_settings)
         MultiScanAction.prepare_for_testing({})
       end
 
       it 'sets up the Scan.config' do
+        expect(MultiScanAction).to receive(:use_scanfile_to_override_settings)
         expect(MultiScanAction).to receive(:prepare_scan_config)
         MultiScanAction.prepare_for_testing(
           {
@@ -52,7 +54,6 @@ module Fastlane::Actions
           project: File.absolute_path('./AtomicBoy/AtomicBoy.xcodeproj'),
           scheme: 'AtomicBoy'
         })
-
       end
     end
 

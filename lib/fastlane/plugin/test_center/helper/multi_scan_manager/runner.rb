@@ -40,7 +40,7 @@ module TestCenter
         end
 
         def run
-          remove_preexisting_simulator_logs
+          ScanHelper.remove_preexisting_simulator_logs(@options)
           remove_preexisting_test_result_bundles
 
           tests_passed = false
@@ -61,13 +61,6 @@ module TestCenter
           (should_run_for_invocation_tests || should_run_for_skip_build)
         end
 
-        def remove_preexisting_simulator_logs
-          return unless @options[:include_simulator_logs]
-
-          glob_pattern = "#{output_directory}/**/system_logs-*.{log,logarchive}"
-          logs = Dir.glob(glob_pattern)
-          FileUtils.rm_rf(logs)
-        end
 
         def remove_preexisting_test_result_bundles
           return unless @options[:result_bundle]

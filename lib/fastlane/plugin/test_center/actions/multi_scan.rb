@@ -101,6 +101,8 @@ module Fastlane
 
       def self.prepare_for_testing(scan_options)
         reset_scan_config_to_defaults
+        use_scanfile_to_override_settings(scan_options)
+        ScanHelper.remove_preexisting_simulator_logs(scan_options)
         if scan_options[:test_without_building] || scan_options[:skip_build]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
@@ -115,9 +117,22 @@ module Fastlane
 
         defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
         FastlaneCore::UI.verbose("MultiScanAction resetting Scan config to defaults")
-
+        
         Scan.config._values.each do |k,v|
           Scan.config.set(k, defaults[k]) if defaults.key?(k)
+        end
+      end
+
+      def self.use_scanfile_to_override_settings(scan_options)
+        overridden_options = ScanHelper.options_from_configuration_file(
+          scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
+        )
+        
+        unless overridden_options.empty?
+          FastlaneCore::UI.important("Scanfile found: overriding multi_scan options with it's values.")
+          overridden_options.each do |k,v|
+            scan_options[k] = v
+          end
         end
       end
 

@@ -44,20 +44,6 @@ module TestCenter::Helper::MultiScanManager
       end
     end
 
-    describe '#remove_preexisting_simulator_logs' do
-      it 'clears out pre-existing simulator logs' do
-        allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/system_logs-\*.\{log,logarchive\}}).and_return(['./system_logs-iPhone 5s_iOS_12.1.log'])
-        runner = Runner.new(
-          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
-          output_directory: './path/to/output/directory',
-          include_simulator_logs: true,
-          try_count: 1
-        )
-        expect(FileUtils).to receive(:rm_rf).with(['./system_logs-iPhone 5s_iOS_12.1.log'])
-        runner.remove_preexisting_simulator_logs
-      end
-    end
-
     describe '#remove_preexisting_test_result_bundles' do
       it 'clears out pre-existing test bundles' do
         allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/\*\.test_result}).and_return(['./AtomicDragon.test_result'])
