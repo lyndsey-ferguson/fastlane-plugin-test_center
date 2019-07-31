@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'json'
   spec.add_dependency 'plist'
   spec.add_dependency 'xcodeproj'
-  spec.add_dependency 'xctest_list', '>= 1.1.7'
+  spec.add_dependency 'xctest_list', '>= 1.1.8'
   spec.add_dependency 'colorize'
 
   spec.add_development_dependency 'cocoapods'
