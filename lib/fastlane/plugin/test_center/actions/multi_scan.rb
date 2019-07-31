@@ -125,7 +125,7 @@ module Fastlane
 
       def self.use_scanfile_to_override_settings(scan_options)
         overridden_options = ScanHelper.options_from_configuration_file(
-          scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
         )
         
         unless overridden_options.empty?
@@ -139,7 +139,7 @@ module Fastlane
       def self.prepare_scan_config(scan_options)
         Scan.config ||= FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
         )
       end
 
@@ -157,12 +157,9 @@ module Fastlane
       end
 
       def self.prepare_scan_options_for_build_for_testing(scan_options)
-        valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-        scan_options = scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
-
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          scan_options.merge(build_for_testing: true)
+          ScanHelper.scan_options_from_multi_scan_options(scan_options.merge(build_for_testing: true))
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)

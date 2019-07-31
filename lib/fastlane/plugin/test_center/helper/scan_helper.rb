@@ -21,6 +21,11 @@ module ScanHelper
     FileUtils.rm_rf(logs)
   end
 
+  def self.scan_options_from_multi_scan_options(params)
+    valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+    params.select { |k,v| valid_scan_keys.include?(k) }
+  end
+
   def self.options_from_configuration_file(params)
     config = FastlaneCore::Configuration.create(
       Fastlane::Actions::ScanAction.available_options,
