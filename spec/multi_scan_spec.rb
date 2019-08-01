@@ -6,11 +6,13 @@ module Fastlane::Actions
       it 'builds the app if is not there yet' do
         expect(MultiScanAction).not_to receive(:prepare_scan_config)
         expect(MultiScanAction).to receive(:build_for_testing)
-
+        expect(MultiScanAction).to receive(:reset_scan_config_to_defaults)
+        expect(MultiScanAction).to receive(:use_scanfile_to_override_settings)
         MultiScanAction.prepare_for_testing({})
       end
 
       it 'sets up the Scan.config' do
+        expect(MultiScanAction).to receive(:use_scanfile_to_override_settings)
         expect(MultiScanAction).to receive(:prepare_scan_config)
         MultiScanAction.prepare_for_testing(
           {
@@ -52,7 +54,6 @@ module Fastlane::Actions
           project: File.absolute_path('./AtomicBoy/AtomicBoy.xcodeproj'),
           scheme: 'AtomicBoy'
         })
-
       end
     end
 
@@ -289,6 +290,7 @@ module Fastlane::Actions
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
         allow(options_mock).to receive(:_values).and_return(options_mock)
+        allow(MultiScanAction).to receive(:run_summary).and_return(false)
         expect { MultiScanAction.run(options_mock) }.to(
           raise_error(FastlaneCore::Interface::FastlaneTestFailure) do |error|
             expect(error.message).to match(/Tests have failed/)

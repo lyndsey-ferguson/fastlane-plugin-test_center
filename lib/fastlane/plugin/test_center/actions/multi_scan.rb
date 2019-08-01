@@ -21,13 +21,10 @@ module Fastlane
         runner_options = params.values.merge(platform: platform)
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
         tests_passed = runner.run
-        if params[:fail_build] && !tests_passed
-          raise UI.test_failure!('Tests have failed')
-        end
 
         summary = run_summary(params, tests_passed, runner.retry_total_count)
         print_run_summary(summary)
-
+        
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
@@ -103,6 +100,9 @@ module Fastlane
       end
 
       def self.prepare_for_testing(scan_options)
+        reset_scan_config_to_defaults
+        use_scanfile_to_override_settings(scan_options)
+        ScanHelper.remove_preexisting_simulator_logs(scan_options)
         if scan_options[:test_without_building] || scan_options[:skip_build]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
@@ -112,10 +112,34 @@ module Fastlane
         end
       end
 
+      def self.reset_scan_config_to_defaults
+        return unless Scan.config
+
+        defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
+        FastlaneCore::UI.verbose("MultiScanAction resetting Scan config to defaults")
+        
+        Scan.config._values.each do |k,v|
+          Scan.config.set(k, defaults[k]) if defaults.key?(k)
+        end
+      end
+
+      def self.use_scanfile_to_override_settings(scan_options)
+        overridden_options = ScanHelper.options_from_configuration_file(
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
+        )
+        
+        unless overridden_options.empty?
+          FastlaneCore::UI.important("Scanfile found: overriding multi_scan options with it's values.")
+          overridden_options.each do |k,v|
+            scan_options[k] = v
+          end
+        end
+      end
+
       def self.prepare_scan_config(scan_options)
         Scan.config ||= FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
         )
       end
 
@@ -133,12 +157,9 @@ module Fastlane
       end
 
       def self.prepare_scan_options_for_build_for_testing(scan_options)
-        valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-        scan_options = scan_options.select { |k,v| %i[project workspace scheme device devices].include?(k) }
-
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          scan_options.merge(build_for_testing: true)
+          ScanHelper.scan_options_from_multi_scan_options(scan_options.merge(build_for_testing: true))
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)

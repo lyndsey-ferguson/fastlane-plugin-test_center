@@ -40,6 +40,7 @@ module TestCenter
         end
 
         def run
+          ScanHelper.remove_preexisting_simulator_logs(@options)
           remove_preexisting_test_result_bundles
 
           tests_passed = false
@@ -49,8 +50,9 @@ module TestCenter
 
           unless tests_passed || @options[:try_count] < 1
             setup_testcollector  
-            run_test_batches
+            tests_passed = run_test_batches
           end
+          tests_passed
         end
         
         def should_run_tests_through_single_try?
@@ -58,6 +60,7 @@ module TestCenter
           should_run_for_skip_build = @options[:skip_build]
           (should_run_for_invocation_tests || should_run_for_skip_build)
         end
+
 
         def remove_preexisting_test_result_bundles
           return unless @options[:result_bundle]

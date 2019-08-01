@@ -104,6 +104,34 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
       end
 
+      it 'renames the simulator log archive' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          include_simulator_logs: true
+        )
+        allow(helper).to receive(:update_scan_options)
+        allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/system_logs-\*\.\{log,logarchive\}}).and_return(['./system_logs-iPhone 5s_iOS_12.1.logarchive'])
+        expect(File).to receive(:rename).with('./system_logs-iPhone 5s_iOS_12.1.logarchive', './try-0-system_logs-iPhone 5s_iOS_12.1.logarchive')
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        expect(File).to receive(:rename).with('./system_logs-iPhone 5s_iOS_12.1.logarchive', './try-1-system_logs-iPhone 5s_iOS_12.1.logarchive')
+        helper.after_testrun
+      end
+
+      it 'renames the simulator log file' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          include_simulator_logs: true
+        )
+        allow(helper).to receive(:update_scan_options)
+        allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/system_logs-\*\.\{log,logarchive\}}).and_return(['./system_logs-iPhone 5s_iOS_12.1.log'])
+        expect(File).to receive(:rename).with('./system_logs-iPhone 5s_iOS_12.1.log', './try-0-system_logs-iPhone 5s_iOS_12.1.log')
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        expect(File).to receive(:rename).with('./system_logs-iPhone 5s_iOS_12.1.log', './try-1-system_logs-iPhone 5s_iOS_12.1.log')
+        helper.after_testrun
+      end
+
       it 'renames the resultant test bundle after failure' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
