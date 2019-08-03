@@ -246,4 +246,47 @@ describe Fastlane::Actions::CollateJunitReportsAction do
 
     expect(report.root.attributes['retries']).to eq('2')
   end
+
+  it 'includes the skipped tests' do
+    fastfile = "lane :test do
+        collate_junit_reports(
+          reports: [
+            'path/to/fake_junit_report_1.xml',
+            'path/to/fake_junit_report_2.xml',
+            'path/to/fake_junit_report_3.xml'
+          ],
+          collated_report: 'path/to/report.xml',
+          add_skipped_tests:  [
+            'AtomicBoyUITests/AtomicBoyUITests/testGherkinsAreYellow',
+            'AtomicBoyUITests/AtomicBoyUITests/testDreamsAreFulfilled'
+          ]
+        )
+      end"
+
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_43_report)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_43_report_2)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_3.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_3.xml').and_return(issue_43_report_3)
+    allow(FileUtils).to receive(:mkdir_p)
+
+    report_file = StringIO.new
+    expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
+    Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    report = REXML::Document.new(report_file.string)
+
+    testable = REXML::XPath.first(report, "//testsuites")
+
+    skipped_testcases = REXML::XPath.match(testable, '*//testcase/skipped')
+    testcase_1 = skipped_testcases[0].parent
+    testcase_2 = skipped_testcases[1].parent
+    expect(testcase_1.attributes['classname']).to eq('AtomicBoyUITests')
+    expect(testcase_2.attributes['classname']).to eq('AtomicBoyUITests')
+    expect(testcase_1.attributes['name']).to eq('testGherkinsAreYellow')
+    expect(testcase_2.attributes['name']).to eq('testDreamsAreFulfilled')
+
+    expect(skipped_testcases.size).to eq(2)
+    expect(testable.attributes['tests']).to eq('6')
+  end
 end

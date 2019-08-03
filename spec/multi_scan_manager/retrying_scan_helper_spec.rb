@@ -196,6 +196,38 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun
       end
 
+      it 'collates skipped_tests into junit reports' do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        mocked_report_collator = OpenStruct.new
+        expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
+          .with(
+            source_reports_directory_glob: File.absolute_path('./path/to/output/directory'),
+            output_directory: File.absolute_path('./path/to/output/directory'),
+            reportnamer: anything,
+            scheme: 'AtomicUITests',
+            result_bundle: nil,
+            skipped_tests: ['BagOfTests/CoinTossingUITests/testGherkinsAreYellow']
+          )
+          .and_return(mocked_report_collator)
+        expect(mocked_report_collator).to receive(:collate)
+
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          scheme: 'AtomicUITests',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          collate_reports: true,
+          skipped_tests: ['BagOfTests/CoinTossingUITests/testGherkinsAreYellow']
+        )
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        helper.after_testrun
+      end
+
+
       it 'collates the reports after successive failures' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)

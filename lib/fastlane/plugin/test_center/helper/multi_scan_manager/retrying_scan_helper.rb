@@ -135,6 +135,9 @@ module TestCenter
             scheme: @options[:scheme],
             result_bundle: @options[:result_bundle]
           }
+          if @options[:skipped_tests]
+            report_collator_options[:skipped_tests] = @options[:skipped_tests]
+          end
           TestCenter::Helper::MultiScanManager::ReportCollator.new(report_collator_options).collate
         end
 

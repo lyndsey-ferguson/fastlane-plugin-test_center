@@ -35,13 +35,60 @@ module Fastlane
             update_testsuite_counts(testsuite)
           end
           testable = REXML::XPath.first(target_report, 'testsuites')
+
+          append_skipped_tests(target_report, params[:add_skipped_tests])
+
           update_testable_counts(testable)
+
 
           FileUtils.mkdir_p(File.dirname(params[:collated_report]))
           File.open(params[:collated_report], 'w') do |f|
             target_report.write(f, 2)
           end
         end
+      end
+
+      def self.append_skipped_tests(report, skipped_tests)
+        return if skipped_tests.nil?
+
+        report.elements.each('//testsuites') do |testable|
+          testable_name = File.basename(testable.attributes['name'], '.*')
+
+          skipped_tests_for_testable = skipped_tests.select do |skipped_test|
+            skipped_test.start_with?(testable_name)
+          end
+
+          append_skipped_tests_to_testable(testable, skipped_tests_for_testable)
+        end
+      end
+
+      def self.append_skipped_tests_to_testable(testable, skipped_tests_for_testable)
+        testable.elements.each('//testsuite') do |testsuite|
+          skipped_tests_for_testsuite = skipped_tests_for_testable.select do |skipped_test|
+            skipped_testable, skipped_testsuite, skipped_testcase = skipped_test.split('/')
+            testsuite.attributes['name'] == skipped_testsuite
+          end
+
+          append_skipped_tests_to_testsuite(testsuite, skipped_tests_for_testsuite)
+        end
+      end
+
+      def self.append_skipped_tests_to_testsuite(testsuite, skipped_tests_for_testsuite)
+        skipped_tests_for_testsuite.each do |skipped_test|
+          skipped_testable, skipped_testsuite, skipped_testcase = skipped_test.split('/')
+          skipped_testcase_element = REXML::Element.new('testcase', testsuite)
+
+          skipped_testcase_element.add_attributes(
+            {
+              'name' => skipped_testcase,
+              'classname' => skipped_testsuite,
+              'time' => '0.000'
+            }
+          )
+          skipped_message = REXML::Element.new('skipped', skipped_testcase_element)
+          skipped_message.add_attribute('message', 'This test was skipped because it was configured to do so')
+        end
+        update_testsuite_counts(testsuite)
       end
 
       def self.collapse_testcase_multiple_failures_in_testsuite(testsuite)
@@ -186,6 +233,13 @@ module Fastlane
             optional: true,
             default_value: 'result.xml',
             type: String
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :add_skipped_tests,
+            env_name: 'COLLATE_JUNIT_REPORTS_ADD_SKIPPED_TESTS',
+            description: 'An array of skipped tests to add to the report',
+            optional: true,
+            type: Array
           )
         ]
       end
@@ -201,6 +255,21 @@ module Fastlane
           collate_junit_reports(
             reports: reports,
             collated_report: File.join(Dir.mktmpdir, 'result.xml')
+          )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'collate the xml reports to a temporary file \"result.xml\" and add skipped tests'
+          )
+          reports = Dir['../spec/fixtures/*.xml'].map { |relpath| File.absolute_path(relpath) }
+          collate_junit_reports(
+            reports: reports,
+            collated_report: File.join(Dir.mktmpdir, 'result.xml'),
+            add_skipped_tests: [
+              'AtomicBoyUITests/AtomicBoyUITests/testGherkinsAreYellow',
+              'AtomicBoyUITests/AtomicBoyUITests/testDreamsAreFulfilled'
+            ]
           )
           "
         ]

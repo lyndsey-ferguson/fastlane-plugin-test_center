@@ -575,6 +575,24 @@ collate_junit_reports(
 )
 
 ```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'collate the xml reports to a temporary file "result.xml" and add skipped tests'
+)
+reports = Dir['../spec/fixtures/*.xml'].map { |relpath| File.absolute_path(relpath) }
+collate_junit_reports(
+  reports: reports,
+  collated_report: File.join(Dir.mktmpdir, 'result.xml'),
+  add_skipped_tests: [
+    'AtomicBoyUITests/AtomicBoyUITests/testGherkinsAreYellow',
+    'AtomicBoyUITests/AtomicBoyUITests/testDreamsAreFulfilled'
+  ]
+)
+
+```
 <!-- collate_junit_reports examples: end -->
 </details>
 

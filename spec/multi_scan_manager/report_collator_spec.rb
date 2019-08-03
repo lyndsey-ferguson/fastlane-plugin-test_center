@@ -60,6 +60,52 @@ module TestCenter::Helper::MultiScanManager
       collator.collate_junit_reports
     end
 
+    it 'collates junit reports correctly with skipped_tests' do
+      reportnamer = ReportNameHelper.new(
+        'junit',
+        'report.xml'
+      )
+      collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
+        output_directory: '.',
+        reportnamer: reportnamer,
+        skipped_tests: ['BagOfTests/CoinTossingUITests/testGherkinsAreYellow']
+      )
+      expect(collator).to receive(:sort_globbed_files)
+        .with('./report*.xml').and_return(
+          [
+            'report.xml',
+            'report-1.xml',
+            'report-2.xml'
+          ].map { |f| File.absolute_path(f) }
+        )
+      config = OpenStruct.new
+      allow(config).to receive(:_values).and_return(
+        {
+            reports: ['report.xml', 'report-1.xml', 'report-2.xml'].map { |f| File.absolute_path(f) },
+            collated_report: 'report.xml',
+            add_skipped_tests:  ['BagOfTests/CoinTossingUITests/testGherkinsAreYellow']
+          }
+      )
+      expect(collator).to receive(:create_config).and_return(config)
+      expect(Fastlane::Actions::CollateJunitReportsAction).to receive(:run) do |c|
+        expect(c._values).to eq(
+          {
+            reports: ['report.xml', 'report-1.xml', 'report-2.xml'].map { |f| File.absolute_path(f) },
+            collated_report: 'report.xml',
+            add_skipped_tests:  ['BagOfTests/CoinTossingUITests/testGherkinsAreYellow']
+          }
+        )
+      end
+      expect(FileUtils).to receive(:rm_rf).with(
+        [
+          'report-1.xml', 
+          'report-2.xml'
+        ].map { |f| File.absolute_path(f) }
+      )
+      collator.collate_junit_reports
+    end
+
     it 'collates html reports correctly' do
       reportnamer = ReportNameHelper.new(
         'html',

@@ -14,6 +14,7 @@ module TestCenter
           @scheme = params[:scheme]
           @result_bundle = params[:result_bundle]
           @suffix = params[:suffix] || ''
+          @skipped_tests = params[:skipped_tests]
         end
 
         def collate
@@ -48,12 +49,17 @@ module TestCenter
           collated_file =  File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
           if report_files.size > 1
             FastlaneCore::UI.verbose("Collating junit report files #{report_files}")
+            collate_junit_reports_options = {
+              reports: report_files,
+              collated_report: collated_file
+            }
+            if @skipped_tests
+              collate_junit_reports_options[:add_skipped_tests] = @skipped_tests
+            end
+
             config = create_config(
               CollateJunitReportsAction,
-              {
-                reports: report_files,
-                collated_report: collated_file
-              }
+              collate_junit_reports_options
             )
             CollateJunitReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
