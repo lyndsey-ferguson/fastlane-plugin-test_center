@@ -9,3 +9,14 @@ lane :run_examples do
     # rubocop:enable Security/Eval
   end
 end
+
+lane :testing do
+  summary = multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'Atlas',
+    try_count: 3,
+    fail_build: false,
+    output_files: 'report.junit',
+    output_types: 'junit'
+  )
+end
