@@ -108,8 +108,7 @@ module Fastlane::Actions
             output_files: 'report.xml',
             output_directory: 'test_output'
           },
-          true,
-          1
+          true
         )
         expect(summary).to include(
           result: true,
@@ -168,8 +167,7 @@ module Fastlane::Actions
             output_files: 'report.xml',
             output_directory: 'test_output'
           },
-          false,
-          2
+          false
         )
         expect(summary).to include(
           result: false,
@@ -192,7 +190,7 @@ module Fastlane::Actions
               location: 'AtomicBoy.m:38'
             }
           },
-          total_retry_count: 2
+          total_retry_count: 1
         )
       end
 
@@ -214,8 +212,7 @@ module Fastlane::Actions
             output_directory: 'test_output',
             result_bundle: true
           },
-          true,
-          1
+          true
         )
         expect(summary).to include(
           result: true,

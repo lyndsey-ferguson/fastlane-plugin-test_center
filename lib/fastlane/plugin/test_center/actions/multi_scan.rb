@@ -22,7 +22,7 @@ module Fastlane
         runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
         tests_passed = runner.run
 
-        summary = run_summary(params, tests_passed, runner.retry_total_count)
+        summary = run_summary(params, tests_passed)
         print_run_summary(summary)
         
         if params[:fail_build] && !tests_passed
@@ -53,7 +53,7 @@ module Fastlane
         # :nocov:
       end
 
-      def self.run_summary(scan_options, tests_passed, retry_total_count)
+      def self.run_summary(scan_options, tests_passed)
         reportnamer = ::TestCenter::Helper::ReportNameHelper.new(
           scan_options[:output_types],
           scan_options[:output_files],
@@ -65,11 +65,15 @@ module Fastlane
         report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
+        retry_total_count = 0
         report_files.each do |report_file|
           junit_results = other_action.tests_from_junit(junit: report_file)
           failed_tests.concat(junit_results[:failed])
           passing_testcount += junit_results[:passing].size
           failure_details.merge!(junit_results[:failure_details])
+
+          report = REXML::Document.new(File.new(report_file))
+          retry_total_count += (report.root.attributes['retries'] || 1).to_i
         end
 
         if reportnamer.includes_html?
