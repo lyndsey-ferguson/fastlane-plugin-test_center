@@ -59,7 +59,8 @@ lane :sweep do
     try_count: 3,
     fail_build: false,
     scheme: 'AtomicBoy',
-    testrun_completed_block: test_run_block
+    testrun_completed_block: test_run_block,
+    parallel_testrun_count: 4
   )
   unless result[:failed_testcount].zero?
     UI.message("There are #{result[:failed_testcount]} legitimate failing tests")
