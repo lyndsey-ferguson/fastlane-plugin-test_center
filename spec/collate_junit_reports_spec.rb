@@ -244,6 +244,6 @@ describe Fastlane::Actions::CollateJunitReportsAction do
     testExample4 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample4']")
     expect(testExample4.attributes['retries']).to eq('2')
 
-    expect(report.root.attributes['retries']).to eq('2')
+    expect(report.root.attributes['retries']).to eq('3')
   end
 end

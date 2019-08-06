@@ -97,6 +97,7 @@ module TestCenter
           move_simulator_logs_for_next_run
 
           @testrun_count = @testrun_count + 1
+          FastlaneCore::UI.verbose("Batch ##{@options[:batch]} incrementing retry count to #{@testrun_count}")
           if exception.kind_of?(FastlaneCore::Interface::FastlaneTestFailure)
             after_testrun_message = "Scan found failing tests"
             after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
