@@ -11,10 +11,10 @@ module Fastlane
           reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
           # copy any missing testsuites
           target_report = reports.shift
-          target_report.root.attributes['retries'] = reports.size.to_s
           preprocess_testsuites(target_report)
 
           reports.each do |report|
+            increment_testable_tries(target_report.root, report.root)
             preprocess_testsuites(report)
             UI.verbose("> collating last report file #{report_filepaths.last}")
             report.elements.each('//testsuite') do |testsuite|
@@ -109,6 +109,13 @@ module Fastlane
         end
       end
 
+      def self.increment_testable_tries(target_testable, other_testable)
+        try_count = target_testable.attributes['retries'] || 1
+        other_try_count = other_testable['retries'] || 1
+
+        target_testable.attributes['retries'] = (try_count.to_i + other_try_count.to_i).to_s
+      end
+
       def self.increment_testcase_tries(target_testcase, testcase)
         try_count = target_testcase.attributes['retries']
         testcase.attributes['retries'] = (try_count.to_i + 1).to_s
@@ -147,9 +154,9 @@ module Fastlane
       #####################################################
       # @!group Documentation
       #####################################################
-
+      # :nocov:
       def self.description
-        "Combines and combines tests from multiple junit report files"
+        "Combines multiple junit report files into one junit report file"
       end
 
       def self.details
@@ -217,6 +224,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

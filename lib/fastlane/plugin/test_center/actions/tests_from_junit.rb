@@ -32,6 +32,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Retrieves the failing and passing tests as reported in a junit xml file"
       end
@@ -82,6 +83,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

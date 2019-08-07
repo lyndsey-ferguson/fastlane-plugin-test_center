@@ -8,33 +8,52 @@ module Fastlane
 
     class MultiScanAction < Action
       def self.run(params)
-        unless Helper.test?
-          FastlaneCore::PrintTable.print_values(
-            config: params._values.select { |k, _| %i[try_count batch_count invocation_based_tests fail_build quit_simulators].include?(k) },
-            title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
-          )
-        end
-        unless params[:test_without_building] || params[:skip_build]
-          build_for_testing(
-            params._values
-          )
-        end
-        smart_scanner = ::TestCenter::Helper::CorrectingScanHelper.new(params.values)
-        tests_passed = smart_scanner.scan
-        summary = run_summary(params, tests_passed, smart_scanner.retry_total_count)
-        unless Helper.test?
-          FastlaneCore::PrintTable.print_values(
-            config: summary,
-            title: "multi_scan results"
-          )
-        end
+        params[:quit_simulators] ||= params._values[:force_quit_simulator]
+
+        print_multi_scan_parameters(params)
+        force_quit_simulator_processes if params[:quit_simulators]
+
+        prepare_for_testing(params.values)
+        
+        platform = :mac
+        platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
+
+        runner_options = params.values.merge(platform: platform)
+        runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
+        tests_passed = runner.run
+
+        summary = run_summary(params, tests_passed)
+        print_run_summary(summary)
+        
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
         summary
       end
 
-      def self.run_summary(scan_options, tests_passed, retry_total_count)
+      def self.print_multi_scan_parameters(params)
+        return if Helper.test?
+        # :nocov:
+        scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+        FastlaneCore::PrintTable.print_values(
+          config: params._values.reject { |k, _| scan_keys.include?(k) },
+          title: "Summary for multi_scan (test_center v#{Fastlane::TestCenter::VERSION})"
+        )
+        # :nocov:
+      end
+
+      def self.print_run_summary(summary)        
+        return if Helper.test?
+
+        # :nocov:
+        FastlaneCore::PrintTable.print_values(
+          config: summary,
+          title: "multi_scan results"
+        )
+        # :nocov:
+      end
+
+      def self.run_summary(scan_options, tests_passed)
         reportnamer = ::TestCenter::Helper::ReportNameHelper.new(
           scan_options[:output_types],
           scan_options[:output_files],
@@ -46,11 +65,15 @@ module Fastlane
         report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
         end
+        retry_total_count = 0
         report_files.each do |report_file|
           junit_results = other_action.tests_from_junit(junit: report_file)
           failed_tests.concat(junit_results[:failed])
           passing_testcount += junit_results[:passing].size
           failure_details.merge!(junit_results[:failure_details])
+
+          report = REXML::Document.new(File.new(report_file))
+          retry_total_count += (report.root.attributes['retries'] || 1).to_i
         end
 
         if reportnamer.includes_html?
@@ -80,36 +103,113 @@ module Fastlane
         }
       end
 
-      def self.build_for_testing(scan_options)
-        options_to_remove = %i[
-          try_count
-          batch_count
-          quit_simulators
-          testrun_completed_block
-          test_without_building
-          invocation_based_tests
-          output_types
-          output_files
-        ]
-        config = FastlaneCore::Configuration.create(
-          Fastlane::Actions::ScanAction.available_options,
-          scan_options.merge(build_for_testing: true).reject { |k, _| options_to_remove.include?(k) }
-        )
-        Fastlane::Actions::ScanAction.run(config)
+      def self.prepare_for_testing(scan_options)
+        reset_scan_config_to_defaults
+        use_scanfile_to_override_settings(scan_options)
+        ScanHelper.remove_preexisting_simulator_logs(scan_options)
+        if scan_options[:test_without_building] || scan_options[:skip_build]
+          UI.verbose("Preparing Scan config options for multi_scan testing")
+          prepare_scan_config(scan_options)
+        else
+          UI.verbose("Building the project in preparation for multi_scan testing")
+          build_for_testing(scan_options)
+        end
+      end
 
-        scan_options.merge!(
-          test_without_building: true,
-          derived_data_path: Scan.config[:derived_data_path]
-        ).delete(:build_for_testing)
+      def self.reset_scan_config_to_defaults
+        return unless Scan.config
+
+        defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
+        FastlaneCore::UI.verbose("MultiScanAction resetting Scan config to defaults")
+        
+        Scan.config._values.each do |k,v|
+          Scan.config.set(k, defaults[k]) if defaults.key?(k)
+        end
+      end
+
+      def self.use_scanfile_to_override_settings(scan_options)
+        overridden_options = ScanHelper.options_from_configuration_file(
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
+        )
+        
+        unless overridden_options.empty?
+          FastlaneCore::UI.important("Scanfile found: overriding multi_scan options with it's values.")
+          overridden_options.each do |k,v|
+            scan_options[k] = v
+          end
+        end
+      end
+
+      def self.prepare_scan_config(scan_options)
+        Scan.config ||= FastlaneCore::Configuration.create(
+          Fastlane::Actions::ScanAction.available_options,
+          ScanHelper.scan_options_from_multi_scan_options(scan_options)
+        )
+      end
+
+      def self.build_for_testing(scan_options)
+        values = prepare_scan_options_for_build_for_testing(scan_options)
+        ScanHelper.print_scan_parameters(values)
+
+        remove_preexisting_xctestrun_files
+        Scan::Runner.new.run
+        update_xctestrun_after_build(scan_options)
+        remove_build_report_files
+
+        Scan.config._values.delete(:build_for_testing)
+        scan_options[:derived_data_path] = Scan.config[:derived_data_path]
+      end
+
+      def self.prepare_scan_options_for_build_for_testing(scan_options)
+        Scan.config = FastlaneCore::Configuration.create(
+          Fastlane::Actions::ScanAction.available_options,
+          ScanHelper.scan_options_from_multi_scan_options(scan_options.merge(build_for_testing: true))
+        )
+        values = Scan.config.values(ask: false)
+        values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+        values
+      end
+
+      def self.update_xctestrun_after_build(scan_options)
+        xctestrun_files = Dir.glob("#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun")
+        UI.verbose("After building, found xctestrun files #{xctestrun_files} (choosing 1st)")
+        scan_options[:xctestrun] = xctestrun_files.first
+      end
+
+      def self.remove_preexisting_xctestrun_files
+        xctestrun_files = Dir.glob("#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun")
+        UI.verbose("Before building, removing pre-existing xctestrun files: #{xctestrun_files}")
+        FileUtils.rm_rf(xctestrun_files)
+      end
+
+      def self.remove_build_report_files
+        # When Scan builds, it generates empty report files. Trying to collate
+        # subsequent, valid, report files with the empty report file will fail
+        # because there is no shared XML elements
+        report_options = Scan::XCPrettyReporterOptionsGenerator.generate_from_scan_config
+        output_files = report_options.instance_variable_get(:@output_files)
+        output_directory = report_options.instance_variable_get(:@output_directory)
+
+        UI.verbose("Removing report files generated by the build")
+        output_files.each do |output_file|
+          report_file = File.join(output_directory, output_file)
+          UI.verbose("  #{report_file}")
+          FileUtils.rm_f(report_file)
+        end
+      end
+
+      def self.force_quit_simulator_processes
+        # Silently execute and kill, verbose flags will show this command occurring
+        Fastlane::Actions.sh("killall Simulator &> /dev/null || true", log: false)
       end
 
       #####################################################
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
-        "Uses scan to run Xcode tests a given number of times, with the option " \
-        "of batching them, only re-testing failing tests."
+        "Uses scan to run Xcode tests a given number of times, with the option of batching and/or parallelizing them, only re-testing failing tests."
       end
 
       def self.details
@@ -132,7 +232,9 @@ module Fastlane
       end
 
       def self.scan_options
-        ScanAction.available_options.reject { |config| config.key == :output_types }
+        # multi_scan has its own enhanced version of `output_types` and we want to provide
+        # the help and validation for that new version.
+        ScanAction.available_options.reject { |config| %i[output_types].include?(config.key) }
       end
 
       def self.available_options
@@ -168,13 +270,13 @@ module Fastlane
             conflict_block: proc do |value|
               UI.user_error!(
                 "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
-                "because the number of tests is unkown.")
+                "because the number of tests is unknown")
             end
           ),
           FastlaneCore::ConfigItem.new(
             key: :quit_simulators,
             env_name: "FL_MULTI_SCAN_QUIT_SIMULATORS",
-            description: "If the simulators need to be killed before run the tests",
+            description: "If the simulators need to be killed before running the tests",
             type: Boolean,
             is_string: false,
             default_value: true,
@@ -188,8 +290,25 @@ module Fastlane
             default_value: "html,junit"
           ),
           FastlaneCore::ConfigItem.new(
+            key: :collate_reports,
+            description: "Whether or not to collate the reports generated by multiple retries, batches, and parallel test runs",
+            default_value: true,
+            is_string: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :parallel_testrun_count,
+            description: 'Run simulators each batch of tests and/or each test target in parallel on its own Simulator',
+            optional: true,
+            is_string: false,
+            default_value: 1,
+            verify_block: proc do |count|
+              UI.user_error!("Error: :parallel_testrun_count must be greater than zero") unless count > 0
+              UI.important("Warning: the CoreSimulatorService may fail to connect to simulators if :parallel_testrun_count is greater than 6") if count > 6
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
-            description: 'A block invoked each time a test run completes',
+            description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process',
             optional: true,
             is_string: false,
             default_value: nil,
@@ -257,6 +376,24 @@ module Fastlane
             fail_build: false,
             testrun_completed_block: test_run_block
           )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'multi_scan also works with invocation based tests.'
+          )
+          Dir.chdir('../AtomicBoy') do
+            bundle_install
+            cocoapods(podfile: File.absolute_path('Podfile'))
+            multi_scan(
+              workspace: File.absolute_path('AtomicBoy.xcworkspace'),
+              scheme: 'KiwiBoy',
+              try_count: 3,
+              clean: true,
+              invocation_based_tests: true,
+              fail_build: false
+            )
+          end
           ",
           "
           UI.important(
@@ -336,16 +473,35 @@ module Fastlane
           "
           UI.important(
             'example: ' \\
-            'multi_scan also works with invocation based tests.'
+            'multi_scan parallelizes its test runs.'
           )
-          cocoapods
           multi_scan(
-            workspace: File.absolute_path('../KiwiDemo/KiwiDemo.xcworkspace'),
-            scheme: 'KiwiDemoTests',
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
             try_count: 3,
-            invocation_based_tests: true,
+            parallel_testrun_count: 4,
             fail_build: false
           )
+          ",
+          "
+          UI.important(
+            'example: ' \\
+            'use the :xctestrun parameter instead of the :project parameter to find, ' \\
+            'build, and test the iOS app.'
+          )
+          Dir.mktmpdir do |derived_data_path|
+            project_path = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
+            command = \"bundle exec fastlane scan --build_for_testing true --project '\#{project_path}' --derived_data_path \#{derived_data_path} --scheme AtomicBoy\"
+            `\#{command}`
+            xctestrun_file = Dir.glob(\"\#{derived_data_path}/Build/Products/AtomicBoy*.xctestrun\").first
+            multi_scan(
+              scheme: 'AtomicBoy',
+              try_count: 3,
+              fail_build: false,
+              xctestrun: xctestrun_file,
+              test_without_building: true
+            )
+          end
           "
         ]
       end
@@ -361,6 +517,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

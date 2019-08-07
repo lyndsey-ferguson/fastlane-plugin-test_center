@@ -59,6 +59,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Suppresses specific tests in a specific or all Xcode Schemes in a given project"
       end
@@ -171,6 +172,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

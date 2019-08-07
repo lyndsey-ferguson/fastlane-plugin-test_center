@@ -26,7 +26,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
@@ -48,6 +47,38 @@
                BlueprintName = "AtomicBoyUITests"
                ReferencedContainer = "container:AtomicBoy.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+               <Test
+                  Identifier = "HappyNapperTests/testBeepingNonExistentFriendDisplaysError">
+               </Test>
+               <Test
+                  Identifier = "GrumpyWorkerTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>
@@ -66,7 +97,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"

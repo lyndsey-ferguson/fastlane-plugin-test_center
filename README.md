@@ -59,7 +59,8 @@ lane :sweep do
     try_count: 3,
     fail_build: false,
     scheme: 'AtomicBoy',
-    testrun_completed_block: test_run_block
+    testrun_completed_block: test_run_block,
+    parallel_testrun_count: 4
   )
   unless result[:failed_testcount].zero?
     UI.message("There are #{result[:failed_testcount]} legitimate failing tests")
@@ -87,7 +88,7 @@ This fastlane plugin includes the following actions:
 
 ### multi_scan 🎉
 
-Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test results, inspect partial results periodically during a test run, and provide better results reporting. 
+Use `:multi_scan` intead of `:scan` to improve the usefulness of iOS test results, reduce test run time, inspect partial results periodically during a test run, and provide better results reporting.
 
 #### Improving Usefulness
 
@@ -96,6 +97,10 @@ Over time, your tests can change the state of your application in unexpected way
 Rather than wasting time trying to account for unstable tools, or trying to tweak your test code ad-nauseum to get a passing result reliably, just use the `:try_count` option to run `:scan` multiple times, running only the tests that failed each time. This ensures that any _fragility_ is ironed out over a number of "tries". The end result is that only the truly failing tests appear.
 
 Another issue that can cause tests to incorrectly fail comes from an issue with the iOS Simulator. If you provide a huge number of tests to the iOS Simulator, it can exhaust the available resources and cause it to fail large numbers of tests. You can get around this by running your tests in batches using the `:batch_count` option in order to lighten the load on the simulator.
+
+#### Reduce Test Run Time
+
+Make better use of your Mac resources by running batches of test runs in parallel iOS Simulators running simultaneously. Use the `:parallel_testrun_count` option to specify 2 to 6 simulators, each running a subset of your tests. It is not recommended to run more than 6 simulators in parallel as the service that backs the simulators can fail to connect to them.
 
 #### Inspect Partial Results
 
@@ -186,14 +191,39 @@ multi_scan(
 
 UI.important(
   'example: ' \
+  'multi_scan also works with invocation based tests.'
+)
+Dir.chdir('../AtomicBoy') do
+  bundle_install
+  cocoapods(podfile: File.absolute_path('Podfile'))
+  multi_scan(
+    workspace: File.absolute_path('AtomicBoy.xcworkspace'),
+    scheme: 'KiwiBoy',
+    try_count: 3,
+    clean: true,
+    invocation_based_tests: true,
+    fail_build: false
+  )
+end
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
   'use the :workspace parameter instead of the :project parameter to find, ' \
   'build, and test the iOS app.'
 )
- multi_scan(
-  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-  scheme: 'AtomicBoy',
-  try_count: 3
-)
+begin
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    try_count: 3
+  )
+rescue # anything
+  UI.error('Found real failing tests!')
+end
 
 ```
 
@@ -226,7 +256,7 @@ multi_scan(
   project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
   scheme: 'Professor',
   try_count: 3,
-  custom_report_file_name: 'atomic_report.xml',
+  output_files: 'atomic_report.xml',
   output_types: 'junit',
   fail_build: false
 )
@@ -244,6 +274,7 @@ multi_scan(
   workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
   scheme: 'AtomicBoy',
   try_count: 3,
+  code_coverage: true,
   only_testing: ['AtomicBoyTests'],
   fail_build: false
 )
@@ -264,6 +295,45 @@ multi_scan(
   output_files: 'report.json',
   fail_build: false
 )
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'multi_scan parallelizes its test runs.'
+)
+multi_scan(
+  workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+  scheme: 'AtomicBoy',
+  try_count: 3,
+  parallel_testrun_count: 4,
+  fail_build: false
+)
+
+```
+
+```ruby
+
+UI.important(
+  'example: ' \
+  'use the :xctestrun parameter instead of the :project parameter to find, ' \
+  'build, and test the iOS app.'
+)
+Dir.mktmpdir do |derived_data_path|
+  project_path = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
+  command = "bundle exec fastlane scan --build_for_testing true --project '#{project_path}' --derived_data_path #{derived_data_path} --scheme AtomicBoy"
+  `#{command}`
+  xctestrun_file = Dir.glob("#{derived_data_path}/Build/Products/AtomicBoy*.xctestrun").first
+  multi_scan(
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    fail_build: false,
+    xctestrun: xctestrun_file,
+    test_without_building: true
+  )
+end
 
 ```
 <!-- multi_scan examples: end -->

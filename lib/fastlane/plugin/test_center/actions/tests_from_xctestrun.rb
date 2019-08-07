@@ -18,20 +18,43 @@ module Fastlane
           xctest_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
           test_identifiers = XCTestList.tests(xctest_path)
           UI.verbose("Found the following tests: #{test_identifiers.join("\n\t")}")
+
           if xctestrun_config.key?('SkipTestIdentifiers')
-            skipped_tests = xctestrun_config['SkipTestIdentifiers']
-            UI.verbose("Removing skipped tests: #{skipped_tests.join("\n\t")}")
-            test_identifiers.reject! { |test_identifier| skipped_tests.include?(test_identifier) }
+            test_identifiers = subtract_skipped_tests_from_test_identifiers(
+              test_identifiers,
+              xctestrun_config['SkipTestIdentifiers']
+            )
           end
           if test_identifiers.empty? && !invocation_based_tests
             UI.error("No tests found in '#{xctest_path}'!")
             UI.important("Is the Build Setting, `ENABLE_TESTABILITY` enabled for the test target #{testable_name}?")
           end
           tests[testable_name] = test_identifiers.map do |test_identifier|
-            "#{testable_name.shellsafe_testidentifier}/#{test_identifier}"
+            "#{testable_name}/#{test_identifier}"
           end
         end
         tests
+      end
+
+      def self.subtract_skipped_tests_from_test_identifiers(test_identifiers, skipped_test_identifiers)
+        skipped_tests_identifiers = []
+        skipped_testsuites = []
+        skipped_test_identifiers.each do |skipped_test|
+          if skipped_test.split('/').size > 1
+            skipped_tests_identifiers << skipped_test
+          else
+            skipped_testsuites << skipped_test
+          end
+        end
+        skipped_testsuites.each do |skipped_testsuite|
+          derived_skipped_tests = test_identifiers.select do |test_identifier|
+            test_identifier.start_with?(skipped_testsuite)
+          end
+          skipped_tests_identifiers.concat(derived_skipped_tests)
+        end
+
+        UI.verbose("Removing skipped tests: #{skipped_tests_identifiers.join("\n\t")}")
+        test_identifiers.reject { |test_identifier| skipped_tests_identifiers.include?(test_identifier) }
       end
 
       def self.xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
@@ -47,6 +70,7 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
         "Retrieves all of the tests from xctest bundles referenced by the xctestrun file"
       end
@@ -115,6 +139,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

@@ -45,7 +45,8 @@ module Fastlane
       #####################################################
       # @!group Documentation
       #####################################################
-
+      
+      # :nocov:
       def self.description
         "Uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme"
       end
@@ -135,6 +136,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end

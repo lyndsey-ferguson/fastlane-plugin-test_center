@@ -111,8 +111,9 @@ module Fastlane
       # @!group Documentation
       #####################################################
 
+      # :nocov:
       def self.description
-        "Combines and combines tests from multiple test_result bundles"
+        "Combines multiple test_result bundles into one test_result bundle"
       end
 
       def self.details
@@ -179,6 +180,7 @@ module Fastlane
       def self.is_supported?(platform)
         %i[ios mac].include?(platform)
       end
+      # :nocov:
     end
   end
 end
