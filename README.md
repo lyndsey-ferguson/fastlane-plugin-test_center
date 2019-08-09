@@ -102,6 +102,9 @@ Another issue that can cause tests to incorrectly fail comes from an issue with 
 
 Make better use of your Mac resources by running batches of test runs in parallel iOS Simulators running simultaneously. Use the `:parallel_testrun_count` option to specify 2 to 6 simulators, each running a subset of your tests. It is not recommended to run more than 6 simulators in parallel as the service that backs the simulators can fail to connect to them.
 
+##### Note: while Xcode provides the option to run testsuites in parallel, this does not help if one testsuite has 100 testcases and another has 300 testcases. That's because each of those testsuites will run on their own iOS Simulator and you have to wait for the Simulator with the most testcases: 300 testcases in this example.
+##### `multi_scan`, on the other hand, can split those tests into 4 batches of 100 using a `:parallel_testrun_count` of 4. You only have to wait for the iOS Simulators to finish 100 testcases.
+
 #### Inspect Partial Results
 
 If you have a large number of tests, and you want to inspect the overall status of how test runs are progressing, you can use the `:testrun_completed_block` callback to bailout early or make adjustments on how your tests are exercised.
