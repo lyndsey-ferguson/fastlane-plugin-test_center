@@ -99,17 +99,69 @@ module TestCenter::Helper
           )
         end
 
-        it 'calls to testables_tests returns Hash of only_testing' do
+        it 'calls to testables_tests with only_testing single target returns Hash of only_testing' do
           test_collector = TestCollector.new(
             xctestrun: 'path/to/fake.xctestrun',
-            only_testing: ['AtomicBoyTests']
+            only_testing: ['AtomicBoyUITests']
           )
           allow(test_collector).to receive(:xctestrun_known_tests).and_return(
-            'AtomicBoyTests' => ['AtomicBoyTests']
+            'AtomicBoyTests' => [
+              'AtomicBoyTests/AtomicBoyTests/testExample1',
+              'AtomicBoyTests/AtomicBoyTests/testExample2',
+              'AtomicBoyTests/AtomicBoyTests/testExample3',
+              'AtomicBoyTests/AtomicBoyTests/testExample4'
+            ],
+            'AtomicBoyUITests' => [
+              'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+            ]
           )
           result = test_collector.testables_tests
           expect(result).to include(
-            'AtomicBoyTests' => ['AtomicBoyTests']
+            'AtomicBoyUITests' => [
+              'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+            ]
+          )
+        end
+
+        it 'calls to testables_tests with only_testing multiple targets returns Hash of only_testing' do
+          test_collector = TestCollector.new(
+            xctestrun: 'path/to/fake.xctestrun',
+            only_testing: ['AtomicBoyTests', 'AtomicBoyUITests']
+          )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return(
+            'AtomicBoyTests' => [
+              'AtomicBoyTests/AtomicBoyTests/testExample1',
+              'AtomicBoyTests/AtomicBoyTests/testExample2',
+              'AtomicBoyTests/AtomicBoyTests/testExample3',
+              'AtomicBoyTests/AtomicBoyTests/testExample4'
+            ],
+            'AtomicBoyUITests' => [
+              'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+            ]
+          )
+          result = test_collector.testables_tests
+          expect(result).to include(
+            'AtomicBoyTests' => [
+              'AtomicBoyTests/AtomicBoyTests/testExample1',
+              'AtomicBoyTests/AtomicBoyTests/testExample2',
+              'AtomicBoyTests/AtomicBoyTests/testExample3',
+              'AtomicBoyTests/AtomicBoyTests/testExample4'
+            ],
+            'AtomicBoyUITests' => [
+              'AtomicBoyUITests/AtomicBoyUITests/testExample1',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+              'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+            ]
           )
         end
 
