@@ -121,7 +121,8 @@ module Fastlane
 
         defaults = Hash[Fastlane::Actions::ScanAction.available_options.map { |i| [i.key, i.default_value] }]
         FastlaneCore::UI.verbose("MultiScanAction resetting Scan config to defaults")
-        
+        defaults.delete(:destination)
+
         Scan.config._values.each do |k,v|
           Scan.config.set(k, defaults[k]) if defaults.key?(k)
         end
