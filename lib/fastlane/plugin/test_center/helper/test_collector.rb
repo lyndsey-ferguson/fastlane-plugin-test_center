@@ -73,11 +73,11 @@ module TestCenter
       def expand_testsuites_to_tests
         return if @invocation_based_tests
 
-        known_tests = nil
+        known_tests = []
         @testables_tests.each do |testable, tests|
           tests.each_with_index do |test, index|
             if test.count('/') < 2
-              known_tests ||= xctestrun_known_tests[testable]
+              known_tests += xctestrun_known_tests[testable]
               test_components = test.split('/')
               testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
               @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) } 
