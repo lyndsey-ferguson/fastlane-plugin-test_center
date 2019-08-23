@@ -73,7 +73,7 @@ module Fastlane
           failure_details.merge!(junit_results[:failure_details])
 
           report = REXML::Document.new(File.new(report_file))
-          retry_total_count += (report.root.attributes['retries'] || 1).to_i
+          retry_total_count += (report.root.attribute('retries')&.value || 1).to_i
         end
 
         if reportnamer.includes_html?

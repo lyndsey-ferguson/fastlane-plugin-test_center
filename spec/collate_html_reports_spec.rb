@@ -8,7 +8,7 @@ def testidentifiers_from_xmlreport(report)
   testidentifiers = []
   testsuites.each do |testsuite|
     testidentifiers += REXML::XPath.match(testsuite, ".//*[contains(@class, 'tests')]//*[contains(@class, 'test')]//*[contains(@class, 'title')]").map do |testcase|
-      "#{testsuite.attributes['id']}/#{testcase.text.strip}"
+      "#{testsuite.attribute('id').value}/#{testcase.text.strip}"
     end
   end
   testidentifiers
@@ -79,12 +79,12 @@ describe Fastlane::Actions::CollateHtmlReportsAction do
       expect(failing_testcases.size).to eq(1)
       failing_testcase = failing_testcases.first
       failing_testclass = REXML::XPath.match(failing_testcase, "ancestor::*/*[contains(@class, 'test-suite')]")[0]
-      expect(failing_testclass.attributes['id']).to eq('AtomicBoyUITests')
+      expect(failing_testclass.attribute('id').value).to eq('AtomicBoyUITests')
       expect(failing_testcase.text.strip).to eq('testExample')
 
       failing_testcase_details = REXML::XPath.match(report, ".//*[contains(@class, 'tests')]//*[contains(@class, 'details') and contains(@class, 'failing')]")
       expect(failing_testcase_details.size).to eq(1)
-      failing_testcase_class = failing_testcase_details[0].attributes['class']
+      failing_testcase_class = failing_testcase_details[0].attribute('class').value
       expect(failing_testcase_class.split(' ')).to include('testExample')
 
       test_count = REXML::XPath.first(report, ".//*[@id='test-count']/span").text.strip

@@ -131,7 +131,7 @@ describe Fastlane::Actions::CollateJunitReportsAction do
 
       testable = REXML::XPath.first(report, "//testsuites")
       testcases = REXML::XPath.match(testable, '*//testcase').map do |testcase|
-        "#{testcase.attributes['classname']}/#{testcase.attributes['name']}"
+        "#{testcase.attribute('classname')}/#{testcase.attribute('name').value}"
       end
       expect(testcases).to contain_exactly(
         'AtomicBoyTests/testExample',
@@ -140,11 +140,11 @@ describe Fastlane::Actions::CollateJunitReportsAction do
         'AtomicBoyUITests/testExample2'
       )
       failing_testcase = REXML::XPath.first(testable, '*//testcase/failure').parent
-      expect(failing_testcase.attributes['classname']).to eq('AtomicBoyUITests')
-      expect(failing_testcase.attributes['name']).to eq('testExample2')
+      expect(failing_testcase.attribute('classname').value).to eq('AtomicBoyUITests')
+      expect(failing_testcase.attribute('name').value).to eq('testExample2')
 
-      expect(testable.attributes['failures']).to eq('1')
-      expect(testable.attributes['tests']).to eq('4')
+      expect(testable.attribute('failures').value).to eq('1')
+      expect(testable.attribute('tests').value).to eq('4')
     end
 
     it 'updates failed tests in subsequent reports' do
@@ -174,7 +174,7 @@ describe Fastlane::Actions::CollateJunitReportsAction do
 
       testable = REXML::XPath.first(report, "//testsuites")
       testcases = REXML::XPath.match(testable, '*//testcase').map do |testcase|
-        "#{testcase.attributes['classname']}/#{testcase.attributes['name']}"
+        "#{testcase.attribute('classname')}/#{testcase.attribute('name').value}"
       end
       expect(testcases).to contain_exactly(
         'AtomicBoyTests/testExample',
@@ -183,8 +183,8 @@ describe Fastlane::Actions::CollateJunitReportsAction do
         'AtomicBoyUITests/testExample2'
       )
       expect(REXML::XPath.first(testable, '*//testcase/failure')).to be_nil
-      expect(testable.attributes['failures']).to eq('0')
-      expect(testable.attributes['tests']).to eq('4')
+      expect(testable.attribute('failures').value).to eq('0')
+      expect(testable.attribute('tests').value).to eq('4')
     end
   end
 
@@ -208,8 +208,8 @@ describe Fastlane::Actions::CollateJunitReportsAction do
     report = REXML::Document.new(report_file.string)
 
     testable = REXML::XPath.first(report, "//testsuites")
-    expect(testable.attributes['failures']).to eq('0')
-    expect(testable.attributes['tests']).to eq('173')
+    expect(testable.attribute('failures').value).to eq('0')
+    expect(testable.attribute('tests').value).to eq('173')
   end
 
   it 'updates the try counts' do
@@ -238,12 +238,12 @@ describe Fastlane::Actions::CollateJunitReportsAction do
     report = REXML::Document.new(report_file.string)
 
     testExample2 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample2']")
-    expect(testExample2.attributes['retries']).to eq('2')
+    expect(testExample2.attribute('retries').value).to eq('2')
     testExample3 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample3']")
-    expect(testExample3.attributes['retries']).to eq('1')
+    expect(testExample3.attribute('retries').value).to eq('1')
     testExample4 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample4']")
-    expect(testExample4.attributes['retries']).to eq('2')
+    expect(testExample4.attribute('retries').value).to eq('2')
 
-    expect(report.root.attributes['retries']).to eq('3')
+    expect(report.root.attribute('retries').value).to eq('3')
   end
 end

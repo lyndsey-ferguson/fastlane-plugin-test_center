@@ -64,7 +64,7 @@ module Fastlane
       end
 
       def self.testsuite_from_report(report, testsuite)
-        testsuite_name = testsuite.attributes['id']
+        testsuite_name = testsuite.attribute('id').value
         REXML::XPath.first(report, "//section[contains(@class, 'test-suite') and @id='#{testsuite_name}']")
       end
 
@@ -117,11 +117,11 @@ module Fastlane
           failing_tests_xpath = "./*[contains(@class, 'tests')]//*[" \
                 "contains(@class, 'failing')]"
 
-          class_attributes = testsuite.attributes['class']
+          class_attributes = testsuite.attribute('class').value
           test_failures = REXML::XPath.match(testsuite, failing_tests_xpath)
           test_status = test_failures.size.zero? ? 'passing' : 'failing'
 
-          testsuite.attributes['class'] = class_attributes.sub('failing', test_status)
+          testsuite.add_attribute('class', class_attributes.sub('failing', test_status))
         end
       end
 

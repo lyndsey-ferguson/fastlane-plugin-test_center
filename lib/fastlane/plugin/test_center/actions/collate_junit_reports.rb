@@ -18,7 +18,7 @@ module Fastlane
             preprocess_testsuites(report)
             UI.verbose("> collating last report file #{report_filepaths.last}")
             report.elements.each('//testsuite') do |testsuite|
-              testsuite_name = testsuite.attributes['name']
+              testsuite_name = testsuite.attribute('name').value
               target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}']")
               if target_testsuite
                 UI.verbose("  > collating testsuite #{testsuite_name}")
@@ -50,8 +50,8 @@ module Fastlane
         while testcases_with_failures.size > 1
           target_testcase = testcases_with_failures.shift
 
-          name = target_testcase.attributes['name']
-          classname = target_testcase.attributes['classname']
+          name = target_testcase.attribute('name').value
+          classname = target_testcase.attribute('classname').value
 
           failures = REXML::XPath.match(testsuite, "testcase[@name='#{name}'][@classname='#{classname}']/failure")
           next unless failures.size > 1
@@ -68,7 +68,7 @@ module Fastlane
       end
 
       def self.flatten_duplicate_testsuites(report, testsuite)
-        testsuite_name = testsuite.attributes['name']
+        testsuite_name = testsuite.attribute('name').value
         duplicate_testsuites = REXML::XPath.match(report, "//testsuite[@name='#{testsuite_name}']")
         if duplicate_testsuites.size > 1
           UI.verbose("    > flattening_duplicate_testsuites")
@@ -90,8 +90,8 @@ module Fastlane
 
       def self.collate_testsuite(target_testsuite, other_testsuite)
         other_testsuite.elements.each('testcase') do |testcase|
-          classname = testcase.attributes['classname']
-          name = testcase.attributes['name']
+          classname = testcase.attribute('classname').value
+          name = testcase.attribute('name').value
           target_testcase = REXML::XPath.first(target_testsuite, "testcase[@name='#{name}' and @classname='#{classname}']")
           # Replace target_testcase with testcase
           if target_testcase
@@ -113,12 +113,15 @@ module Fastlane
         try_count = target_testable.attributes['retries'] || 1
         other_try_count = other_testable['retries'] || 1
 
-        target_testable.attributes['retries'] = (try_count.to_i + other_try_count.to_i).to_s
+        try_count = target_testable.attribute('retries')&.value || 1
+        other_try_count = other_testable.attribute('retries')&.value || 1
+
+        target_testable.add_attribute('retries', (try_count.to_i + other_try_count.to_i).to_s)
       end
 
       def self.increment_testcase_tries(target_testcase, testcase)
-        try_count = target_testcase.attributes['retries']
-        testcase.attributes['retries'] = (try_count.to_i + 1).to_s
+        try_count = target_testcase.attribute('retries')&.value || 0
+        testcase.add_attribute('retries', (try_count.to_i + 1).to_s)
       end
 
       def self.update_testable_counts(testable)
@@ -126,28 +129,28 @@ module Fastlane
         test_count = 0
         failure_count = 0
         testsuites.each do |testsuite|
-          test_count += testsuite.attributes['tests'].to_i
-          failure_count += testsuite.attributes['failures'].to_i
+          test_count += testsuite.attribute('tests').value.to_i
+          failure_count += testsuite.attribute('failures').value.to_i
         end
-        testable.attributes['tests'] = test_count.to_s
-        testable.attributes['failures'] = failure_count.to_s
+        testable.add_attribute('tests', test_count.to_s)
+        testable.add_attribute('failures', failure_count.to_s)
       end
 
       def self.update_testsuite_counts(testsuite)
         testcases = REXML::XPath.match(testsuite, 'testcase')
-        testsuite.attributes['tests'] = testcases.size.to_s
+        testsuite.add_attribute('tests', testcases.size.to_s)
         failure_count = testcases.reduce(0) do |count, testcase|
           if REXML::XPath.first(testcase, 'failure')
             count += 1
           end
           count
         end
-        testsuite.attributes['failures'] = failure_count.to_s
+        testsuite.add_attribute('failures', failure_count.to_s)
       end
 
       def self.attribute_sum_string(node1, node2, attribute)
-        value1 = node1.attributes[attribute].to_i
-        value2 = node2.attributes[attribute].to_i
+        value1 = node1.attribute(attribute).value.to_i
+        value2 = node2.attribute(attribute).value.to_i
         (value1 + value2).to_s
       end
 
