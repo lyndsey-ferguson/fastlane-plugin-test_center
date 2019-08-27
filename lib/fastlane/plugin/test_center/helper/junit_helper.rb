@@ -32,7 +32,7 @@ module TestCenter
         end
 
         def name
-          return @root.attributes['name']
+          return @root.attribute('name').value
         end
 
         def testsuites
@@ -50,7 +50,7 @@ module TestCenter
         end
 
         def name
-          return @root.attributes['name']
+          return @root.attribute('name').value
         end
 
         def identifier
@@ -74,17 +74,17 @@ module TestCenter
 
         def initialize(xml_element)
           @root = xml_element
-          name = xml_element.attributes['name']
+          name = xml_element.attribute('name').value
           failure_element = xml_element.elements['failure']
           if failure_element
-            @message = failure_element.attributes['message'] || ''
+            @message = failure_element.attribute('message')&.value || ''
             @location = failure_element.text || ''
           end
-          full_testsuite = xml_element.parent.attributes['name']
+          full_testsuite = xml_element.parent.attribute('name').value
           testsuite = full_testsuite.testsuite
           is_swift = full_testsuite.testsuite_swift?
 
-          testable_filename = xml_element.parent.parent.attributes['name']
+          testable_filename = xml_element.parent.parent.attribute('name').value
           testable = File.basename(testable_filename, '.xctest')
           @identifier = "#{testable}/#{testsuite}/#{name}"
           @skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
