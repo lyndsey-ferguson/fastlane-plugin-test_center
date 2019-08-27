@@ -4,7 +4,9 @@ html_report_2 = File.open('./spec/fixtures/report-2.html')
 
 def testidentifiers_from_xmlreport(report)
   testable = REXML::XPath.first(report, ".//section[@id='test-suites']")
+  puts "#test-suites -> testable: #{testable}"
   testsuites = REXML::XPath.match(testable, "section[contains(@class, 'test-suite')]")
+  puts "#testsuites: #{testable}"
   testidentifiers = []
   testsuites.each do |testsuite|
     testidentifiers += REXML::XPath.match(testsuite, ".//*[contains(@class, 'tests')]//*[contains(@class, 'test')]//*[contains(@class, 'title')]").map do |testcase|
