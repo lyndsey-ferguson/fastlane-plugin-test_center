@@ -9,7 +9,9 @@ def testidentifiers_from_xmlreport(report)
   puts "#testsuites: #{testsuites}"
   testidentifiers = []
   testsuites.each do |testsuite|
+    puts "#testsuite: #{testsuite}"
     testidentifiers += REXML::XPath.match(testsuite, ".//*[contains(@class, 'tests')]//*[contains(@class, 'test')]//*[contains(@class, 'title')]").map do |testcase|
+      puts "#testcase: #{testcase.text.strip}"
       "#{testsuite.attribute('id').value}/#{testcase.text.strip}"
     end
   end
