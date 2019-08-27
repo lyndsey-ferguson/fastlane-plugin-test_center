@@ -69,6 +69,7 @@ describe Fastlane::Actions::CollateHtmlReportsAction do
 
       Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
       report = REXML::Document.new(report_file.string)
+      puts "report: #{report}"
       actual_test_identifiers = testidentifiers_from_xmlreport(report)
       expect(actual_test_identifiers).to contain_exactly(
         'AtomicBoyUITests/testExample',
