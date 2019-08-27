@@ -3,7 +3,7 @@ html_report_1 = File.open('./spec/fixtures/report.html')
 html_report_2 = File.open('./spec/fixtures/report-2.html')
 
 def testidentifiers_from_xmlreport(report)
-  testable = REXML::XPath.first(report, "//section[@id='test-suites']")
+  testable = REXML::XPath.first(report, ".//section[@id='test-suites']")
   testsuites = REXML::XPath.match(testable, "section[contains(@class, 'test-suite')]")
   testidentifiers = []
   testsuites.each do |testsuite|

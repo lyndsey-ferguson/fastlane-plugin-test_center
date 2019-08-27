@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: setup
+    - name: install dependencies
       run: |
         gem install bundler
         bundle install
