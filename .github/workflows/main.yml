@@ -9,5 +9,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
     - name: test
       run: rake
