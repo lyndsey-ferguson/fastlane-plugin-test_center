@@ -6,9 +6,16 @@ jobs:
   build:
 
     runs-on: macOS-latest
+    strategy:
+      matrix:
+        ruby: [ '2.3.x', '2.4.x' ]
+    name: Run Tests with Ruby ${{ matrix.ruby }}
     
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
     - name: setup
       run: |
         gem install bundler
