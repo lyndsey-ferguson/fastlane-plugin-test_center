@@ -294,6 +294,19 @@ module Fastlane::Actions
           end
         )
       end
+
+      it 'does not quit the simulators when :force_quit_simulator is true and :quit_simulators is false' do
+        allow(Fastlane::Actions::MultiScanAction).to receive(:print_multi_scan_parameters)
+        allow(Fastlane::Actions::MultiScanAction).to receive(:prepare_for_testing)
+        mock_runner = OpenStruct.new
+        allow(mock_runner).to receive(:run).and_return(true)
+        allow(Fastlane::Actions::MultiScanAction).to receive(:run_summary)
+        allow(Fastlane::Actions::MultiScanAction).to receive(:print_run_summary)
+        allow(TestCenter::Helper::MultiScanManager::Runner).to receive(:new).and_return(mock_runner)
+        config = FastlaneCore::Configuration.new(Fastlane::Actions::MultiScanAction.available_options, { quit_simulators: false } )
+        expect(Fastlane::Actions::MultiScanAction).not_to receive(:force_quit_simulator_processes)
+        Fastlane::Actions::MultiScanAction.run(config)
+      end
     end
 
     it 'Doesnt run when batch_count and invocation_based_tests are set' do
