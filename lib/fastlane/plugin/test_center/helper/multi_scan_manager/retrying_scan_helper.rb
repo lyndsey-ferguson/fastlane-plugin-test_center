@@ -81,6 +81,10 @@ module TestCenter
         def scan_options
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           xcargs = @options[:xcargs]
+          if xcargs&.include?('build-for-testing')
+            FastlaneCore::UI.verbose(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
+            xcargs.slice!('build-for-testing')
+          end
           retrying_scan_options = @reportnamer.scan_options.merge(
             {
               output_directory: output_directory,
@@ -153,8 +157,8 @@ module TestCenter
           junit_results, report_filepath = failure_details(additional_info)
 
           info = {
-            failed: junit_results[:failed],
-            passing: junit_results[:passing],
+            failed: junit_results.fetch(:failed, []),
+            passing: junit_results.fetch(:passing, []),
             batch: @options[:batch] || 1,
             try_count: @testrun_count,
             report_filepath: report_filepath
