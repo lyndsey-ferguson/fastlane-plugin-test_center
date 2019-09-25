@@ -82,7 +82,7 @@ module TestCenter
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
           xcargs = @options[:xcargs]
           if xcargs&.include?('build-for-testing')
-            FastlaneCore::UI.verbose(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
+            FastlaneCore::UI.important(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
             xcargs.slice!('build-for-testing')
           end
           retrying_scan_options = @reportnamer.scan_options.merge(

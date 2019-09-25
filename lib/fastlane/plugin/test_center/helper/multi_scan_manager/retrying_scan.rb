@@ -30,8 +30,13 @@ module TestCenter
                                   .merge(@retrying_scan_helper.scan_options)
 
           prepare_scan_config_for_destination
+          scan_options[:build_for_testing] = false
+          FastlaneCore::UI.verbose("retrying_scan #update_scan_options")
           scan_options.each do |k,v|
+            next if v.nil?
+ 
             scan_config.set(k,v) unless v.nil?
+            FastlaneCore::UI.verbose("\tSetting #{k.to_s} to #{v}")
           end
         end
 
