@@ -623,8 +623,8 @@ module TestCenter::Helper::MultiScanManager
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
         expect(actual_testrun_info).to include(
-          failed: nil,
-          passing: nil,
+          failed: [],
+          passing: [],
           test_operation_failure: 'Test runner exited before starting test execution',
           batch: 1,
           try_count: 1,
@@ -660,8 +660,8 @@ module TestCenter::Helper::MultiScanManager
           end
         )
         expect(actual_testrun_info).to include(
-          failed: nil,
-          passing: nil,
+          failed: [],
+          passing: [],
           test_operation_failure: 'Launch session expired before checking in',
           batch: 1,
           try_count: 1,
