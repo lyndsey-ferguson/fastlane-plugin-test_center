@@ -57,7 +57,7 @@ module TestCenter
             )
             CollateJunitReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
-          elsif report_files.size == 1 && report_files.first != collated_file
+          elsif report_files.size == 1 && ! File.identical?(report_files.first, collated_file)
             FastlaneCore::UI.verbose("Copying junit report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
@@ -80,7 +80,7 @@ module TestCenter
             )
             CollateHtmlReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
-          elsif report_files.size == 1 && report_files.first != collated_file
+          elsif report_files.size == 1 && ! File.identical?(report_files.first, collated_file)
             FastlaneCore::UI.verbose("Copying html report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
@@ -103,7 +103,7 @@ module TestCenter
             )
             CollateJsonReportsAction.run(config)
             FileUtils.rm_rf(report_files - [collated_file])
-          elsif report_files.size == 1 && report_files.first != collated_file
+          elsif report_files.size == 1 && ! File.identical?(report_files.first, collated_file)
             FastlaneCore::UI.verbose("Copying json report file #{report_files.first}")
             FileUtils.mkdir_p(File.dirname(collated_file))
             FileUtils.mv(report_files.first, collated_file)
@@ -126,7 +126,7 @@ module TestCenter
             )
             CollateTestResultBundlesAction.run(config)
             FileUtils.rm_rf(test_result_bundlepaths - [collated_test_result_bundlepath])
-          elsif test_result_bundlepaths.size == 1 && test_result_bundlepaths.first != collated_test_result_bundlepath
+          elsif test_result_bundlepaths.size == 1 && File.realdirpath(test_result_bundlepaths.first) != File.realdirpath(collated_test_result_bundlepath)
             FastlaneCore::UI.verbose("Copying test_result bundle #{test_result_bundlepaths.first}")
             FileUtils.mkdir_p(File.dirname(collated_test_result_bundlepath))
             FileUtils.mv(test_result_bundlepaths.first, collated_test_result_bundlepath)
