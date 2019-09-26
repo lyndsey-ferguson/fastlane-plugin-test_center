@@ -11,18 +11,11 @@ module Fastlane
           # copy any missing testsuites
           target_report = reports.shift
           reports.each do |report|
-            report.elements.each("//section[contains(@class, 'test-suite')]") do |testsuite|
-              collate_testsuite(testsuite_from_report(target_report, testsuite), testsuite)
-            end
+            target_report.collate_report(report)
           end
-          update_testsuites_status(target_report)
-          update_test_counts(target_report)
 
           FileUtils.mkdir_p(File.dirname(params[:collated_report]))
-
-          File.open(params[:collated_report], 'w') do |f|
-            target_report.write(f, 2)
-          end
+          target_report.save_report(params[:collated_report])
         end
       end
 
@@ -31,7 +24,7 @@ module Fastlane
           report = nil
           repair_attempted = false
           begin
-            report = REXML::Document.new(File.new(report_filepath))
+            report = ::TestCenter::Helper::HtmlTestReport::Report.new(REXML::Document.new(File.new(report_filepath)))
           rescue REXML::ParseException => e
             if repair_attempted
               UI.important("'#{report_filepath}' is malformed and :collate_html_reports cannot repair it")
@@ -61,98 +54,6 @@ module Fastlane
             file.puts line
           end
         end
-      end
-
-      def self.testsuite_from_report(report, testsuite)
-        testsuite_name = testsuite.attribute('id').value
-        REXML::XPath.first(report, "//section[contains(@class, 'test-suite') and @id='#{testsuite_name}']")
-      end
-
-      def self.testcases_from_testsuite(testsuite)
-        REXML::XPath.match(testsuite, ".//*[contains(@class, 'tests')]//*[contains(@class, 'test')]//*[contains(@class, 'title')]")
-      end
-
-      def self.testcase_from_testsuite(testsuite, testcase_name)
-        REXML::XPath.first(testsuite, "*[contains(@class, 'test')]//*[text()='#{testcase_name}']/../..")
-      end
-
-      def self.collate_testsuite(target_testsuite, testsuite)
-        if target_testsuite
-          testcases = testcases_from_testsuite(testsuite)
-          testcases.each do |testcase|
-            testresult = testcase.parent.parent
-            target_testresult = testcase_from_testsuite(target_testsuite, testcase.text)
-            collate_testresults(target_testsuite, target_testresult, testresult)
-          end
-        else
-          testable = testsuite.parent
-          testable << testsuite
-        end
-      end
-
-      def self.collate_testresults(target_testsuite, target_testresult, testresult)
-        if target_testresult
-          collate_testresult_details(target_testresult, testresult)
-          target_testresult.parent.replace_child(target_testresult, testresult)
-        else
-          target_testsuite << testresult
-        end
-      end
-
-      def self.collate_testresult_details(target_testresult, testresult)
-        target_testdetails = details_for_testresult(target_testresult)
-        testdetails = details_for_testresult(testresult)
-
-        if target_testdetails
-          if testdetails
-            target_testresult.parent.replace_child(target_testdetails, testdetails)
-          else
-            target_testresult.parent.delete_element(target_testdetails)
-          end
-        end
-      end
-
-      def self.update_testsuites_status(report)
-        report.elements.each("//section[contains(@class, 'test-suite')]") do |testsuite|
-          failing_tests_xpath = "./*[contains(@class, 'tests')]//*[" \
-                "contains(@class, 'failing')]"
-
-          class_attributes = testsuite.attribute('class').value
-          test_failures = REXML::XPath.match(testsuite, failing_tests_xpath)
-          test_status = test_failures.size.zero? ? 'passing' : 'failing'
-
-          testsuite.add_attribute('class', class_attributes.sub('failing', test_status))
-        end
-      end
-
-      def self.update_test_counts(report)
-        tests_xpath = "//*[contains(@class, 'tests')]//*[contains(@class, 'test')]//*[contains(@class, 'title')]"
-        tests = REXML::XPath.match(report, tests_xpath)
-
-        failing_tests_xpath = "//*[contains(@class, 'tests')]//*[" \
-                "contains(@class, 'details') and " \
-                "contains(@class, 'failing')]"
-
-        test_failures = REXML::XPath.match(report, failing_tests_xpath)
-        test_count = REXML::XPath.first(report, ".//*[@id='test-count']/span")
-        if test_count
-          test_count.text = tests.size
-        end
-        fail_count = REXML::XPath.first(report, ".//*[@id='fail-count']/span")
-        if fail_count
-          fail_count.text = test_failures.size
-        end
-      end
-
-      def self.details_for_testresult(testresult)
-        testcase = REXML::XPath.first(testresult, ".//*[contains(@class, 'title')]")
-
-        xpath = "../*[" \
-                "contains(@class, 'details') and " \
-                "contains(@class, 'failing') and " \
-                "contains(@class, '#{testcase.text}')]"
-
-        REXML::XPath.first(testresult, xpath)
       end
 
       #####################################################
