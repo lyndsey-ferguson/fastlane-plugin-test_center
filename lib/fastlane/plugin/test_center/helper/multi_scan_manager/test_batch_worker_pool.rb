@@ -22,7 +22,8 @@ module TestCenter
           return [] unless @options[:platform] == :ios_simulator
 
           @simhelper = SimulatorHelper.new(
-            parallel_testrun_count: @options[:parallel_testrun_count]
+            parallel_testrun_count: @options[:parallel_testrun_count],
+            pre_delete_cloned_simulators: @options.fetch(:pre_delete_cloned_simulators, true)
           )
           @simhelper.setup
           @clones = @simhelper.clone_destination_simulators

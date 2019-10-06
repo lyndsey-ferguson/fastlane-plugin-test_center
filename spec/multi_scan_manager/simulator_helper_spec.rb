@@ -39,7 +39,7 @@ module TestCenter::Helper::MultiScanManager
     end
 
     describe 'setup' do
-      it 'deletes pre-existing simulator clones' do          
+      it 'deletes pre-existing simulator clones when :pre_delete_cloned_simulators' do          
         helper = SimulatorHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
@@ -47,6 +47,17 @@ module TestCenter::Helper::MultiScanManager
           parallel_testrun_count: 4
         )
         expect(helper).to receive(:delete_multi_scan_cloned_simulators)
+        helper.setup
+      end
+      it 'does not delete pre-existing simulator clones when :pre_delete_cloned_simulators is false' do          
+        helper = SimulatorHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'Atlas',
+          parallel_testrun_count: 4,
+          pre_delete_cloned_simulators: false
+        )
+        expect(helper).not_to receive(:delete_multi_scan_cloned_simulators)
         helper.setup
       end
     end

@@ -308,6 +308,13 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
+            key: :pre_delete_cloned_simulators,
+            description: 'Delete left over cloned simulators before running a parallel testrun',
+            optional: true,
+            is_string: false,
+            default_value: true
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
             description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process',
             optional: true,
