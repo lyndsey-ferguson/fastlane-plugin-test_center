@@ -195,7 +195,6 @@
 				1FAF0F58EBBEC00467643CF0 /* Pods-KiwiTests.release.xcconfig */,
 				4C050727974CFB3DA6DD48AD /* Pods-KiwiTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -728,7 +727,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "AtomicBoyUITests/AtomicBoyUITests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = AtomicBoy;
 			};
@@ -745,7 +744,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.appian.AtomicBoyUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "AtomicBoyUITests/AtomicBoyUITests-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = AtomicBoy;
 			};
