@@ -15,6 +15,7 @@ module Fastlane
 
         prepare_for_testing(params.values)
         
+        coerce_destination_to_array(params)
         platform = :mac
         platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
 
@@ -29,6 +30,13 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
         summary
+      end
+
+      def self.coerce_destination_to_array(params)
+        destination = params[:destination] || Scan.config[:destination] || []
+        unless destination.kind_of?(Array)
+          params[:destination] = Scan.config[:destination] = [destination] 
+        end
       end
 
       def self.print_multi_scan_parameters(params)

@@ -257,6 +257,27 @@ module Fastlane::Actions
         )
       end
 
+      it 'returns the result when nothing catastrophic goes on and :destination is a string' do
+        allow(Scan).to receive(:config).and_return(
+          destination: 'platform=iOS Simulator'
+        )
+        
+        mocked_runner = OpenStruct.new
+        allow(mocked_runner).to receive(:run).and_return(false)
+        allow(::TestCenter::Helper::MultiScanManager::Runner).to receive(:new).and_return(mocked_runner)
+        run_summary_mock = { this_to_shall_pass: true }
+        expect(MultiScanAction).to receive(:run_summary).and_return(run_summary_mock)
+        expect(MultiScanAction).to receive(:prepare_for_testing)
+        
+        options_mock = {
+          try_count: 1
+        }
+        allow(options_mock).to receive(:values).and_return(options_mock)
+        allow(options_mock).to receive(:_values).and_return(options_mock)
+        summary = MultiScanAction.run(options_mock)
+        expect(summary).to eq(run_summary_mock)
+      end
+      
       it 'returns the result when nothing catastrophic goes on' do
         mocked_runner = OpenStruct.new
         allow(mocked_runner).to receive(:run).and_return(false)
