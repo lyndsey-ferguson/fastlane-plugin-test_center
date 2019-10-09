@@ -15,6 +15,7 @@ module Fastlane
 
         prepare_for_testing(params.values)
         
+        coerce_destination_to_array(params)
         platform = :mac
         platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
 
@@ -29,6 +30,13 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
         summary
+      end
+
+      def self.coerce_destination_to_array(params)
+        destination = params[:destination] || Scan.config[:destination] || []
+        unless destination.kind_of?(Array)
+          params[:destination] = Scan.config[:destination] = [destination] 
+        end
       end
 
       def self.print_multi_scan_parameters(params)
@@ -306,6 +314,13 @@ module Fastlane
               UI.user_error!("Error: :parallel_testrun_count must be greater than zero") unless count > 0
               UI.important("Warning: the CoreSimulatorService may fail to connect to simulators if :parallel_testrun_count is greater than 6") if count > 6
             end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :pre_delete_cloned_simulators,
+            description: 'Delete left over cloned simulators before running a parallel testrun',
+            optional: true,
+            is_string: false,
+            default_value: true
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,

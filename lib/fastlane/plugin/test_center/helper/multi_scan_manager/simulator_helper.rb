@@ -7,7 +7,7 @@ module TestCenter
         end
 
         def setup
-          if @options[:parallel_testrun_count] > 1
+          if @options[:parallel_testrun_count] > 1 && @options.fetch(:pre_delete_cloned_simulators, true)
             delete_multi_scan_cloned_simulators
           end
         end
