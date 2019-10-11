@@ -48,14 +48,14 @@ module TestCenter
         def test_count
           REXML::XPath.first(@root, ".//*[@id = 'counters']//*[@id='test-count']/*[@class = 'number']/text()").to_s.to_i
         end
-      
+        
         def set_test_count(test_count)
           test_count_element = REXML::XPath.first(@root, ".//*[@id = 'counters']//*[@id='test-count']/*[@class = 'number']/text()")
           test_count_element.value = test_count.to_s
         end
-
+        
         def update_test_count
-          testcase_elements = REXML::XPath.match(@root, ".//*[contains(@class, 'tests')]//*[contains(concat(' ', @class, ' '), ' test ')]")
+          testcase_elements = REXML::XPath.match(@root, "//*[contains(@class, 'tests')]//*[contains(concat(' ', @class, ' '), ' test ')]").uniq
           set_test_count(testcase_elements.size)
         end
 
@@ -89,7 +89,7 @@ module TestCenter
             "contains(concat(' ', @class, ' '), ' failing ')"
           ].join(' and ')
 
-          failing_testcase_elements = REXML::XPath.match(@root, ".//[#{xpath_class_attributes}]")
+          failing_testcase_elements = REXML::XPath.match(@root, ".//*[#{xpath_class_attributes}]")
           set_fail_count(failing_testcase_elements.size)
         end
 
@@ -143,8 +143,11 @@ module TestCenter
         end
 
         def testcase_with_title(title)
-          testcase_element = REXML::XPath.first(@root, ".//*[contains(@class, 'tests')]//*[contains(concat(' ', @class, ' '), ' test ')]//*[@class='title']/[normalize-space()='#{title}']/../../..")
-          TestCase.new(testcase_element) unless testcase_element.nil?
+          found_title_element = REXML::XPath.match(@root, ".//*[contains(@class, 'tests')]//*[contains(concat(' ', @class, ' '), ' test ')]//*[@class='title']").find { |n| n.text.to_s.strip == title  }
+          if found_title_element
+            testcase_element = found_title_element.parent.parent
+            TestCase.new(testcase_element) unless testcase_element.nil?
+          end
         end
 
         def passing?
@@ -243,8 +246,7 @@ module TestCenter
             "contains(concat(' ', @class, ' '), ' failing ')",
             "contains(concat(' ', @class, ' '), ' #{title} ')"
           ].join(' and ')
-          
-          REXML::XPath.first(@root.parent, ".//[#{xpath_class_attributes}]")
+          REXML::XPath.first(@root.parent, ".//*[#{xpath_class_attributes}]")
         end
 
         def remove_failure_details
