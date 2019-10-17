@@ -6,6 +6,9 @@ module Fastlane
       def self.run(params)
         test_result_bundlepaths = params[:bundles]
         base_bundle_path = test_result_bundlepaths[0]
+
+        return if collate_version3_formatted_bundles(params)
+
         if test_result_bundlepaths.size > 1
           base_bundle_path = Dir.mktmpdir(['base', '.test_result'])
           FileUtils.cp_r(File.join(test_result_bundlepaths[0], '.'), base_bundle_path)
@@ -17,6 +20,63 @@ module Fastlane
         FileUtils.rm_rf(params[:collated_bundle])
         FileUtils.cp_r(base_bundle_path, params[:collated_bundle])
         UI.message("Finished collating test_result bundle to '#{params[:collated_bundle]}'")
+      end
+
+      def self.collate_version3_formatted_bundles(params)
+        test_result_bundlepaths = params[:bundles]
+        found_version3_format_bundle = test_result_bundlepaths.any? do |test_result_bundlepath|
+          is_bundle_format_3?(test_result_bundlepath)
+        end
+        
+        if found_version3_format_bundle
+          FastlaneCore::UI.verbose("result bundles are of format version 3")
+          `xcrun xcresulttool version 2> /dev/null`
+          unless $?.exitstatus.zero?
+            UI.user_error!("""
+              Unable to collate version 3 format test_result bundle without the xcrun xcresulttool.
+              Please install and select Xcode 11, and then run the command again.""")
+          end
+          xcresulttool_merge(params)
+        end
+        FastlaneCore::UI.verbose("result bundles are NOT of format version 3")
+        return false
+      end
+
+      def self.xcresulttool_merge(params)
+        collated_bundlepath = File.expand_path(params[:collated_bundle])
+        Dir.mktmpdir do |dir|
+          tmp_xcresult_bundlepaths = []
+          test_result_bundlepaths.each do |test_result_bundlepath|
+            bundlename = File.basename(test_result_bundlepath)
+            # Note: the `xcresulttool` requires that the bundle names end in `.xcresult`.
+            tmp_xcresult_bundlepath = Dir.mktmpdir([bundlename, '.xcresult'])
+            FileUtils.rmdir([tmp_xcresult_bundlepath])
+            FileUtils.symlink(test_result_bundlepath, "#{tmp_xcresult_bundlepath}", force: true)
+            tmp_xcresult_bundlepaths << tmp_xcresult_bundlepath
+          end
+          tmp_collated_bundlepath = File.join(dir, File.basename(collated_bundlepath))
+          xcresulttool_cmd = 'xcrun xcresulttool merge '
+          xcresulttool_cmd += tmp_xcresult_bundlepaths.map(&:shellescape).join(' ')
+          xcresulttool_cmd += " --output-path #{tmp_collated_bundlepath}"
+          UI.message(xcresulttool_cmd)
+          sh(xcresulttool_cmd)
+          FileUtils.safe_unlink(tmp_xcresult_bundlepaths)
+          FileUtils.rm_rf(collated_bundlepath)
+          FileUtils.cp_r(tmp_collated_bundlepath, collated_bundlepath)
+          UI.message("Finished collating test_result bundle to '#{collated_bundlepath}'")
+          return true
+        end
+      end
+
+      def self.is_bundle_format_3?(bundle_path)
+        infoplist_filepath = File.join(bundle_path, 'Info.plist')
+        if File.exist?(infoplist_filepath)
+          base_infoplist = Plist.parse_xml(infoplist_filepath)
+          if base_infoplist.key?('version')
+            return true if base_infoplist.dig('version', 'major') > 2
+          end
+        end
+        false
       end
 
       def self.collate_bundles(base_bundle_path, other_bundle_path)

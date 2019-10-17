@@ -114,7 +114,10 @@ module TestCenter
           return unless @result_bundle
 
           test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
-          collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}.test_result")
+          result_bundlename_suffix = ''
+          result_bundlename_suffix = "-#{@reportnamer.report_count + 1}" if @reportnamer.report_count > 0
+
+          collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}#{result_bundlename_suffix}.test_result")
           if test_result_bundlepaths.size > 1
             FastlaneCore::UI.verbose("Collating test_result bundles #{test_result_bundlepaths}")
             config = create_config(

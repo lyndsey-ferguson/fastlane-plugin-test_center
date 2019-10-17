@@ -40,6 +40,9 @@ module TestCenter
         def delete_xcresults
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
+          if FastlaneCore::Helper.xcode_at_least?('11.0.0')
+            xcresults += Dir.glob("#{output_directory}/*.xcresult")
+          end
           FastlaneCore::UI.verbose("Deleting xcresults:")
           xcresults.each do |xcresult|
             FastlaneCore::UI.verbose("  #{xcresult}")
