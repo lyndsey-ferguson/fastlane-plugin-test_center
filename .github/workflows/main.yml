@@ -22,3 +22,16 @@ jobs:
         bundle install
     - name: test
       run: rake
+
+  test_on_latest_ruby:
+    name: Run Tests with the latest Ruby
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: test
+      run: rake
+        

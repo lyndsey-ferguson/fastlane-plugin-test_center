@@ -71,7 +71,9 @@ module TestCenter::Helper::HtmlTestReport
           html_report2 = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report-2.html'))))
           html_report.collate_report(html_report2)
           expect(html_report.testsuites.map(&:passing?)).to eq([false, true])
-          failing_testcase_details = REXML::XPath.match(html_report.root, ".//*[contains(@class, 'tests')]//*[contains(@class, 'details') and contains(@class, 'failing')]")
+
+          xpath_class_attributes = [ "contains(concat(' ', @class, ' '), ' details ')", "contains(concat(' ', @class, ' '), ' failing ')" ].join(' and ')
+          failing_testcase_details = REXML::XPath.match(html_report.root, ".//*[#{xpath_class_attributes}]")
           expect(failing_testcase_details.size).to eq(2)
         end
 
@@ -359,9 +361,9 @@ module TestCenter::Helper::HtmlTestReport
           testsuites = html_report.testsuites
           atomic_boy_ui_testcase1 = testsuites[0].testcases[0]
           failure_details = atomic_boy_ui_testcase1.failure_details
-          failure_reason = REXML::XPath.first(failure_details, "//[contains(@class, 'reason')]/text()").to_s
+          failure_reason = REXML::XPath.first(failure_details, "//*[contains(@class, 'reason')]/text()").to_s
           expect(failure_reason).to eq('((false) is true) failed')
-          failure_location = REXML::XPath.first(failure_details, "//[@class = 'test-detail']/text()").to_s
+          failure_location = REXML::XPath.first(failure_details, "//*[@class = 'test-detail']/text()").to_s
           expect(failure_location).to eq('AtomicBoyUITests.m:40')
         end
       end
@@ -401,9 +403,9 @@ module TestCenter::Helper::HtmlTestReport
 
           atomic_boy_ui_swift_passing_testcase.update_testcase(atomic_boy_ui_failing_testcase)
           failure_details = atomic_boy_ui_swift_passing_testcase.failure_details
-          failure_reason = REXML::XPath.first(failure_details, "//[contains(@class, 'reason')]/text()").to_s
+          failure_reason = REXML::XPath.first(failure_details, "//*[contains(@class, 'reason')]/text()").to_s
           expect(failure_reason).to eq('XCTAssertTrue failed - ')
-          failure_location = REXML::XPath.first(failure_details, "//[@class = 'test-detail']/text()").to_s
+          failure_location = REXML::XPath.first(failure_details, "//*[@class = 'test-detail']/text()").to_s
           expect(failure_location).to eq('SwiftAtomicBoyUITests.swift:14')
         end
 
