@@ -48,7 +48,7 @@ module Fastlane
       
       # :nocov:
       def self.description
-        "Uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme"
+        "🗜 Uses a junit xml report file to suppress either passing or failing tests in an Xcode Scheme"
       end
 
       def self.available_options

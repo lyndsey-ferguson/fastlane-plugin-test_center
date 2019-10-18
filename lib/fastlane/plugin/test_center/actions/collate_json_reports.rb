@@ -100,7 +100,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Combines multiple json report files into one json report file"
+        "🔹 Combines multiple json report files into one json report file"
       end
 
       def self.details

@@ -61,7 +61,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Suppresses specific tests in a specific or all Xcode Schemes in a given project"
+        "🗜 Suppresses specific tests in a specific or all Xcode Schemes in a given project"
       end
 
       def self.available_options

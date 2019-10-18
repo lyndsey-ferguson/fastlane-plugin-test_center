@@ -72,7 +72,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Retrieves all of the tests from xctest bundles referenced by the xctestrun file"
+        "️️☑️ Retrieves all of the tests from xctest bundles referenced by the xctestrun file"
       end
 
       def self.available_options

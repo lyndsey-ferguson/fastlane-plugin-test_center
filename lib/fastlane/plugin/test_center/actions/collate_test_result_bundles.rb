@@ -174,7 +174,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Combines multiple test_result bundles into one test_result bundle"
+        "🔸 Combines multiple test_result bundles into one test_result bundle"
       end
 
       def self.details

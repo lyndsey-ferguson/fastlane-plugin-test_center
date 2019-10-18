@@ -54,7 +54,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "Retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project"
+        "🗜 Retrieves a list of tests that are suppressed in a specific or all Xcode Schemes in a project"
       end
 
       def self.available_options
