@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.description = <<-SUMMARY
-    This fastlane plugin includes the following many actions to better manage how you test, what you test, and the information you get from your tests
+  🎯  Understand, tame, and train your iOS & Mac tests 🎉
   SUMMARY
 
   spec.add_dependency 'json'
