@@ -37,12 +37,14 @@ module Fastlane
               Please install and select Xcode 11, and then run the command again.""")
           end
           xcresulttool_merge(params)
+          return true
         end
         FastlaneCore::UI.verbose("result bundles are NOT of format version 3")
         return false
       end
 
       def self.xcresulttool_merge(params)
+        test_result_bundlepaths = params[:bundles]
         collated_bundlepath = File.expand_path(params[:collated_bundle])
         Dir.mktmpdir do |dir|
           tmp_xcresult_bundlepaths = []
@@ -64,7 +66,6 @@ module Fastlane
           FileUtils.rm_rf(collated_bundlepath)
           FileUtils.cp_r(tmp_collated_bundlepath, collated_bundlepath)
           UI.message("Finished collating test_result bundle to '#{collated_bundlepath}'")
-          return true
         end
       end
 
