@@ -87,17 +87,8 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     allow(File).to receive(:exist?).and_call_original
     allow(File).to receive(:exist?).with('path/to/fake2.xctestrun').and_return(true)
     allow(File).to receive(:read).with('path/to/fake2.xctestrun').and_return(File.read('./spec/fixtures/fake2.xctestrun'))
-    allow(XCTestList)
-      .to receive(:tests)
-      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
-      .and_return(
-        [
-          'AtomicBoyTests/AtomicBoyUITests/testExample',
-          'AtomicBoyTests/AtomicBoyUITests/testExample2',
-          'AtomicBoyTests/AtomicBoyUITests/testExample3',
-          'AtomicBoyTests/AtomicBoyUITests/testExample4'
-        ]
-      )
+    expect(XCTestList).not_to receive(:tests)
+
     fastfile = "lane :test do
       tests_from_xctestrun(
         xctestrun: 'path/to/fake2.xctestrun'
@@ -115,7 +106,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
         'AtomicBoyUITests/AtomicBoyUITests/testExample',
         'AtomicBoyUITests/AtomicBoyUITests/testExample2',
         'AtomicBoyUITests/AtomicBoyUITests/testExample3',
-        'AtomicBoyUITests/AtomicBoyUITests/testExample4'
+        'AtomicBoyUITests/AtomicBoyUITests/testExample44'
       ]
     )
   end

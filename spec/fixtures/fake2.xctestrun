@@ -118,7 +118,7 @@
 			<string>AtomicBoyUITests/testExample</string>
 			<string>AtomicBoyUITests/testExample2</string>
 			<string>AtomicBoyUITests/testExample3</string>
-			<string>AtomicBoyUITests/testExample4</string>
+			<string>AtomicBoyUITests/testExample44</string>
 		</array>
 		<key>SystemAttachmentLifetime</key>
 		<string>deleteOnSuccess</string>
