@@ -62,64 +62,13 @@
                   Identifier = "AtomicBoyUITests/testExample">
                </Test>
                <Test
-                  Identifier = "AtomicBoyUITests/testExample10">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample11">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample12">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample13">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample14">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample15">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample16">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample17">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample18">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample19">
-               </Test>
-               <Test
                   Identifier = "AtomicBoyUITests/testExample2">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample20">
                </Test>
                <Test
                   Identifier = "AtomicBoyUITests/testExample3">
                </Test>
                <Test
                   Identifier = "AtomicBoyUITests/testExample4">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample5">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample6">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample7">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample8">
-               </Test>
-               <Test
-                  Identifier = "AtomicBoyUITests/testExample9">
-               </Test>
-               <Test
-                  Identifier = "SwiftAtomicBoyUITests/testExample()">
                </Test>
             </SelectedTests>
          </TestableReference>
