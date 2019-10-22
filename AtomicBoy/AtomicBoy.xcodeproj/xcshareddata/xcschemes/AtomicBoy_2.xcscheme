@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "0900"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "26DB0F4E1FA12D4B0023C31D"
+               BuildableName = "AtomicBoy.app"
+               BlueprintName = "AtomicBoy"
+               ReferencedContainer = "container:AtomicBoy.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            useTestSelectionWhitelist = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "26DB0F6D1FA12D4B0023C31D"
+               BuildableName = "AtomicBoyTests.xctest"
+               BlueprintName = "AtomicBoyTests"
+               ReferencedContainer = "container:AtomicBoy.xcodeproj">
+            </BuildableReference>
+            <SelectedTests>
+               <Test
+                  Identifier = "AtomicBoyTests/testExample">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyTests/testPerformanceExample">
+               </Test>
+            </SelectedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            useTestSelectionWhitelist = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "26DB0F781FA12D4B0023C31D"
+               BuildableName = "AtomicBoyUITests.xctest"
+               BlueprintName = "AtomicBoyUITests"
+               ReferencedContainer = "container:AtomicBoy.xcodeproj">
+            </BuildableReference>
+            <SelectedTests>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample10">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample11">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample12">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample13">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample14">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample15">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample16">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample17">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample18">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample19">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample2">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample20">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample3">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample4">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample5">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample6">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample7">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample8">
+               </Test>
+               <Test
+                  Identifier = "AtomicBoyUITests/testExample9">
+               </Test>
+               <Test
+                  Identifier = "SwiftAtomicBoyUITests/testExample()">
+               </Test>
+            </SelectedTests>
+         </TestableReference>
+      </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "26DB0F4E1FA12D4B0023C31D"
+            BuildableName = "AtomicBoy.app"
+            BlueprintName = "AtomicBoy"
+            ReferencedContainer = "container:AtomicBoy.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "26DB0F4E1FA12D4B0023C31D"
+            BuildableName = "AtomicBoy.app"
+            BlueprintName = "AtomicBoy"
+            ReferencedContainer = "container:AtomicBoy.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "26DB0F4E1FA12D4B0023C31D"
+            BuildableName = "AtomicBoy.app"
+            BlueprintName = "AtomicBoy"
+            ReferencedContainer = "container:AtomicBoy.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
