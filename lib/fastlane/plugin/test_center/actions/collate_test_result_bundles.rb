@@ -59,8 +59,10 @@ module Fastlane
           tmp_collated_bundlepath = File.join(dir, File.basename(collated_bundlepath))
           xcresulttool_cmd = 'xcrun xcresulttool merge '
           xcresulttool_cmd += tmp_xcresult_bundlepaths.map(&:shellescape).join(' ')
-          xcresulttool_cmd += " --output-path #{tmp_collated_bundlepath}"
+          xcresulttool_cmd += " --output-path #{tmp_collated_bundlepath.shellescape}"
+          UI.message("%%%%%%%%%%%%%%%%%%%%%%%%%%%")
           UI.message(xcresulttool_cmd)
+          UI.message("%%%%%%%%%%%%%%%%%%%%%%%%%%%")
           sh(xcresulttool_cmd)
           FileUtils.safe_unlink(tmp_xcresult_bundlepaths)
           FileUtils.rm_rf(collated_bundlepath)
