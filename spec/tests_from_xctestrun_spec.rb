@@ -82,4 +82,32 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
     expect(tests).to eq({'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
   end
+
+  it 'returns all the tests in useTestSelectionWhitelist enabled xctestrun file' do
+    allow(File).to receive(:exist?).and_call_original
+    allow(File).to receive(:exist?).with('path/to/fake2.xctestrun').and_return(true)
+    allow(File).to receive(:read).with('path/to/fake2.xctestrun').and_return(File.read('./spec/fixtures/fake2.xctestrun'))
+    expect(XCTestList).not_to receive(:tests)
+
+    fastfile = "lane :test do
+      tests_from_xctestrun(
+        xctestrun: 'path/to/fake2.xctestrun'
+      )
+    end"
+    tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    expect(tests).to include(
+      'AtomicBoyTests' => [
+        'AtomicBoyTests/AtomicBoyUITests/testExample',
+        'AtomicBoyTests/AtomicBoyUITests/testExample2',
+        'AtomicBoyTests/AtomicBoyUITests/testExample3',
+        'AtomicBoyTests/AtomicBoyUITests/testExample4'
+      ],
+      'AtomicBoyUITests' => [
+        'AtomicBoyUITests/AtomicBoyUITests/testExample',
+        'AtomicBoyUITests/AtomicBoyUITests/testExample2',
+        'AtomicBoyUITests/AtomicBoyUITests/testExample3',
+        'AtomicBoyUITests/AtomicBoyUITests/testExample44'
+      ]
+    )
+  end
 end
