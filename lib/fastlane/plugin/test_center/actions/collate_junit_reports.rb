@@ -207,7 +207,7 @@ module Fastlane
           )
           reports = Dir['../spec/fixtures/*.xml'].map { |relpath| File.absolute_path(relpath) }
           collate_junit_reports(
-            reports: reports,
+            reports: reports.sort_by { |f| File.mtime(f) },
             collated_report: File.join(Dir.mktmpdir, 'result.xml')
           )
           "
