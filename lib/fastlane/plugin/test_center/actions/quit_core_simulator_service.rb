@@ -19,7 +19,7 @@ module Fastlane
 
       # :nocov:
       def self.description
-        "📲 Force-quits the com.apple.CoreSimulator.CoreSimulatorService."
+        "📲 Force-quits the com.apple.CoreSimulator.CoreSimulatorService to fix mysterious iOS Simulator issues."
       end
 
       def self.details
