@@ -170,9 +170,10 @@ module Fastlane
       end
 
       def self.prepare_scan_options_for_build_for_testing(scan_options)
+        build_options = scan_options.merge(build_for_testing: true).reject { |k| k == :test_without_building }
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          ScanHelper.scan_options_from_multi_scan_options(scan_options.merge(build_for_testing: true))
+          ScanHelper.scan_options_from_multi_scan_options(build_options)
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
