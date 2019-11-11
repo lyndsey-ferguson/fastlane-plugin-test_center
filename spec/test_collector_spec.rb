@@ -6,7 +6,7 @@ module TestCenter::Helper
           allow(File).to receive(:exist?).and_call_original
           allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
         end
-        
+
         it 'throws an exception for a non-existent xctestrun' do
           expect { TestCollector.new(derived_data_path: 'path/to/fake/derived_data', scheme: 'Professor') }.to(
             raise_error(FastlaneCore::Interface::FastlaneError) do |error|

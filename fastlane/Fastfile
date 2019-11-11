@@ -12,10 +12,11 @@ end
 
 lane :testing do
   multi_scan(
-    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
     try_count: 3,
-    batch_count: 4,
+    output_types: 'xcresult',
+    output_files: 'result.xcresult',
     fail_build: false
   )
 end

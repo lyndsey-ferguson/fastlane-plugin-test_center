@@ -11,14 +11,14 @@ def testidentifiers_from_xmlreport(report)
 end
 
 module Fastlane::Actions
-  
+
   html_report_1 = File.open('./spec/fixtures/report.html')
   html_report_2 = File.open('./spec/fixtures/report-2.html')
 
   atomicboy_ui_testsuite_file = File.read('./spec/fixtures/atomicboy_uitestsuite.html')
   atomicboy_ui_testsuite_file2 = File.read('./spec/fixtures/atomicboy_uitestsuite-2.html')
-  atomicboy_ui_testsuite_file3 = File.read('./spec/fixtures/atomicboy_uitestsuite-3.html') 
-  atomicboy_ui_testsuite_file4 = File.read('./spec/fixtures/atomicboy_uitestsuite-4.html') 
+  atomicboy_ui_testsuite_file3 = File.read('./spec/fixtures/atomicboy_uitestsuite-3.html')
+  atomicboy_ui_testsuite_file4 = File.read('./spec/fixtures/atomicboy_uitestsuite-4.html')
 
   describe "CollateHtmlReportsAction" do
     before(:each) do
@@ -26,8 +26,8 @@ module Fastlane::Actions
       allow(File).to receive(:open).and_call_original
       @atomicboy_ui_testsuite = REXML::Document.new(atomicboy_ui_testsuite_file).root
       @atomicboy_ui_testsuite2 = REXML::Document.new(atomicboy_ui_testsuite_file2).root
-      @atomicboy_ui_testsuite3 = REXML::Document.new(atomicboy_ui_testsuite_file3).root      
-      @atomicboy_ui_testsuite4 = REXML::Document.new(atomicboy_ui_testsuite_file4).root      
+      @atomicboy_ui_testsuite3 = REXML::Document.new(atomicboy_ui_testsuite_file3).root
+      @atomicboy_ui_testsuite4 = REXML::Document.new(atomicboy_ui_testsuite_file4).root
     end
 
     describe 'it handles invalid data' do

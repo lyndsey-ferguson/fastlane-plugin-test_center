@@ -48,7 +48,7 @@ module TestCenter::Helper::HtmlTestReport
           expect(html_report.test_count).to eq(97)
         end
       end
-      
+
       describe '#fail_count' do
         it 'returns the correct number of tests' do
           html_report = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report.html'))))
@@ -105,13 +105,13 @@ module TestCenter::Helper::HtmlTestReport
       describe '#save_report' do
         it 'saves a collated report' do
           html_report = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report.html'))))
-  
+
           html_report2 = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report-2.html'))))
           html_report.collate_report(html_report2)
-  
+
           report_file = StringIO.new
           expect(File).to receive(:open).with('path/to/report.html', 'w').and_yield(report_file)
-  
+
           html_report.save_report('path/to/report.html')
           written_html_report = Report.new(REXML::Document.new(report_file.string))
           expect(written_html_report.testsuites.map(&:passing?)).to eq([false, true])
@@ -367,7 +367,7 @@ module TestCenter::Helper::HtmlTestReport
           expect(failure_location).to eq('AtomicBoyUITests.m:40')
         end
       end
-      
+
       describe '#remove_failure_details' do
         it 'removes the failure details from the testcase' do
           html_report = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report.html'))))
@@ -414,7 +414,7 @@ module TestCenter::Helper::HtmlTestReport
           testsuites = html_report.testsuites
           atomic_boy_ui_failing_testcase = testsuites[1].testcases[0]
           atomic_boy_ui_failing_testcase.set_row_color('odd')
-          
+
           html_report = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report-2.html'))))
           testsuites = html_report.testsuites
           atomic_boy_ui_swift_passing_testcase = testsuites[0].testcases[0]

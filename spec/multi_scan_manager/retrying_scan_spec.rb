@@ -36,6 +36,14 @@ module TestCenter::Helper::MultiScanManager
         retrying_scan.prepare_scan_config_for_destination
         expect(@mock_scan_cache).to be_empty
       end
+
+      it 'removes :result_bundle if ReportNamer includes "xcresult" output_type' do
+        allow(ReportNameHelper).to receive(:includes_xcresult?).and_return(true)
+        retrying_scan = RetryingScan.new
+        @mock_scan_config[:result_bundle] = true
+        retrying_scan.prepare_scan_config_for_destination
+        expect(@mock_scan_config[:result_bundle]).to be_falsey 
+      end
     end
 
     describe '#update_scan_options' do

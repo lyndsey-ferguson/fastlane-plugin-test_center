@@ -16,8 +16,24 @@ module TestCenter
             clean: false,
             disable_concurrent_testing: true
           )
+          @result_bundle_desired = !!@options[:result_bundle]
+          if @options[:result_bundle] && FastlaneCore::Helper.xcode_at_least?('11.0.0')
+            update_options_to_use_xcresult_output
+          end
           @batch_count = 1 # default count. Will be updated by setup_testcollector
           setup_testcollector
+        end
+
+        def update_options_to_use_xcresult_output
+          return @options unless @options[:result_bundle]
+
+          updated_output_types, updated_output_files = ReportNameHelper.ensure_output_includes_xcresult(
+            @options[:output_types],
+            @options[:output_files]
+          )
+          @options[:output_types] = updated_output_types
+          @options[:output_files] = updated_output_files
+          @options.reject! { |k,_| k == :result_bundle }
         end
 
         def setup_testcollector
@@ -42,6 +58,7 @@ module TestCenter
         def run
           ScanHelper.remove_preexisting_simulator_logs(@options)
           remove_preexisting_test_result_bundles
+          remote_preexisting_xcresult_bundles
 
           tests_passed = false
           if should_run_tests_through_single_try?
@@ -63,7 +80,7 @@ module TestCenter
 
 
         def remove_preexisting_test_result_bundles
-          return unless @options[:result_bundle]
+          return unless @options[:result_bundle] || @options[:output_types]&.include?('xcresult')
 
           glob_pattern = "#{output_directory}/**/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
@@ -73,6 +90,20 @@ module TestCenter
               FastlaneCore::UI.verbose("  #{test_result_bundle}")
             end
             FileUtils.rm_rf(preexisting_test_result_bundles)
+          end
+        end
+
+        def remote_preexisting_xcresult_bundles
+          return unless @options.fetch(:output_types, '').include?('xcresult')
+
+          glob_pattern = "#{output_directory}/**/*.xcresult"
+          preexisting_xcresult_bundles = Dir.glob(glob_pattern)
+          if preexisting_xcresult_bundles.size > 0
+            FastlaneCore::UI.verbose("Removing pre-existing xcresult bundles: ")
+            preexisting_xcresult_bundles.each do |test_result_bundle|
+              FastlaneCore::UI.verbose("  #{test_result_bundle}")
+            end
+            FileUtils.rm_rf(preexisting_xcresult_bundles)
           end
         end
 
@@ -108,6 +139,8 @@ module TestCenter
           @options[:only_testing] = retrieve_failed_single_try_tests
           @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
           
+          symlink_result_bundle_to_xcresult(output_directory, reportnamer)
+
           tests_passed
         end
         
@@ -178,6 +211,17 @@ module TestCenter
           FileUtils.rm_rf(report_files_dir)
         end
 
+        def symlink_result_bundle_to_xcresult(output_dir, reportname_helper)
+          return unless @result_bundle_desired && reportname_helper.includes_xcresult?
+
+          xcresult_bundlename = reportname_helper.xcresult_bundlename
+          xcresult_bundlename_path = File.join(output_dir, xcresult_bundlename)
+          test_result_bundlename = File.basename(xcresult_bundlename, '.*') + '.test_result'
+          test_result_bundlename_path = File.join(output_dir, test_result_bundlename)
+          FileUtils.rm_rf(test_result_bundlename_path)
+          File.symlink(xcresult_bundlename_path, test_result_bundlename_path)
+        end
+
         def collate_batched_reports_for_testable(testable)
           FastlaneCore::UI.verbose("Collating results for all batches")
 
@@ -191,18 +235,21 @@ module TestCenter
           given_output_types = @options[:output_types]
           given_output_files = @options[:output_files]
 
+          report_name_helper = ReportNameHelper.new(
+            given_output_types,
+            given_output_files,
+            given_custom_report_file_name
+          )
+
           TestCenter::Helper::MultiScanManager::ReportCollator.new(
             source_reports_directory_glob: source_reports_directory_glob,
             output_directory: absolute_output_directory,
-            reportnamer: ReportNameHelper.new(
-              given_output_types,
-              given_output_files,
-              given_custom_report_file_name
-            ),
+            reportnamer: report_name_helper,
             scheme: @options[:scheme],
             result_bundle: @options[:result_bundle]
           ).collate
           FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
+          symlink_result_bundle_to_xcresult(absolute_output_directory, report_name_helper)
           true
         end
       end

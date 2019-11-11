@@ -17,15 +17,15 @@ module Fastlane::Actions
         MultiScanAction.prepare_for_testing(
           {
             test_without_building: true,
-            skip_build: true 
+            skip_build: true
           }
         )
       end
     end
-    
+
     describe '#prepare_scan_config' do
       it 'creates a Scan.config' do
-        expect(Scan).to receive(:config=) 
+        expect(Scan).to receive(:config=)
 
         MultiScanAction.prepare_scan_config({
           project: File.absolute_path('./AtomicBoy/AtomicBoy.xcodeproj'),
@@ -33,7 +33,7 @@ module Fastlane::Actions
         })
       end
     end
-    
+
     describe '#build_for_testing' do
       it 'calls Scan to build' do
         mock_scan_runner = OpenStruct.new
@@ -41,7 +41,7 @@ module Fastlane::Actions
         expect(mock_scan_runner).to receive(:run)
         mock_scan_config = OpenStruct.new
         allow(mock_scan_config).to receive(:values).and_return({})
-        expect(mock_scan_config).to receive(:_values).and_return({
+        allow(mock_scan_config).to receive(:_values).and_return({
           build_for_testing: true
         })
         allow(Scan).to receive(:config).and_return(mock_scan_config)
@@ -71,13 +71,13 @@ module Fastlane::Actions
         MultiScanAction.remove_build_report_files
       end
     end
-  
+
     describe '#run_summary' do
       before(:each) do
         allow(Dir).to receive(:glob)
           .with('test_output/**/report*.xml')
           .and_return([File.absolute_path('./spec/fixtures/junit.xml')])
-      
+
         @other_action_mock = OpenStruct.new
         allow(MultiScanAction).to receive(:other_action).and_return(@other_action_mock)
         allow(@other_action_mock).to receive(:tests_from_junit).and_return(
@@ -204,11 +204,16 @@ module Fastlane::Actions
         allow(Dir).to receive(:glob)
           .with('test_output/**/*.test_result')
           .and_return([File.absolute_path('./spec/fixtures/Atomic Boy.test_result')])
+        allow(Dir).to receive(:glob)
+          .with('test_output/**/report*.xcresult')
+          .and_return([File.absolute_path('./spec/fixtures/report.xcresult')])
+
+        allow(::FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
 
         summary = MultiScanAction.run_summary(
           {
-            output_types: 'junit,html,json',
-            output_files: 'report.xml,report.html,report.json',
+            output_types: 'junit,html,json,xcresult',
+            output_files: 'report.xml,report.html,report.json,report.xcresult',
             output_directory: 'test_output',
             result_bundle: true
           },
@@ -247,6 +252,9 @@ module Fastlane::Actions
         expect(
           summary[:report_files].any? { |fp| fp =~ /Atomic Boy\.test_result/ }
         ).to be true
+        expect(
+          summary[:report_files].any? { |fp| fp =~ /report\.xcresult/ }
+        ).to be true
       end
     end
 
@@ -261,14 +269,14 @@ module Fastlane::Actions
         allow(Scan).to receive(:config).and_return(
           destination: 'platform=iOS Simulator'
         )
-        
+
         mocked_runner = OpenStruct.new
         allow(mocked_runner).to receive(:run).and_return(false)
         allow(::TestCenter::Helper::MultiScanManager::Runner).to receive(:new).and_return(mocked_runner)
         run_summary_mock = { this_to_shall_pass: true }
         expect(MultiScanAction).to receive(:run_summary).and_return(run_summary_mock)
         expect(MultiScanAction).to receive(:prepare_for_testing)
-        
+
         options_mock = {
           try_count: 1
         }
@@ -277,7 +285,7 @@ module Fastlane::Actions
         summary = MultiScanAction.run(options_mock)
         expect(summary).to eq(run_summary_mock)
       end
-      
+
       it 'returns the result when nothing catastrophic goes on' do
         mocked_runner = OpenStruct.new
         allow(mocked_runner).to receive(:run).and_return(false)
@@ -285,7 +293,7 @@ module Fastlane::Actions
         run_summary_mock = { this_to_shall_pass: true }
         expect(MultiScanAction).to receive(:run_summary).and_return(run_summary_mock)
         expect(MultiScanAction).to receive(:prepare_for_testing)
-        
+
         options_mock = {
           try_count: 1
         }
@@ -301,7 +309,7 @@ module Fastlane::Actions
         allow(::TestCenter::Helper::MultiScanManager::Runner).to receive(:new).and_return(mocked_runner)
         run_summary_mock = { this_to_shall_pass: true }
         expect(MultiScanAction).to receive(:prepare_for_testing)
-        
+
         options_mock = {
           try_count: 1,
           fail_build: true
@@ -340,7 +348,7 @@ module Fastlane::Actions
           batch_count: 2
         )
       end"
-  
+
       expect { Fastlane::FastFile.new.parse(invocation_based_project).runner.execute(:test) }.to(
         raise_error(FastlaneCore::Interface::FastlaneError) do |error|
           expect(error.message).to match(
