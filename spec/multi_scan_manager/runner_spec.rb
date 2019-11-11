@@ -13,6 +13,39 @@ module TestCenter::Helper::MultiScanManager
       ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN'] = @use_refactored_parallelized_multi_scan
     end
 
+    describe '#update_options_to_use_xcresult_output' do
+      it 'does nothing when :result_bundle is false' do
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory'
+        )
+        expect(runner.update_options_to_use_xcresult_output).to eq(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          clean: false,
+          disable_concurrent_testing: true
+        )
+      end
+      it 'returns options without :result_bundle' do
+        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
+        runner = Runner.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: './path/to/output/directory',
+          result_bundle: true,
+          output_types: 'junit',
+          output_files: 'report.junit'
+        )
+        expect(runner.update_options_to_use_xcresult_output).to eq(
+          output_directory: './path/to/output/directory',
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          clean: false,
+          disable_concurrent_testing: true,
+          output_files: 'report.junit,report.xcresult',
+          output_types: 'junit,xcresult'
+        )
+      end
+    end
+
     describe '#output_directory' do
       it 'returns the :output_directory directly if no batches given' do
         runner = Runner.new(
@@ -47,6 +80,7 @@ module TestCenter::Helper::MultiScanManager
     describe '#remove_preexisting_test_result_bundles' do
       it 'clears out pre-existing test bundles' do
         allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/\*\.test_result}).and_return(['./AtomicDragon.test_result'])
+        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
         runner = Runner.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
@@ -71,6 +105,7 @@ module TestCenter::Helper::MultiScanManager
         allow(@xctest_runner).to receive(:setup_testcollector)
         allow(@xctest_runner).to receive(:run_test_batches).and_return(true)
         allow(@xctest_runner).to receive(:run_first_run_of_invocation_based_tests).and_return(true)
+        allow(@xctest_runner).to receive(:symlink_result_bundle_to_xcresult)
       end
 
       it 'calls :remove_preexisting_test_result_bundles' do
@@ -365,6 +400,50 @@ module TestCenter::Helper::MultiScanManager
         expect(mocked_report_collator).to receive(:collate)
 
         runner.collate_batched_reports
+      end
+    end
+
+    describe '#symlink_result_bundle_to_xcresult' do
+      it 'creates a symlink to an xcresult file when output_types includes xcresult' do
+        allow(FileUtils).to receive(:rm_rf).with('path/to/result.test_result')
+        expect(File).to receive(:symlink).with('path/to/result.xcresult', 'path/to/result.test_result')
+
+        runner = Runner.new(
+          {
+            output_directory: 'path/to/output/directory',
+            scheme: 'AtomicUITests',
+            collate_reports: true,
+            result_bundle: true
+          }
+        )
+
+        reportname_helper = ReportNameHelper.new(
+          'xcresult',
+          'result.xcresult',
+          nil
+        )
+        allow(reportname_helper).to receive(:includes_xcresult?).and_return(true)
+        runner.symlink_result_bundle_to_xcresult('path/to', reportname_helper)
+      end
+
+      it 'does nothing if output_types does not include xcresult' do
+        expect(File).not_to receive(:symlink).with('path/to/result.xcresult', 'path/to/result.test_result')
+
+        runner = Runner.new(
+          {
+            output_directory: 'path/to/output/directory',
+            scheme: 'AtomicUITests',
+            collate_reports: true,
+          }
+        )
+
+        reportname_helper = ReportNameHelper.new(
+          'junit',
+          'result.xml',
+          nil
+        )
+        allow(reportname_helper).to receive(:includes_xcresult?).and_return(false)
+        runner.symlink_result_bundle_to_xcresult('path/to', reportname_helper)
       end
     end
   end

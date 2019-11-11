@@ -668,6 +668,30 @@ module TestCenter::Helper::MultiScanManager
           report_filepath: nil
         )
       end
+
+      it 'does not duplicate the resultBundlePath xcarg for pre Xcode 11 installs' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          output_types: 'junit,xcresult',
+          output_files: 'report.xml,report.xcresult'
+        )
+        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
+        scan_options = helper.scan_options
+        expect(scan_options[:xcargs]).not_to include('resultBundlePath')
+      end
+
+      it 'adds the resultBundlePath xcarg for post Xcode 11 installs' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          output_types: 'junit,xcresult',
+          output_files: 'report.xml,report.xcresult'
+        )
+        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
+        scan_options = helper.scan_options
+        expect(scan_options[:xcargs]).to include('resultBundlePath')
+      end
     end
   end
 end

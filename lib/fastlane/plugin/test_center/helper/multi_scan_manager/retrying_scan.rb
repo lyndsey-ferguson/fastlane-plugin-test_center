@@ -21,6 +21,7 @@ module TestCenter
           # this allows multi_scan's `destination` option to be picked up by `scan`
           scan_config._values.delete(:device)
           scan_config._values.delete(:devices)
+          scan_config._values.delete(:result_bundle) if ReportNameHelper.includes_xcresult?(@options[:output_types])
           scan_cache.clear
         end
 

@@ -5,12 +5,14 @@ module TestCenter
       require_relative '../../actions/collate_html_reports'
       require_relative '../../actions/collate_json_reports'
       require_relative '../../actions/collate_test_result_bundles'
+      require_relative '../../actions/collate_xcresults'
 
       class ReportCollator
         CollateJunitReportsAction = Fastlane::Actions::CollateJunitReportsAction
         CollateHtmlReportsAction = Fastlane::Actions::CollateHtmlReportsAction
         CollateJsonReportsAction = Fastlane::Actions::CollateJsonReportsAction
         CollateTestResultBundlesAction = Fastlane::Actions::CollateTestResultBundlesAction
+        CollateXcresultsAction = Fastlane::Actions::CollateXcresultsAction
 
         def initialize(params)
           @source_reports_directory_glob = params[:source_reports_directory_glob]
@@ -27,6 +29,7 @@ module TestCenter
           collate_html_reports
           collate_json_reports
           collate_test_result_bundles
+          collate_xcresult_bundles
         end
 
         def sort_globbed_files(glob)
@@ -137,6 +140,31 @@ module TestCenter
             FastlaneCore::UI.verbose("Copying test_result bundle from #{test_result_bundlepaths.first} to #{collated_test_result_bundlepath}")
             FileUtils.mkdir_p(File.dirname(collated_test_result_bundlepath))
             FileUtils.mv(test_result_bundlepaths.first, collated_test_result_bundlepath)
+          end
+        end
+
+        def collate_xcresult_bundles 
+          return unless @reportnamer.includes_xcresult?
+
+          test_xcresult_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.xcresult_fileglob}")
+          xcresult_bundlename_suffix = ''
+          xcresult_bundlename_suffix = "-#{@reportnamer.report_count}" if @reportnamer.report_count > 0
+          collated_xcresult_bundlepath = File.absolute_path("#{File.join(@output_directory, @reportnamer.xcresult_bundlename(@suffix))}")
+          if test_xcresult_bundlepaths.size > 1
+            FastlaneCore::UI.verbose("Collating xcresult bundles #{test_xcresult_bundlepaths}")
+            config = create_config(
+              CollateXcresultsAction,
+              {
+                xcresults: test_xcresult_bundlepaths,
+                collated_xcresult: collated_xcresult_bundlepath
+              }
+            )
+            CollateXcresultsAction.run(config)
+            FileUtils.rm_rf(test_xcresult_bundlepaths - [collated_xcresult_bundlepath])
+          elsif test_xcresult_bundlepaths.size == 1 && File.realdirpath(test_xcresult_bundlepaths.first) != File.realdirpath(collated_xcresult_bundlepath)
+            FastlaneCore::UI.verbose("Copying xcresult bundle from #{test_xcresult_bundlepaths.first} to #{collated_xcresult_bundlepath}")
+            FileUtils.mkdir_p(File.dirname(collated_xcresult_bundlepath))
+            FileUtils.mv(test_xcresult_bundlepaths.first, collated_xcresult_bundlepath)
           end
         end
       end

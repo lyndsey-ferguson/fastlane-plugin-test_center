@@ -186,6 +186,50 @@ module TestCenter::Helper::MultiScanManager
       collator.collate_test_result_bundles
     end
 
+    it 'collates xcresult bundles correctly' do
+      reportnamer = ReportNameHelper.new(
+        'xcresult',
+        'HappyHippo.xcresult'
+      )
+      allow(reportnamer).to receive(:includes_xcresult?).and_return(true)
+
+      collator = ReportCollator.new(
+        source_reports_directory_glob: '.',
+        output_directory: '.',
+        reportnamer: reportnamer,
+        scheme: 'HappyHippo'
+      )
+      expect(collator).to receive(:sort_globbed_files)
+        .with('./HappyHippo*.xcresult')
+        .and_return(
+          [
+            'HappyHippo.xcresult',
+            'HappyHippo-1.xcresult',
+            'HappyHippo-2.xcresult'
+          ].map { |f| File.absolute_path(f) }
+        )
+      config = OpenStruct.new
+      allow(config).to receive(:_values).and_return(
+        {
+            bundles: ['HappyHippo.xcresult', 'HappyHippo-1.xcresult', 'HappyHippo-2.xcresult'].map { |f| File.absolute_path(f) },
+            collated_xcresult: 'HappyHippo.xcresult'
+          }
+      )
+      expect(collator).to receive(:create_config).and_return(config)
+      expect(Fastlane::Actions::CollateXcresultsAction).to receive(:run) do |c|
+        expect(c._values).to eq(
+          {
+            bundles: ['HappyHippo.xcresult', 'HappyHippo-1.xcresult', 'HappyHippo-2.xcresult'].map { |f| File.absolute_path(f) },
+            collated_xcresult: 'HappyHippo.xcresult'
+          }
+        )
+      end
+      expect(FileUtils).to receive(:rm_rf).with(
+        [ 'HappyHippo-1.xcresult', 'HappyHippo-2.xcresult' ].map { |f| File.absolute_path(f) }
+      )
+      collator.collate_xcresult_bundles
+    end
+
     it '#sort_globbed_files' do
       unsorted_files = {
         '/path/to/file1.txt' => '2017-12-28 00:10:14 -0800',

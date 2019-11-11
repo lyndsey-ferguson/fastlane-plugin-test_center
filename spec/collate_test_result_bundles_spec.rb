@@ -22,7 +22,7 @@ describe Fastlane::Actions::CollateTestResultBundlesAction do
     end
   end
 
-  describe 'skip handles valid data' do
+  describe 'handles valid data' do
     before(:each) do
       allow(File).to receive(:exist?).and_call_original
       allow(Plist).to receive(:parse_xml).and_call_original

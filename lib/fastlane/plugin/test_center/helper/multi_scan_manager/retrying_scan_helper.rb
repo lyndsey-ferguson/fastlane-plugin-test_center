@@ -38,6 +38,8 @@ module TestCenter
         end
 
         def delete_xcresults
+          return if @reportnamer.includes_xcresult?
+
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
           if FastlaneCore::Helper.xcode_at_least?('11.0.0')
@@ -91,9 +93,13 @@ module TestCenter
           retrying_scan_options = @reportnamer.scan_options.merge(
             {
               output_directory: output_directory,
-              xcargs: "#{xcargs} -parallel-testing-enabled NO"
+              xcargs: "#{xcargs} -parallel-testing-enabled NO "
             }
           )
+          if @reportnamer.includes_xcresult?
+            retrying_scan_options[:xcargs] += "-resultBundlePath '#{File.join(output_directory, @reportnamer.xcresult_last_bundlename)}' "
+          end
+
           @options.select { |k,v| valid_scan_keys.include?(k) }
             .merge(retrying_scan_options)
         end
@@ -292,7 +298,7 @@ module TestCenter
 
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
-
+          
           glob_pattern = "#{output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|

@@ -41,7 +41,7 @@ module Fastlane::Actions
         expect(mock_scan_runner).to receive(:run)
         mock_scan_config = OpenStruct.new
         allow(mock_scan_config).to receive(:values).and_return({})
-        expect(mock_scan_config).to receive(:_values).and_return({
+        allow(mock_scan_config).to receive(:_values).and_return({
           build_for_testing: true
         })
         allow(Scan).to receive(:config).and_return(mock_scan_config)
@@ -204,11 +204,16 @@ module Fastlane::Actions
         allow(Dir).to receive(:glob)
           .with('test_output/**/*.test_result')
           .and_return([File.absolute_path('./spec/fixtures/Atomic Boy.test_result')])
+        allow(Dir).to receive(:glob)
+          .with('test_output/**/report*.xcresult')
+          .and_return([File.absolute_path('./spec/fixtures/report.xcresult')])
+
+        allow(::FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
 
         summary = MultiScanAction.run_summary(
           {
-            output_types: 'junit,html,json',
-            output_files: 'report.xml,report.html,report.json',
+            output_types: 'junit,html,json,xcresult',
+            output_files: 'report.xml,report.html,report.json,report.xcresult',
             output_directory: 'test_output',
             result_bundle: true
           },
@@ -246,6 +251,9 @@ module Fastlane::Actions
         ).to be true
         expect(
           summary[:report_files].any? { |fp| fp =~ /Atomic Boy\.test_result/ }
+        ).to be true
+        expect(
+          summary[:report_files].any? { |fp| fp =~ /report\.xcresult/ }
         ).to be true
       end
     end

@@ -48,6 +48,10 @@ module TestCenter
           files.delete_at(json_index)
           types.delete_at(json_index)
         end
+        if (xcresult_index = types.find_index('xcresult'))
+          files.delete_at(xcresult_index)
+          types.delete_at(xcresult_index)
+        end
         files.map! do |filename|
           filename.chomp
           numbered_filename(filename)
@@ -140,6 +144,51 @@ module TestCenter
 
       def json_numbered_fileglob
         "#{File.basename(json_reportname, '.*')}-[1-9]*#{json_filextension}"
+      end
+      
+      def self.ensure_output_includes_xcresult(output_types, output_files)
+        return [output_types, output_files] if includes_xcresult?(output_types) || output_types.nil?
+
+        output_types = output_types.split(',').push('xcresult').join(',')
+        if output_files
+          output_files = output_files.split(',').push('report.xcresult').join(',')
+        end
+
+        [output_types, output_files]
+      end
+
+      def self.includes_xcresult?(output_types)
+       return false unless ::FastlaneCore::Helper.xcode_at_least?('11.0.0')
+       output_types && output_types.split(',').find_index('xcresult') != nil
+      end
+
+      def includes_xcresult?
+        self.class.includes_xcresult?(@output_types)
+      end
+
+      def xcresult_last_bundlename
+        xcresult_index = @output_types.split(',').find_index('xcresult')
+        numbered_filename(@output_files.to_s.split(',')[xcresult_index])
+      end
+
+      def xcresult_bundlename(suffix = '')
+        xcresult_index = @output_types.split(',').find_index('xcresult')
+        report_name = @output_files.to_s.split(',')[xcresult_index]
+        return report_name if suffix.empty?
+
+        "#{File.basename(report_name, '.*')}-#{suffix}#{xcresult_filextension}"
+      end
+
+      def xcresult_filextension
+        File.extname(xcresult_bundlename)
+      end
+
+      def xcresult_fileglob
+        "#{File.basename(xcresult_bundlename, '.*')}*#{xcresult_filextension}"
+      end
+
+      def xcresult_numbered_fileglob
+        "#{File.basename(xcresult_bundlename, '.*')}-[1-9]*#{xcresult_filextension}"
       end
 
       def increment
