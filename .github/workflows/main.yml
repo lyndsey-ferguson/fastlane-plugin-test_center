@@ -8,7 +8,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        ruby: [ '2.3.x', '2.4.x' ]
+        ruby: [ '2.4.x', '2.5.x' ]
     name: Run Tests with Ruby ${{ matrix.ruby }}
     
     steps:
