@@ -3,7 +3,7 @@
 <img src="docs/test_center_banner.png" />
 
 # test_center plugin 🎯
-[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-test_center)
+[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-test_center)[![Actions Status](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/workflows/Run%20Tests/badge.svg)](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/actions)
 
 Have you ever spent too much time trying to fix fragile tests only to give up with nothing real to show? Use the `fastlane` actions from `test_center` to remove internal and external interference from your tests, so that you can focus on what makes 💰: features that customers love 😍.
 
