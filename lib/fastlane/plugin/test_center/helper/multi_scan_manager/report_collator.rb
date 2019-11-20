@@ -115,8 +115,7 @@ module TestCenter
 
           test_result_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@scheme}*.test_result")
           result_bundlename_suffix = ''
-          result_bundlename_suffix = "-#{@reportnamer.report_count + 1}" if @reportnamer.report_count > 0
-
+          result_bundlename_suffix = "-#{@reportnamer.report_count}" if @reportnamer.report_count > 0
           collated_test_result_bundlepath = File.absolute_path("#{File.join(@output_directory, @scheme)}#{result_bundlename_suffix}.test_result")
           if test_result_bundlepaths.size > 1
             FastlaneCore::UI.verbose("Collating test_result bundles #{test_result_bundlepaths}")
@@ -130,7 +129,7 @@ module TestCenter
             CollateTestResultBundlesAction.run(config)
             FileUtils.rm_rf(test_result_bundlepaths - [collated_test_result_bundlepath])
           elsif test_result_bundlepaths.size == 1 && File.realdirpath(test_result_bundlepaths.first) != File.realdirpath(collated_test_result_bundlepath)
-            FastlaneCore::UI.verbose("Copying test_result bundle #{test_result_bundlepaths.first}")
+            FastlaneCore::UI.verbose("Copying test_result bundle from #{test_result_bundlepaths.first} to #{collated_test_result_bundlepath}")
             FileUtils.mkdir_p(File.dirname(collated_test_result_bundlepath))
             FileUtils.mv(test_result_bundlepaths.first, collated_test_result_bundlepath)
           end
