@@ -6,6 +6,11 @@ module Fastlane
     require 'xctest_list'
     require 'plist'
 
+    require_relative '../helper/multi_scan_manager'
+    require_relative '../helper/scan_helper'
+
+    ScanHelper = ::TestCenter::Helper::ScanHelper
+
     class MultiScanAction < Action
       def self.run(params)
         params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]

@@ -1,6 +1,11 @@
 module TestCenter
   module Helper
     module MultiScanManager
+      require_relative '../../actions/collate_junit_reports'
+      require_relative '../../actions/collate_html_reports'
+      require_relative '../../actions/collate_json_reports'
+      require_relative '../../actions/collate_test_result_bundles'
+
       class ReportCollator
         CollateJunitReportsAction = Fastlane::Actions::CollateJunitReportsAction
         CollateHtmlReportsAction = Fastlane::Actions::CollateHtmlReportsAction
