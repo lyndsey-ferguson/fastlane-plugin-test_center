@@ -344,41 +344,11 @@ module Fastlane
           "
           UI.important(
             'example: ' \\
-            'run tests for a scheme that has two test targets, re-trying up to 2 times if ' \\
-            'tests fail. Turn off the default behavior of failing the build if, at the ' \\
-            'end of the action, there were 1 or more failing tests.'
-          )
-          summary = multi_scan(
-            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-            scheme: 'AtomicBoy',
-            try_count: 3,
-            fail_build: false,
-            output_files: 'report.html',
-            output_types: 'html'
-          )
-          UI.success(\"multi_scan passed? \#{summary[:result]}\")
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'split the tests into 2 batches and run each batch of tests up to 3 ' \\
-            'times if tests fail. Do not fail the build.'
-          )
-          multi_scan(
-            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-            scheme: 'AtomicBoy',
-            try_count: 3,
-            batch_count: 2,
-            fail_build: false
-          )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'split the tests into 2 batches and run each batch of tests up to 3 ' \\
-            'times if tests fail. Abort the testing early if there are too many ' \\
-            'failing tests by passing in a :testrun_completed_block that is called ' \\
-            'by :multi_scan after each run of tests.'
+            'split the tests into 4 batches and run each batch of tests in ' \\
+            'parallel up to 3 times if tests fail. Abort the testing early ' \\ 
+            'if there are too many failing tests by passing in a ' \\
+            ':testrun_completed_block that is called by :multi_scan ' \\
+            'after each run of tests.'
           )
           test_run_block = lambda do |testrun_info|
             failed_test_count = testrun_info[:failed].size
@@ -394,88 +364,10 @@ module Fastlane
             project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
             scheme: 'AtomicBoy',
             try_count: 3,
-            batch_count: 2,
+            batch_count: 4,
             fail_build: false,
+            parallel_testrun_count: 4,
             testrun_completed_block: test_run_block
-          )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'multi_scan also works with invocation based tests.'
-          )
-          Dir.chdir('../AtomicBoy') do
-            bundle_install
-            cocoapods(podfile: File.absolute_path('Podfile'))
-            multi_scan(
-              workspace: File.absolute_path('AtomicBoy.xcworkspace'),
-              scheme: 'KiwiBoy',
-              try_count: 3,
-              clean: true,
-              invocation_based_tests: true,
-              fail_build: false
-            )
-          end
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'use the :workspace parameter instead of the :project parameter to find, ' \\
-            'build, and test the iOS app.'
-          )
-          begin
-            multi_scan(
-              workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-              scheme: 'AtomicBoy',
-              try_count: 3
-            )
-          rescue # anything
-            UI.error('Found real failing tests!')
-          end
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'use the :workspace parameter instead of the :project parameter to find, ' \\
-            'build, and test the iOS app. Use the :skip_build parameter to not rebuild.'
-          )
-          multi_scan(
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy',
-            skip_build: true,
-            clean: true,
-            try_count: 3,
-            result_bundle: true,
-            fail_build: false
-          )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'multi_scan also works with just one test target in the Scheme.'
-          )
-          multi_scan(
-            project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-            scheme: 'Professor',
-            try_count: 3,
-            output_files: 'atomic_report.xml',
-            output_types: 'junit',
-            fail_build: false
-          )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'multi_scan also can also run just the tests passed in the ' \\
-            ':only_testing option.'
-          )
-          multi_scan(
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy',
-            try_count: 3,
-            code_coverage: true,
-            only_testing: ['AtomicBoyTests'],
-            fail_build: false
           )
           ",
           "
@@ -491,39 +383,6 @@ module Fastlane
             output_files: 'report.json',
             fail_build: false
           )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'multi_scan parallelizes its test runs.'
-          )
-          multi_scan(
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy',
-            try_count: 3,
-            parallel_testrun_count: 4,
-            fail_build: false
-          )
-          ",
-          "
-          UI.important(
-            'example: ' \\
-            'use the :xctestrun parameter instead of the :project parameter to find, ' \\
-            'build, and test the iOS app.'
-          )
-          Dir.mktmpdir do |derived_data_path|
-            project_path = File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj')
-            command = \"bundle exec fastlane scan --build_for_testing true --project '\#{project_path}' --derived_data_path \#{derived_data_path} --scheme AtomicBoy\"
-            `\#{command}`
-            xctestrun_file = Dir.glob(\"\#{derived_data_path}/Build/Products/AtomicBoy*.xctestrun\").first
-            multi_scan(
-              scheme: 'AtomicBoy',
-              try_count: 3,
-              fail_build: false,
-              xctestrun: xctestrun_file,
-              test_without_building: true
-            )
-          end
           "
         ]
       end

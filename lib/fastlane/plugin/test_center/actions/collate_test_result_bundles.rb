@@ -224,7 +224,7 @@ module Fastlane
           bundles = Dir['../spec/fixtures/*.test_result'].map { |relpath| File.absolute_path(relpath) }
           collate_test_result_bundles(
             bundles: bundles,
-            collated_bundle: File.join(Dir.mktmpdir, 'result.test_result')
+            collated_bundle: File.join('test_output', 'result.test_result')
           )
           "
         ]

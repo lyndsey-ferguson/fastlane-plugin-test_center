@@ -3,6 +3,7 @@ require 'colorize'
 require 'rspec/core/rake_task'
 require_relative 'fastlane/test_center_utils'
 require 'fastlane'
+require 'markdown-tables'
 
 RSpec::Core::RakeTask.new
 
@@ -32,33 +33,60 @@ task :check_for_blacklisted_requires do
   puts 'No blacklisted requires found'.green
 end
 
-desc 'Updates the README with the latest examples for each action'
-task :update_readme_action_examples do
-  readme = File.read('README.md')
-  examples = action_examples
-  placeholder_example_begin_found = false
-  File.open('README.md', 'w') do |file|
-    action_name = nil
-    readme.lines do |line|
-      if /<!-- (?<found_action_name>\w+) examples: begin -->/ =~ line
-        placeholder_example_begin_found = true
-        action_name = found_action_name
-      elsif placeholder_example_begin_found
-        if /<!-- #{action_name} examples: end -->/ =~ line
-          file.puts "<!-- #{action_name} examples: begin -->"
-          examples[action_name].each do |example_code_snippet|
-            file.puts ''
-            file.puts '```ruby'
-            example_code_snippet.lines do |example_code_snippet_line|
-              file.puts example_code_snippet_line.sub('          ', '')
-            end
-            file.puts '```'
-          end
-          file.puts "<!-- #{action_name} examples: end -->"
-          placeholder_example_begin_found = false
+
+def update_examples_block(action, examples, file)
+  file.puts("<!-- #{action} examples: begin -->")
+  examples.each do |example_code_snippet|
+    file.puts('')
+    file.puts('```ruby')
+    example_code_snippet.lines do |example_code_snippet_line|
+      file.puts(example_code_snippet_line.sub('          ', ''))
+    end
+    file.puts('```')
+  end
+  file.puts("<!-- #{action} examples: end -->")
+end
+
+def update_parameters_block(action, options, file)
+  file.puts("<!-- #{action} parameters: begin -->")
+  rows = []
+  options.each do |option|
+    rows << option.values
+  end
+  labels = ['Parameter', 'Description', 'Default Value']
+  file.puts(MarkdownTables.make_table(labels, rows, is_rows: true, align: ['l', 'l', 'r']))
+  file.puts("<!-- #{action} parameters: end -->")
+end
+
+desc 'Updates the docs for each action with the latest examples'
+task :update_action_doc_examples do
+  examples, available_options = action_info
+
+  examples.keys.each do |action_name|
+    action_filepath = File.join('docs', 'feature_details', "#{action_name}.md")
+    action_file = File.read(action_filepath)
+    parsing_state = :transfer
+    File.open(action_filepath, 'w') do |file|
+      action_file.lines do |line|
+        case line
+        when /<!-- (?<#{action_name}>\w+) examples: (begin|end) -->/
+          parsing_state = :entered_examples_block if /.+begin -->/ =~ line
+          parsing_state = :exited_examples_block if /.+end -->/ =~ line
+        when /<!-- (?<#{action_name}>\w+) parameters: (begin|end) -->/
+          parsing_state = :entered_parameters_block if /.+begin -->/ =~ line
+          parsing_state = :exited_parameters_block if /.+end -->/ =~ line
         end
-      else
-        file.puts line
+
+        case parsing_state
+        when :transfer
+          file.puts line
+        when :exited_examples_block
+          update_examples_block(action_name, examples[action_name], file)
+          parsing_state = :transfer
+        when :exited_parameters_block
+          update_parameters_block(action_name, available_options[action_name], file)
+          parsing_state = :transfer
+        end
       end
     end
   end
