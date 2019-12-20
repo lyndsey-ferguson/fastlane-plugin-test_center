@@ -9,3 +9,13 @@ lane :run_examples do
     # rubocop:enable Security/Eval
   end
 end
+
+lane :testing do
+  multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    batch_count: 4,
+    fail_build: false
+  )
+end
