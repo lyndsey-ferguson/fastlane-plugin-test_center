@@ -38,11 +38,6 @@ Style/MethodMissingSuper:
 Style/MissingRespondToMissing:
   Enabled: false
 
-# This rule isn't useful, lots of discussion happening around it also
-# e.g. https://github.com/bbatsov/rubocop/issues/2338
-MultilineBlockChain:
-  Enabled: false
-
 #
 #   File.chmod(0777, f)
 #
@@ -77,10 +72,10 @@ Lint/UselessAssignment:
     - '**/spec/**/*'
 
 # We could potentially enable the 2 below:
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   Enabled: false
 
-Layout/AlignHash:
+Layout/HashAlignment:
   Enabled: false
 
 # HoundCI doesn't like this rule
@@ -99,7 +94,7 @@ Layout/TrailingWhitespace:
   Enabled: true
 
 # We still support Ruby 2.0.0
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 # This cop would not work fine with rspec
@@ -108,7 +103,7 @@ Style/MixinGrouping:
     - '**/spec/**/*'
 
 # Sometimes we allow a rescue block that doesn't contain code
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 # Cop supports --auto-correct.
@@ -165,7 +160,7 @@ Metrics/ClassLength:
 
 
 # Configuration parameters: AllowURI, URISchemes.
-Metrics/LineLength:
+Layout/LineLength:
   Max: 370
 
 # Configuration parameters: CountKeywordArgs.

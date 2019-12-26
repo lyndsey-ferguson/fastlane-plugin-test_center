@@ -14,6 +14,12 @@ module Fastlane
     class MultiScanAction < Action
       def self.run(params)
         params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
+        if params[:output_types]
+          params[:output_types] = params[:output_types].split(',').map(&:strip).join(',')
+        end
+        if params[:output_files]
+          params[:output_files] = params[:output_files].split(',').map(&:strip).join(',')
+        end
 
         print_multi_scan_parameters(params)
         force_quit_simulator_processes if params[:quit_simulators]
