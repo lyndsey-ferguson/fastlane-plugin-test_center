@@ -21,7 +21,7 @@ Have you ever spent too much time trying to fix fragile tests only to give up wi
 
 ## Features
 
-This plugin makes testing your iOS app easier by providing you actions that give you greater control over everthing related to testing your app. 
+This plugin makes testing your iOS app easier by providing you actions that give you greater control over everything related to testing your app. 
 
 `multi_scan` began when I created an action to only re-run the failed tests in order to determine if they were truly failing, or if they were failing randomly due to a fragile infrastructure. This action morphed into an entire plugin with many actions in the testing category.
 
