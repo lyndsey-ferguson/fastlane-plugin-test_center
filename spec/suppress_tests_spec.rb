@@ -178,4 +178,37 @@ describe Fastlane::Actions::SuppressTestsAction do
       end
     end
   end
+
+  describe 'Xcode Scheme with testplans' do
+    include_context "mocked schemes context"
+
+    it 'updates the test plan file to remove tests from selected tests' do
+      mocked_scheme = OpenStruct.new
+      allow(Xcodeproj::XCScheme).to receive(:new).and_return(mocked_scheme)
+
+      mocked_test_action = OpenStruct.new
+      allow(mocked_scheme).to receive(:test_action).and_return(mocked_test_action)
+
+      mocked_test_plan = OpenStruct.new
+      allow(mocked_test_plan).to receive(:target_referenced_container).and_return('container:Fake.xctestplan')
+      mocked_test_plans = [ mocked_test_plan ]
+      allow(mocked_test_action).to receive(:test_plans).and_return(mocked_test_plans)
+
+
+      fastfile = "lane :test do
+        suppress_tests(
+          workspace: 'path/to/fake_workspace.xcworkspace',
+          scheme: 'Shared',
+          tests: [ 'FakeUITests/FakeUITests/testExample3' ]
+        )
+      end"
+
+      allow(File).to receive(:read).with(%r{path/to/Fake.xctestplan}).and_return(File.read('./spec/fixtures/Fake.xctestplan'))
+      mocked_writeable_testplan = StringIO.new
+      allow(File).to receive(:open).with(%r{path/to/Fake.xctestplan}, 'w').and_yield(mocked_writeable_testplan)
+      result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+      testplan = JSON.parse(mocked_writeable_testplan.string)
+      expect(testplan['testTargets'][1]['selectedTests']).to eq(['FakeUITests/testExample', 'FakeUITests/testExample2'])
+    end
+  end
 end
