@@ -127,7 +127,7 @@ describe TestCenter do
           output_files: 'report-3.xml'
         )
       end
-      
+
       it 'increments multiple file names for the first time correctly' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         helper.increment
@@ -136,7 +136,7 @@ describe TestCenter do
           output_files: 'report-2.xml,report-2.html'
         )
       end
-      
+
       it 'increments multiple file names for the the second time correctly' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         helper.increment
@@ -146,7 +146,7 @@ describe TestCenter do
           output_files: 'report-3.xml,report-3.html'
         )
       end
-      
+
       it 'provides the last reportname for each iteration' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         expect(helper.junit_last_reportname).to eq('report.xml')
@@ -160,7 +160,7 @@ describe TestCenter do
         helper.increment
         expect(helper.json_last_reportname).to eq('report-2.json')
       end
-      
+
       it 'provides the base xcresult report bundle name when given all options' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_bundlename).to eq('report.xcresult')
@@ -193,9 +193,9 @@ describe TestCenter do
 
       it 'provides the last xcresult bundle name' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
-        expect(helper.xcresult_last_bundlename).to eq('report.xcresult')        
+        expect(helper.xcresult_last_bundlename).to eq('report.xcresult')
         helper.increment
-        expect(helper.xcresult_last_bundlename).to eq('report-2.xcresult')        
+        expect(helper.xcresult_last_bundlename).to eq('report-2.xcresult')
       end
 
       it 'provides the correct xcresult fileglob' do

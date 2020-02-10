@@ -14,7 +14,7 @@ module Fastlane::Actions
       )
     end
   end
-  
+
   describe 'handles valid data' do
     before(:each) do
      allow(File).to receive(:exist?).and_call_original
@@ -66,7 +66,7 @@ module Fastlane::Actions
         )
       end"
 
-      expected_result = [ 
+      expected_result = [
         'xcrun',
         'xcresulttool',
         'merge',
