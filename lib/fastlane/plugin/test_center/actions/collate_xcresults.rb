@@ -22,7 +22,7 @@ module Fastlane
             'xcrun',
             'xcresulttool',
             'merge',
-            xcresult_bundlepaths.map(&:shellescape),
+            xcresult_bundlepaths,
             '--output-path',
             tmp_collated_xcresult_bundlepath
           ].flatten
@@ -54,7 +54,7 @@ module Fastlane
         "in the collated xcresult bundle. " \
         "This is done because it is assumed that fragile tests, when " \
         "re-run will often succeed due to less interference from other " \
-        "tests and the subsequent xcresult bundles will have fewer failing tests."        
+        "tests and the subsequent xcresult bundles will have fewer failing tests."
       end
 
       def self.available_options
