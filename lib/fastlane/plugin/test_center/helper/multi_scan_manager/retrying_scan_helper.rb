@@ -38,7 +38,10 @@ module TestCenter
         end
 
         def delete_xcresults
-          return if @reportnamer.includes_xcresult?
+          if @reportnamer.includes_xcresult?
+            FileUtils.rm_rf(File.join(output_directory, @reportnamer.xcresult_last_bundlename))
+            return
+          end
 
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
@@ -138,7 +141,7 @@ module TestCenter
           move_test_result_bundle_for_next_run
           reset_json_env
         end
-        
+
         def collate_reports
           return unless @options[:collate_reports]
 
@@ -176,13 +179,13 @@ module TestCenter
           update_html_failure_details(info)
           update_json_failure_details(info)
           update_test_result_bundle_details(info)
-          
+
           @options[:testrun_completed_block].call(info)
         end
 
         def failure_details(additional_info)
           return [{}, nil] if additional_info.key?(:test_operation_failure)
-          
+
           report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
           config = FastlaneCore::Configuration.create(
             Fastlane::Actions::TestsFromJunitAction.available_options,
@@ -204,14 +207,14 @@ module TestCenter
 
         def update_json_failure_details(info)
           return unless @reportnamer.includes_json?
-          
+
           json_report_filepath = File.join(output_directory, @reportnamer.json_last_reportname)
           info[:json_report_filepath] = json_report_filepath
         end
 
         def update_test_result_bundle_details(info)
           return unless @options[:result_bundle]
-          
+
           test_result_suffix = '.test_result'
           test_result_suffix.prepend("-#{@reportnamer.report_count}") unless @reportnamer.report_count.zero?
           test_result_bundlepath = File.join(output_directory, @options[:scheme]) + test_result_suffix
@@ -243,7 +246,7 @@ module TestCenter
           end
         end
 
-        def handle_build_failure(exception)  
+        def handle_build_failure(exception)
           test_session_last_messages = last_lines_of_test_session_log
           failure = retrieve_test_operation_failure(test_session_last_messages)
           case failure
@@ -275,7 +278,7 @@ module TestCenter
           derived_data_path = File.expand_path(@options[:derived_data_path])
           test_session_logs = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult/*_Test/Diagnostics/**/Session-*.log")
           return '' if test_session_logs.empty?
-          
+
           test_session_logs.sort! { |logfile1, logfile2| File.mtime(logfile1) <=> File.mtime(logfile2) }
           test_session = File.open(test_session_logs.last)
           backwards_seek_offset = -1 * [1000, test_session.stat.size].min
@@ -298,7 +301,7 @@ module TestCenter
 
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
-          
+
           glob_pattern = "#{output_directory}/*.test_result"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|
