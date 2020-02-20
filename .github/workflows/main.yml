@@ -20,8 +20,10 @@ jobs:
       run: |
         gem install bundler
         bundle install
+    - name: lint
+      run: bundle exec rubocop
     - name: test
-      run: rake
+      run: bundle exec rspec
 
   test_on_latest_ruby:
     name: Run Tests with the latest Ruby
@@ -32,6 +34,8 @@ jobs:
       run: |
         gem install bundler
         bundle install
+    - name: lint
+      run: bundle exec rubocop
     - name: test
-      run: rake
-        
+      run: bundle exec rspec
+

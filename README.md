@@ -41,6 +41,7 @@ _read the documentation on each action by clicking on the action name_
 | [`collate_html_reports`](docs/feature_details/collate_html_reports.md) | combines multiple HTML test reports into one report | ios, mac |
 | [`collate_json_reports`](docs/feature_details/collate_json_reports.md) | combines multiple json test reports into one report | ios, mac |
 | [`collate_test_result_bundles`](docs/feature_details/collate_test_result_bundles.md) | combines multiple test_result bundles into one test_result bundle | ios, mac |
+| [`collate_xcresults`](docs/feature_details/collate_xcresults.md) | combines multiple xcresult bundles into one xcresult bundle | ios, mac |
 
 
 ## Installation

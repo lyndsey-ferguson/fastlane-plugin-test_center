@@ -19,6 +19,15 @@ Style/SafeNavigation:
 Style/NumericPredicate:
   Enabled: false
 
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
 # this would cause errors with long lanes
 Metrics/BlockLength:
   Enabled: false
@@ -60,10 +69,6 @@ Style/TernaryParentheses:
 
 # sometimes it is useful to have those empty methods
 Style/EmptyMethod:
-  Enabled: false
-
-# It's better to be more explicit about the type
-Style/BracesAroundHashParameters:
   Enabled: false
 
 # specs sometimes have useless assignments, which is fine

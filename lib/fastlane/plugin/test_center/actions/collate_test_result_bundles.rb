@@ -184,8 +184,7 @@ module Fastlane
         "in the collated test_result bundle. " \
         "This is done because it is assumed that fragile tests, when " \
         "re-run will often succeed due to less interference from other " \
-        "tests and the subsequent test_result bundles will have fewer failing tests." \
-        ""
+        "tests and the subsequent test_result bundles will have fewer failing tests."
       end
 
       def self.available_options

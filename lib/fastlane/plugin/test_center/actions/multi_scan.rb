@@ -21,6 +21,13 @@ module Fastlane
           params[:output_files] = params[:output_files].split(',').map(&:strip).join(',')
         end
 
+        if FastlaneCore::Helper.xcode_at_least?('11.0.0')
+          if params[:result_bundle]
+            UI.important('As of Xcode 11, test_result bundles created in the output directory are actually symbolic links to an xcresult bundle')
+          end
+        elsif params[:output_types]&.include?('xcresult')
+          UI.important("The 'xcresult' :output_type is only supported for Xcode 11 and greater. You are using #{FastlaneCore::Helper.xcode_version}.")
+        end
         print_multi_scan_parameters(params)
         force_quit_simulator_processes if params[:quit_simulators]
 
@@ -73,6 +80,16 @@ module Fastlane
       end
 
       def self.run_summary(scan_options, tests_passed)
+        scan_options = scan_options.clone
+
+        if scan_options[:result_bundle]
+          updated_output_types, updated_output_files = ::TestCenter::Helper::ReportNameHelper.ensure_output_includes_xcresult(
+            scan_options[:output_types],
+            scan_options[:output_files]
+          )
+          scan_options[:output_types] = updated_output_types
+          scan_options[:output_files] = updated_output_files
+        end
         reportnamer = ::TestCenter::Helper::ReportNameHelper.new(
           scan_options[:output_types],
           scan_options[:output_files],
@@ -108,6 +125,11 @@ module Fastlane
         if scan_options[:result_bundle]
           report_files += Dir.glob("#{scan_options[:output_directory]}/**/*.test_result").map do |relative_test_result_bundle_filepath|
             File.absolute_path(relative_test_result_bundle_filepath)
+          end
+        end
+        if reportnamer.includes_xcresult?
+          report_files += Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.xcresult_fileglob}").map do |relative_bundlepath|
+            File.absolute_path(relative_bundlepath)
           end
         end
         {
@@ -188,6 +210,7 @@ module Fastlane
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+        Scan.config._values.delete(:result_bundle)
         values
       end
 
@@ -307,7 +330,7 @@ module Fastlane
             key: :output_types,
             short_option: "-f",
             env_name: "SCAN_OUTPUT_TYPES",
-            description: "Comma separated list of the output types (e.g. html, junit, json, json-compilation-database)",
+            description: "Comma separated list of the output types (e.g. html, junit, json, json-compilation-database, xcresult)",
             default_value: "html,junit"
           ),
           FastlaneCore::ConfigItem.new(
