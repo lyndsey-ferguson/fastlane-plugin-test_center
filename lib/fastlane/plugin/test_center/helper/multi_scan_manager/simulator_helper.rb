@@ -16,11 +16,22 @@ module TestCenter
           cloned_simulators = []
 
           run_count = @options[:parallel_testrun_count] || 0
-          destination_simulator_ids = Scan.config[:destination].map do |destination|
-            destination.split(',id=').last
-          end
           original_simulators = FastlaneCore::DeviceManager.simulators('iOS').find_all do |simulator|
-            destination_simulator_ids.include?(simulator.udid)
+            found_match = false
+            Scan.config[:destination].each do |destination|
+              match = destination.match(/id=(?<udid>[^,]+)/)
+              if match
+                found_match = (match[:udid] == simulator.udid)
+              else
+                match = destination.match(/name=(?<name>[^,]+)/)
+                name = match[:name] || ''
+                match = destination.match(/OS=(?<os_version>[^,]+)/)
+                os_version = match[:os_version] || ''
+
+                found_match = (name == simulator.name && os_version == simulator.os_version)
+              end
+            end
+            found_match
           end
           original_simulators.each(&:shutdown)
           (0...run_count).each do |batch_index|
