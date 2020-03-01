@@ -250,18 +250,13 @@ module TestCenter
           test_session_last_messages = last_lines_of_test_session_log
           failure = retrieve_test_operation_failure(test_session_last_messages)
           case failure
-          when /Test runner exited before starting test execution/
-            FastlaneCore::UI.error(failure)
           when /Lost connection to testmanagerd/
-            FastlaneCore::UI.error(failure)
             FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
             if @options[:quit_core_simulator_service]
               Fastlane::Actions::RestartCoreSimulatorServiceAction.run
             end
           else
-            FastlaneCore::UI.error(test_session_last_messages)
-            send_callback_testrun_info(test_operation_failure: failure)
-            raise exception
+            FastlaneCore::UI.warning(test_session_last_messages)
           end
           send_callback_testrun_info(test_operation_failure: failure)
         end
