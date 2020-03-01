@@ -256,7 +256,7 @@ module TestCenter
               Fastlane::Actions::RestartCoreSimulatorServiceAction.run
             end
           else
-            FastlaneCore::UI.warning(test_session_last_messages)
+            FastlaneCore::UI.important(test_session_last_messages)
           end
           send_callback_testrun_info(test_operation_failure: failure)
         end
