@@ -304,6 +304,13 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
+            key: :retry_test_runner_failures,
+            description: "Set to true If you want to treat build failures during testing, like 'Test runner exited before starting test execution', as 'all tests failed'",
+            type: Boolean,
+            default_value: false,
+            optional: true
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :invocation_based_tests,
             description: "Set to true If your test suit have invocation based tests like Kiwi",
             type: Boolean,
