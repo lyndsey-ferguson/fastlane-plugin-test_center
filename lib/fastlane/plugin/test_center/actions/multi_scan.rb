@@ -32,7 +32,7 @@ module Fastlane
         force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
-        
+
         coerce_destination_to_array(params)
         platform = :mac
         platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
@@ -43,7 +43,7 @@ module Fastlane
 
         summary = run_summary(params, tests_passed)
         print_run_summary(summary)
-        
+
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
@@ -53,7 +53,7 @@ module Fastlane
       def self.coerce_destination_to_array(params)
         destination = params[:destination] || Scan.config[:destination] || []
         unless destination.kind_of?(Array)
-          params[:destination] = Scan.config[:destination] = [destination] 
+          params[:destination] = Scan.config[:destination] = [destination]
         end
       end
 
@@ -68,7 +68,7 @@ module Fastlane
         # :nocov:
       end
 
-      def self.print_run_summary(summary)        
+      def self.print_run_summary(summary)
         return if Helper.test?
 
         # :nocov:
@@ -147,6 +147,7 @@ module Fastlane
       def self.prepare_for_testing(scan_options)
         reset_scan_config_to_defaults
         use_scanfile_to_override_settings(scan_options)
+        turn_off_concurrent_workers(scan_options)
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
         if scan_options[:test_without_building] || scan_options[:skip_build]
           UI.verbose("Preparing Scan config options for multi_scan testing")
@@ -154,6 +155,12 @@ module Fastlane
         else
           UI.verbose("Building the project in preparation for multi_scan testing")
           build_for_testing(scan_options)
+        end
+      end
+
+      def self.turn_off_concurrent_workers(scan_options)
+        if Gem::Version.new(Fastlane::VERSION) >= Gem::Version.new('2.142.0')
+          scan_options.delete(:concurrent_workers) if scan_options[:concurrent_workers].to_i > 0
         end
       end
 
@@ -173,7 +180,7 @@ module Fastlane
         overridden_options = ScanHelper.options_from_configuration_file(
           ScanHelper.scan_options_from_multi_scan_options(scan_options)
         )
-        
+
         unless overridden_options.empty?
           FastlaneCore::UI.important("Scanfile found: overriding multi_scan options with it's values.")
           overridden_options.each do |k,v|
@@ -374,7 +381,7 @@ module Fastlane
           UI.important(
             'example: ' \\
             'split the tests into 4 batches and run each batch of tests in ' \\
-            'parallel up to 3 times if tests fail. Abort the testing early ' \\ 
+            'parallel up to 3 times if tests fail. Abort the testing early ' \\
             'if there are too many failing tests by passing in a ' \\
             ':testrun_completed_block that is called by :multi_scan ' \\
             'after each run of tests.'
