@@ -14,25 +14,17 @@ module Fastlane
     class MultiScanAction < Action
       def self.run(params)
         params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
-        if params[:output_types]
-          params[:output_types] = params[:output_types].split(',').map(&:strip).join(',')
-        end
-        if params[:output_files]
-          params[:output_files] = params[:output_files].split(',').map(&:strip).join(',')
-        end
 
-        if FastlaneCore::Helper.xcode_at_least?('11.0.0')
-          if params[:result_bundle]
-            UI.important('As of Xcode 11, test_result bundles created in the output directory are actually symbolic links to an xcresult bundle')
-          end
-        elsif params[:output_types]&.include?('xcresult')
-          UI.important("The 'xcresult' :output_type is only supported for Xcode 11 and greater. You are using #{FastlaneCore::Helper.xcode_version}.")
-        end
+        strip_leading_and_trailing_whitespace_from_output_types(params)
+
+        warn_of_xcode11_result_bundle_incompatability(params)
+        warn_of_parallelism_with_circle_ci(params)
+
         print_multi_scan_parameters(params)
         force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
-        
+
         coerce_destination_to_array(params)
         platform = :mac
         platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
@@ -43,17 +35,43 @@ module Fastlane
 
         summary = run_summary(params, tests_passed)
         print_run_summary(summary)
-        
+
         if params[:fail_build] && !tests_passed
           raise UI.test_failure!('Tests have failed')
         end
         summary
       end
 
+      def self.warn_of_parallelism_with_circle_ci(params)
+        if params[:parallel_testrun_count] > 1 && Helper.is_circle_ci?
+          UI.important("Warning: problems have occurreed when running parallel simulators on Circle CI.")
+          UI.message("  See https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues/179")
+        end
+      end
+
+      def self.strip_leading_and_trailing_whitespace_from_output_types(params)
+        if params[:output_types]
+          params[:output_types] = params[:output_types].split(',').map(&:strip).join(',')
+        end
+        if params[:output_files]
+          params[:output_files] = params[:output_files].split(',').map(&:strip).join(',')
+        end
+      end
+
+      def self.warn_of_xcode11_result_bundle_incompatability(params)
+        if FastlaneCore::Helper.xcode_at_least?('11.0.0')
+          if params[:result_bundle]
+            UI.important('As of Xcode 11, test_result bundles created in the output directory are actually symbolic links to an xcresult bundle')
+          end
+        elsif params[:output_types]&.include?('xcresult')
+          UI.important("The 'xcresult' :output_type is only supported for Xcode 11 and greater. You are using #{FastlaneCore::Helper.xcode_version}.")
+        end
+      end
+
       def self.coerce_destination_to_array(params)
         destination = params[:destination] || Scan.config[:destination] || []
         unless destination.kind_of?(Array)
-          params[:destination] = Scan.config[:destination] = [destination] 
+          params[:destination] = Scan.config[:destination] = [destination]
         end
       end
 
@@ -68,7 +86,7 @@ module Fastlane
         # :nocov:
       end
 
-      def self.print_run_summary(summary)        
+      def self.print_run_summary(summary)
         return if Helper.test?
 
         # :nocov:
@@ -173,7 +191,7 @@ module Fastlane
         overridden_options = ScanHelper.options_from_configuration_file(
           ScanHelper.scan_options_from_multi_scan_options(scan_options)
         )
-        
+
         unless overridden_options.empty?
           FastlaneCore::UI.important("Scanfile found: overriding multi_scan options with it's values.")
           overridden_options.each do |k,v|
@@ -374,7 +392,7 @@ module Fastlane
           UI.important(
             'example: ' \\
             'split the tests into 4 batches and run each batch of tests in ' \\
-            'parallel up to 3 times if tests fail. Abort the testing early ' \\ 
+            'parallel up to 3 times if tests fail. Abort the testing early ' \\
             'if there are too many failing tests by passing in a ' \\
             ':testrun_completed_block that is called by :multi_scan ' \\
             'after each run of tests.'

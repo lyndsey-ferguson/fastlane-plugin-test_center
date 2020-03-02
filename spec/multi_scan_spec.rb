@@ -278,7 +278,8 @@ module Fastlane::Actions
         expect(MultiScanAction).to receive(:prepare_for_testing)
 
         options_mock = {
-          try_count: 1
+          try_count: 1,
+          parallel_testrun_count: 1
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
         allow(options_mock).to receive(:_values).and_return(options_mock)
@@ -295,7 +296,8 @@ module Fastlane::Actions
         expect(MultiScanAction).to receive(:prepare_for_testing)
 
         options_mock = {
-          try_count: 1
+          try_count: 1,
+          parallel_testrun_count: 1
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
         allow(options_mock).to receive(:_values).and_return(options_mock)
@@ -312,7 +314,8 @@ module Fastlane::Actions
 
         options_mock = {
           try_count: 1,
-          fail_build: true
+          fail_build: true,
+          parallel_testrun_count: 1
         }
         allow(options_mock).to receive(:values).and_return(options_mock)
         allow(options_mock).to receive(:_values).and_return(options_mock)
