@@ -67,11 +67,11 @@ module TestCenter::Helper::MultiScanManager
 
         session_log_io = StringIO.new('Everything went wrong!')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-  
+
         allow(Dir).to receive(:glob)
                   .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
                   .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-  
+
         allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
         allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
@@ -89,18 +89,18 @@ module TestCenter::Helper::MultiScanManager
 
       it 'does not raise if there is a test runner early exit failure' do
         helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr', output_directory: ''})
-        
+
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-  
+
         allow(Dir).to receive(:glob)
                   .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
                   .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-  
+
         allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
         allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
-        
+
         helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('test failure'))
       end
 
@@ -138,7 +138,7 @@ module TestCenter::Helper::MultiScanManager
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
-        
+
         allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result', './AtomicDragon-99.test_result'])
         allow(FileUtils).to receive(:mkdir_p)
         helper = RetryingScanHelper.new(
@@ -229,7 +229,7 @@ module TestCenter::Helper::MultiScanManager
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
-        
+
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
           source_reports_directory_glob: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
           output_directory: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
@@ -296,7 +296,7 @@ module TestCenter::Helper::MultiScanManager
         expect(helper.scan_options.keys).not_to include(:batch_count, :parallelize)
         expect(helper.scan_options.keys).to include(:derived_data_path, :only_testing)
       end
-      
+
       it 'has only the failing tests' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
@@ -339,7 +339,7 @@ module TestCenter::Helper::MultiScanManager
         expect(scan_options[:output_files].split(',')).to include(
           'coinTossResult.html', 'coinTossResult.junit'
         )
-        
+
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
 
         scan_options = helper.scan_options
@@ -381,7 +381,7 @@ module TestCenter::Helper::MultiScanManager
         expect(scan_options[:output_files].split(',')).to include(
           'coinTossResult.html', 'coinTossResult.junit'
         )
-        
+
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
 
         scan_options = helper.scan_options
@@ -398,7 +398,7 @@ module TestCenter::Helper::MultiScanManager
           'coinTossResult-3.html', 'coinTossResult-3.junit'
         )
       end
- 
+
       it 'continually increments the report suffix for json' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xml}).and_return(true)
@@ -416,7 +416,7 @@ module TestCenter::Helper::MultiScanManager
           output_files: 'coinTossResult.json',
           output_types: 'json',
         )
-        
+
         json_files = []
         allow(ENV).to receive(:[]=) do |k, v|
           json_files << v if k == 'XCPRETTY_JSON_FILE_OUTPUT'
@@ -515,7 +515,7 @@ module TestCenter::Helper::MultiScanManager
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
-        
+
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
@@ -537,7 +537,7 @@ module TestCenter::Helper::MultiScanManager
         test_run_block = lambda do |testrun_info|
           actual_testrun_info = testrun_info
         end
-        
+
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
@@ -575,7 +575,7 @@ module TestCenter::Helper::MultiScanManager
         test_run_block = lambda do |testrun_info|
           actual_testrun_info = testrun_info
         end
-        
+
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
@@ -604,7 +604,7 @@ module TestCenter::Helper::MultiScanManager
       it 'sends junit test_run info to the call back after a recoverable infrastructure failure' do
         session_log_io = StringIO.new('Test operation failure: Test runner exited before starting test execution')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-  
+
         allow(Dir).to receive(:glob)
                   .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
                   .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
@@ -635,7 +635,7 @@ module TestCenter::Helper::MultiScanManager
       it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure' do
         session_log_io = StringIO.new('Test operation failure: Launch session expired before checking in')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-  
+
         allow(Dir).to receive(:glob)
                   .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
                   .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
@@ -691,6 +691,19 @@ module TestCenter::Helper::MultiScanManager
         allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
         scan_options = helper.scan_options
         expect(scan_options[:xcargs]).to include('resultBundlePath')
+      end
+
+      it 'removes -parallel-testing-enabled options' do
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./path/to/output/directory'),
+          output_types: 'junit,xcresult',
+          output_files: 'report.xml,report.xcresult',
+          xcargs: "-parallel-testing-enabled=YES"
+        )
+        scan_options = helper.scan_options
+        expect(scan_options[:xcargs]).to include('-parallel-testing-enabled NO')
+        expect(scan_options[:xcargs]).not_to include('-parallel-testing-enabled=YES')
       end
     end
   end
