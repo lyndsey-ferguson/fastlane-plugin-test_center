@@ -87,7 +87,7 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'doesn\'t raise error on random build failure with retry_test_runner_failures enabled' do
+      it 'does not raise on random build failure with retry_test_runner_failures enabled' do
         helper = RetryingScanHelper.new({
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           retry_test_runner_failures: true
