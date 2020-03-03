@@ -138,13 +138,14 @@ module TestCenter::Helper::MultiScanManager
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
-        
+
         allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.test_result}).and_return(['./AtomicDragon.test_result', './AtomicDragon-99.test_result'])
         allow(FileUtils).to receive(:mkdir_p)
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
-          result_bundle: true
+          result_bundle: true,
+          only_testing: []
         )
         expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-1.test_result')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -171,7 +172,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: []
         )
         mocked_report_collator = OpenStruct.new
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
@@ -189,7 +190,8 @@ module TestCenter::Helper::MultiScanManager
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
           output_directory: File.absolute_path('./path/to/output/directory'),
-          collate_reports: true
+          collate_reports: true,
+          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -200,7 +202,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: []
         )
         mocked_report_collator = OpenStruct.new
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
@@ -218,7 +220,8 @@ module TestCenter::Helper::MultiScanManager
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',
           output_directory: File.absolute_path('./path/to/output/directory'),
-          collate_reports: true
+          collate_reports: true,
+          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
@@ -277,7 +280,7 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails'],
-          output_directory: File.absolute_path('./path/to/output/directory')
+          output_directory: File.absolute_path('./path/to/output/directory'),
         )
 
         expect(helper.scan_options).to include(
@@ -309,7 +312,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/report.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(helper.scan_options).to include(
@@ -321,7 +324,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/coinTossResult(-\d)?.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
         helper = RetryingScanHelper.new(
@@ -361,7 +364,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-3/coinTossResult(-\d)?.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
         helper = RetryingScanHelper.new(
@@ -381,7 +384,7 @@ module TestCenter::Helper::MultiScanManager
         expect(scan_options[:output_files].split(',')).to include(
           'coinTossResult.html', 'coinTossResult.junit'
         )
-        
+
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
 
         scan_options = helper.scan_options
@@ -398,12 +401,12 @@ module TestCenter::Helper::MultiScanManager
           'coinTossResult-3.html', 'coinTossResult-3.junit'
         )
       end
- 
+
       it 'continually increments the report suffix for json' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xml}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
         helper = RetryingScanHelper.new(
@@ -513,13 +516,14 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+          passing: []
         )
-        
+
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
-          code_coverage: true
+          code_coverage: true,
+          only_testing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(helper.scan_options).not_to have_key(:code_coverage)
@@ -575,11 +579,12 @@ module TestCenter::Helper::MultiScanManager
         test_run_block = lambda do |testrun_info|
           actual_testrun_info = testrun_info
         end
-        
+
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
-          testrun_completed_block: test_run_block
+          testrun_completed_block: test_run_block,
+          only_testing: []
         )
         allow(helper).to receive(:failure_details).and_return(
           [
