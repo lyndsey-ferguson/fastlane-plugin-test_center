@@ -87,6 +87,26 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
+      it 'does not raise on random build failure with retry_test_runner_failures enabled' do
+        helper = RetryingScanHelper.new({
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          retry_test_runner_failures: true
+        })
+        
+        session_log_io = StringIO.new('Everything went wrong!')
+        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
+  
+        allow(Dir).to receive(:glob)
+                  .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+                  .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
+  
+        allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
+        allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
+        allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+
+        helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('chaos'))
+      end
+
       it 'does not raise if there is a test runner early exit failure' do
         helper = RetryingScanHelper.new({derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr', output_directory: ''})
         

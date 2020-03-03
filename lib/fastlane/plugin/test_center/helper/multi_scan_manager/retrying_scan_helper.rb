@@ -125,7 +125,11 @@ module TestCenter
             after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
             FastlaneCore::UI.verbose(after_testrun_message)
 
-            handle_build_failure(exception)
+            if @options[:retry_test_runner_failures]
+              continue_with_build_failure(exception)
+            else
+              handle_build_failure(exception)
+            end
           else
             after_testrun_message = "Scan passed the tests"
             after_testrun_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
@@ -246,6 +250,21 @@ module TestCenter
           end
         end
 
+        def continue_with_build_failure(exception)
+          test_session_last_messages = last_lines_of_test_session_log
+          failure = retrieve_test_operation_failure(test_session_last_messages)
+          case failure
+          when /Lost connection to testmanagerd/
+            FastlaneCore::UI.important("com.apple.CoreSimulator.CoreSimulatorService may have become corrupt, consider quitting it")
+            if @options[:quit_core_simulator_service]
+              Fastlane::Actions::RestartCoreSimulatorServiceAction.run
+            end
+          else
+            FastlaneCore::UI.important(test_session_last_messages)
+          end
+          send_callback_testrun_info(test_operation_failure: failure)
+        end
+
         def handle_build_failure(exception)
           test_session_last_messages = last_lines_of_test_session_log
           failure = retrieve_test_operation_failure(test_session_last_messages)
@@ -262,6 +281,7 @@ module TestCenter
             FastlaneCore::UI.error(test_session_last_messages)
             send_callback_testrun_info(test_operation_failure: failure)
             raise exception
+            FastlaneCore::UI.important(test_session_last_messages)
           end
           send_callback_testrun_info(test_operation_failure: failure)
         end
