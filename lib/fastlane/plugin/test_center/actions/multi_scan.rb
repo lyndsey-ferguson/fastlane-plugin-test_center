@@ -165,6 +165,7 @@ module Fastlane
       def self.prepare_for_testing(scan_options)
         reset_scan_config_to_defaults
         use_scanfile_to_override_settings(scan_options)
+        turn_off_concurrent_workers(scan_options)
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
         if scan_options[:test_without_building] || scan_options[:skip_build]
           UI.verbose("Preparing Scan config options for multi_scan testing")
@@ -172,6 +173,12 @@ module Fastlane
         else
           UI.verbose("Building the project in preparation for multi_scan testing")
           build_for_testing(scan_options)
+        end
+      end
+
+      def self.turn_off_concurrent_workers(scan_options)
+        if Gem::Version.new(Fastlane::VERSION) >= Gem::Version.new('2.142.0')
+          scan_options.delete(:concurrent_workers) if scan_options[:concurrent_workers].to_i > 0
         end
       end
 
