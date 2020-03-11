@@ -88,11 +88,12 @@ module TestCenter
 
         def scan_options
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          xcargs = @options[:xcargs]
+          xcargs = @options.fetch(:xcargs, '')
           if xcargs&.include?('build-for-testing')
             FastlaneCore::UI.important(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
             xcargs.slice!('build-for-testing')
           end
+          xcargs.gsub!(/-parallel-testing-enabled(=|\s+)(YES|NO)/, '')
           retrying_scan_options = @reportnamer.scan_options.merge(
             {
               output_directory: output_directory,
