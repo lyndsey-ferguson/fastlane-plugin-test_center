@@ -88,7 +88,7 @@ module TestCenter
 
         def scan_options
           valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
-          xcargs = @options.fetch(:xcargs, '')
+          xcargs = @options[:xcargs] || ''
           if xcargs&.include?('build-for-testing')
             FastlaneCore::UI.important(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
             xcargs.slice!('build-for-testing')
@@ -288,6 +288,25 @@ module TestCenter
         end
 
         def retrieve_test_operation_failure(test_session_last_messages)
+          if FastlaneCore::Helper.xcode_at_least?(11)
+            retrieve_test_operation_failure_post_xcode11(test_session_last_messages)
+          else
+            retrieve_test_operation_failure_pre_xcode11(test_session_last_messages)
+          end
+        end
+
+        def retrieve_test_operation_failure_post_xcode11(test_session_last_messages)
+          if /Connection peer refused channel request/ =~ test_session_last_messages
+            test_operation_failure = 'Lost connection to testmanagerd'
+          elsif /Please unlock your device and reattach/ =~ test_session_last_messages
+            test_operation_failure = 'Test device locked'
+          elsif /Test runner exited before starting test execution/ =~ test_session_last_messages
+            test_operation_failure = 'Test runner exited before starting test execution'
+          end
+          test_operation_failure
+        end
+
+        def retrieve_test_operation_failure_pre_xcode11(test_session_last_messages)
           test_operation_failure_match = /Test operation failure: (?<test_operation_failure>.*)$/ =~ test_session_last_messages
           if test_operation_failure_match.nil?
             test_operation_failure = 'Unknown test operation failure'
