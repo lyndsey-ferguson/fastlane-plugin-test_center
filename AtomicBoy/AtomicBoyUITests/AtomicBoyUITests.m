@@ -193,5 +193,229 @@
     }
 }
 
+- (void)testExample21 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample22 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample23 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample24 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample25 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample26 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample27 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample28 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample29 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample30 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample31 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample32 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample33 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample34 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample35 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample36 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample37 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample38 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample39 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample40 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample41 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample42 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample43 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample44 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample45 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample46 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample47 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
+- (void)testExample48 {
+    // Use recording to get started writing UI tests.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+    if (arc4random_uniform(6) < 3) {
+        XCTAssertTrue(false);
+    }
+}
+
 
 @end

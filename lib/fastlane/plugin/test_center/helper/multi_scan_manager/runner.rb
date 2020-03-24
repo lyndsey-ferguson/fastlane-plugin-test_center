@@ -7,7 +7,7 @@ module TestCenter
       require 'json'
       require 'shellwords'
       require 'snapshot/reset_simulators'
-      
+
       class Runner
         attr_reader :retry_total_count
 
@@ -66,12 +66,12 @@ module TestCenter
           end
 
           unless tests_passed || @options[:try_count] < 1
-            setup_testcollector  
+            setup_testcollector
             tests_passed = run_test_batches
           end
           tests_passed
         end
-        
+
         def should_run_tests_through_single_try?
           should_run_for_invocation_tests = @options[:invocation_based_tests] && @options[:only_testing].nil?
           should_run_for_skip_build = @options[:skip_build]
@@ -114,16 +114,16 @@ module TestCenter
           end
           @options[:output_directory] = output_directory
           @options[:destination] = Scan.config[:destination]
-          
+
           # We do not want Scan.config to _not_ have :device :devices, we want to
           # use :destination. We remove :force_quit_simulator as we do not want
           # Scan to handle it as multi_scan takes care of it in its own way
           options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           options[:try_count] = 1
-  
+
           tests_passed = RetryingScan.run(options)
           @options[:try_count] -= 1
-          
+
           reportnamer = ReportNameHelper.new(
             @options[:output_types],
             @options[:output_files],
@@ -138,12 +138,12 @@ module TestCenter
           )
           @options[:only_testing] = retrieve_failed_single_try_tests
           @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
-          
+
           symlink_result_bundle_to_xcresult(output_directory, reportnamer)
 
           tests_passed
         end
-        
+
         def retrieve_failed_single_try_tests
           reportnamer = ReportNameHelper.new(
             @options[:output_types],
@@ -168,10 +168,10 @@ module TestCenter
 
           pool = TestBatchWorkerPool.new(pool_options)
           pool.setup_workers
-          
+
           remaining_test_batches = @test_collector.test_batches.clone
           remaining_test_batches.each_with_index do |test_batch, current_batch_index|
-            worker = pool.wait_for_worker              
+            worker = pool.wait_for_worker
             FastlaneCore::UI.message("Starting test run #{current_batch_index + 1}")
             worker.run(scan_options_for_worker(test_batch, current_batch_index))
           end
@@ -189,7 +189,7 @@ module TestCenter
             batch: batch_index + 1
           }
         end
-  
+
         def collate_batched_reports
           return unless @batch_count > 1
           return unless @options[:collate_reports]
