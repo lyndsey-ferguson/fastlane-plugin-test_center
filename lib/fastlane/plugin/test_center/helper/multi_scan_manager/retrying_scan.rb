@@ -20,8 +20,13 @@ module TestCenter
         def prepare_scan_config_for_destination
           # this allows multi_scan's `destination` option to be picked up by `scan`
           scan_config._values.delete(:device)
+          ENV.delete('SCAN_DEVICE')
           scan_config._values.delete(:devices)
-          scan_config._values.delete(:result_bundle) if ReportNameHelper.includes_xcresult?(@options[:output_types])
+          ENV.delete('SCAN_DEVICES')
+          if ReportNameHelper.includes_xcresult?(@options[:output_types])
+            scan_config._values.delete(:result_bundle)
+            ENV.delete('SCAN_RESULT_BUNDLE')
+          end
           scan_cache.clear
         end
 
@@ -35,7 +40,7 @@ module TestCenter
           FastlaneCore::UI.verbose("retrying_scan #update_scan_options")
           scan_options.each do |k,v|
             next if v.nil?
- 
+
             scan_config.set(k,v) unless v.nil?
             FastlaneCore::UI.verbose("\tSetting #{k.to_s} to #{v}")
           end
@@ -52,7 +57,7 @@ module TestCenter
           begin
             @retrying_scan_helper.before_testrun
             update_scan_options
-            
+
             values = scan_config.values(ask: false)
             values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
             ScanHelper.print_scan_parameters(values)

@@ -14,7 +14,6 @@ lane :testing do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
-    parallel_testrun_count: 2,
     try_count: 3,
     output_types: 'xcresult',
     output_files: 'result.xcresult',
