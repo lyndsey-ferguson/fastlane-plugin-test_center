@@ -98,4 +98,30 @@ describe Fastlane::Actions::SuppressedTestsAction do
       )
     end
   end
+
+  describe 'Xcode Scheme with testplans' do
+    include_context "mocked schemes context"
+
+    it 'dsiplays a message and returns 0 skipped tests' do
+      mocked_scheme = OpenStruct.new
+      allow(Xcodeproj::XCScheme).to receive(:new).and_return(mocked_scheme)
+
+      mocked_test_action = OpenStruct.new
+      allow(mocked_scheme).to receive(:test_action).and_return(mocked_test_action)
+
+      mocked_test_plans = OpenStruct.new
+      allow(mocked_test_action).to receive(:test_plans).and_return(mocked_test_plans)
+
+      expect(FastlaneCore::UI).to receive(:important).with(/Error: unable to read suppressed/)
+      fastfile = "lane :test do
+        suppressed_tests(
+          workspace: 'path/to/fake_workspace.xcworkspace',
+          scheme: 'MesaRedonda'
+        )
+      end"
+
+      result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+      expect(result).to eq([])
+    end
+  end
 end

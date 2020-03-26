@@ -11,10 +11,26 @@ module Fastlane
       def self.xctestrun_tests(xctestrun_path, invocation_based_tests)
         xctestrun = Plist.parse_xml(xctestrun_path)
         xctestrun_rootpath = File.dirname(xctestrun_path)
-        tests = Hash.new([])
-        xctestrun.each do |testable_name, xctestrun_config|
-          next if ignoredTestables.include? testable_name
+        xctestrun_version = xctestrun.fetch('__xctestrun_metadata__', Hash.new).fetch('FormatVersion', 1)
 
+        test_targets = []
+        if xctestrun_version == 1
+          xctestrun.each do |testable_name, test_target_config|
+            next if ignoredTestables.include? testable_name
+            test_targets << test_target_config
+          end
+        else
+          test_configurations = xctestrun['TestConfigurations']
+          test_configurations.each do |configuration|
+            configuration['TestTargets'].each do |test_target|
+              test_targets << test_target
+            end
+          end
+        end
+
+        tests = Hash.new([])
+        test_targets.each do |xctestrun_config|
+          testable_name = xctestrun_config['ProductModuleName']
           xctest_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
           test_identifiers = []
           if xctestrun_config.key?('OnlyTestIdentifiers')

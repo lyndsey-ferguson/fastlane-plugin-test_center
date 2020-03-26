@@ -2,6 +2,7 @@ module Fastlane
   module Actions
     class SuppressedTestsAction < Action
       require 'set'
+      require 'json'
 
       def self.run(params)
         scheme = params[:scheme]
@@ -15,13 +16,19 @@ module Fastlane
         skipped_tests = Set.new
         scheme_filepaths.each do |scheme_filepath|
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
-          xcscheme.test_action.testables.each do |testable|
-            buildable_name = testable.buildable_references[0]
-                                     .buildable_name
+          testplans = xcscheme.test_action.test_plans
+          unless testplans.nil?
+            UI.important("Error: unable to read suppressed tests from Xcode Scheme #{File.basename(scheme_filepath)}.")
+            UI.message("The scheme is using a testplan which does not list skipped tests.")
+          else
+            xcscheme.test_action.testables.each do |testable|
+              buildable_name = testable.buildable_references[0]
+                                       .buildable_name
 
-            buildable_name = File.basename(buildable_name, '.xctest')
-            testable.skipped_tests.map do |skipped_test|
-              skipped_tests.add("#{buildable_name}/#{skipped_test.identifier}")
+              buildable_name = File.basename(buildable_name, '.xctest')
+              testable.skipped_tests.map do |skipped_test|
+                skipped_tests.add("#{buildable_name}/#{skipped_test.identifier}")
+              end
             end
           end
         end

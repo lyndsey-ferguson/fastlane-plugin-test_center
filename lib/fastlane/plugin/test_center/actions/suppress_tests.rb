@@ -17,22 +17,46 @@ module Fastlane
         scheme_filepaths.each do |scheme_filepath|
           is_dirty = false
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
-          xcscheme.test_action.testables.each do |testable|
-            buildable_name = File.basename(testable.buildable_references[0].buildable_name, '.xctest')
+          testplans = xcscheme.test_action.test_plans
+          unless testplans.nil?
+            container_directory = File.absolute_path(File.dirname(params[:xcodeproj] || params[:workspace]))
+            update_testplans(container_directory, testplans, all_tests_to_skip)
+          else
+            xcscheme.test_action.testables.each do |testable|
+              buildable_name = File.basename(testable.buildable_references[0].buildable_name, '.xctest')
 
-            tests_to_skip = all_tests_to_skip.select { |test| test.start_with?(buildable_name) }
-                                             .map { |test| test.sub("#{buildable_name}/", '') }
+              tests_to_skip = all_tests_to_skip.select { |test| test.start_with?(buildable_name) }
+                                               .map { |test| test.sub("#{buildable_name}/", '') }
 
-            tests_to_skip.each do |test_to_skip|
-              skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
-              skipped_test.identifier = test_to_skip
-              testable.add_skipped_test(skipped_test)
-              is_dirty = true
+              tests_to_skip.each do |test_to_skip|
+                skipped_test = Xcodeproj::XCScheme::TestAction::TestableReference::SkippedTest.new
+                skipped_test.identifier = test_to_skip
+                testable.add_skipped_test(skipped_test)
+                is_dirty = true
+              end
             end
           end
           xcscheme.save! if is_dirty
         end
         nil
+      end
+
+      def self.update_testplans(container_directory, testplans, all_tests_to_skip)
+        testplans.each do |testplan_reference|
+          testplan_filename = testplan_reference.target_referenced_container.sub('container:', '')
+          testplan_filepath = File.join(container_directory, testplan_filename)
+          file = File.read(testplan_filepath)
+          testplan = JSON.parse(file)
+          testplan['testTargets'].each do |test_target|
+            buildable_name = test_target.dig('target', 'name')
+            tests_to_skip = all_tests_to_skip.select { |test| test.start_with?(buildable_name) }
+              .map { |test| test.sub("#{buildable_name}/", '') }
+            test_target['selectedTests'].reject! { |t| tests_to_skip.include?(t) }
+          end
+          File.open(testplan_filepath, 'w') do |f|
+            f.write(JSON.pretty_generate(testplan).gsub('/', '\/'))
+          end
+        end
       end
 
       def self.schemes_from_project(project_path, scheme)

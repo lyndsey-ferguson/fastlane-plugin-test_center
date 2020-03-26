@@ -1,0 +1,44 @@
+{
+  "configurations": [
+    {
+      "id": "1162AED2-E8D8-44D4-82D6-3290F84BA621",
+      "name": "Configuration 1",
+      "options": {
+      }
+    }
+  ],
+  "defaultOptions": {
+    "codeCoverage": false,
+    "targetForVariableExpansion": {
+      "containerPath": "container:Fake.xcodeproj",
+      "identifier": "26DB0F4E1FA12D4B0023C31D",
+      "name": "Fake"
+    }
+  },
+  "testTargets": [
+    {
+      "selectedTests": [
+        "FakeTests\/testExample",
+        "FakeTests\/testPerformanceExample"
+      ],
+      "target": {
+        "containerPath": "container:Fake.xcodeproj",
+        "identifier": "26DB0F6D1FA12D4B0023C31D",
+        "name": "FakeTests"
+      }
+    },
+    {
+      "selectedTests": [
+        "FakeUITests\/testExample",
+        "FakeUITests\/testExample2",
+        "FakeUITests\/testExample3"
+      ],
+      "target": {
+        "containerPath": "container:Fake.xcodeproj",
+        "identifier": "26DB0F781FA12D4B0023C31D",
+        "name": "FakeUITests"
+      }
+    }
+  ],
+  "version": 1
+}
