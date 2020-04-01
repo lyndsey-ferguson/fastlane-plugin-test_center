@@ -42,9 +42,7 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys.reject do |key|
-              key == '__xctestrun_metadata__'
-            end
+            @testables = xctestrun_known_tests.keys
           end
         end
         @testables
@@ -80,7 +78,7 @@ module TestCenter
               known_tests += xctestrun_known_tests[testable]
               test_components = test.split('/')
               testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
-              @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) } 
+              @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) }
             end
           end
           @testables_tests[testable].flatten!
@@ -106,7 +104,7 @@ module TestCenter
             end
           end
         end
-        
+
         @testables_tests
       end
 

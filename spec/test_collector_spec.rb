@@ -16,21 +16,21 @@ module TestCenter::Helper
         end
 
         it 'finds testable from given xctestrun' do
-          allow(Plist).to receive(:parse_xml).with('path/to/fake.xctestrun').and_return({ 'AtomicBoyTests' => [] })
           test_collector = TestCollector.new(
             xctestrun: 'path/to/fake.xctestrun'
           )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return({ 'AtomicBoyTests' => [] })
           expect(test_collector.testables).to eq(['AtomicBoyTests'])
         end
 
         it 'finds testables from derived xctestrun' do
           allow(File).to receive(:exist?).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return(true)
           allow(Dir).to receive(:glob).with("path/to/fake/derived_data/Build/Products/*.xctestrun").and_return(['path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun'])
-          allow(Plist).to receive(:parse_xml).with("path/to/fake/derived_data/Build/Products/Professor_Blahblah.xctestrun").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
           test_collector = TestCollector.new(
             derived_data_path: 'path/to/fake/derived_data',
             scheme: 'Professor'
           )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
           expect(test_collector.testables).to eq(['AtomicBoyTests', 'AtomicBoyUITests'])
         end
 
@@ -39,8 +39,9 @@ module TestCenter::Helper
           XCTEST_RUN_FILENAME = 'Professor_Blahblah.xctestrun'
           allow(File).to receive(:exist?).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return(true)
           allow(Dir).to receive(:glob).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/*.xctestrun").and_return(["#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}"])
-          allow(Plist).to receive(:parse_xml).with("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/Build/Products/#{XCTEST_RUN_FILENAME}").and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
+
           mocked_project = OpenStruct.new
+
           allow(mocked_project).to receive(:build_settings).and_return("#{FAKE_DEFAULT_DERIVED_DATA_PATH}/blah1/blah2/blah3")
           allow(File).to receive(:expand_path).with('../../..', "#{FAKE_DEFAULT_DERIVED_DATA_PATH}/blah1/blah2/blah3").and_return(FAKE_DEFAULT_DERIVED_DATA_PATH)
           allow(Scan).to receive(:project).and_return(mocked_project)
@@ -48,6 +49,7 @@ module TestCenter::Helper
             skip_build: true,
             scheme: 'Professor'
           )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return({ 'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
           expect(test_collector.testables).to eq(['AtomicBoyTests', 'AtomicBoyUITests'])
         end
 
@@ -266,7 +268,7 @@ module TestCenter::Helper
           }
           allow(Plist).to receive(:parse_xml).and_return(mock_xctestrun)
           allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
-          expect(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)
+          allow(Fastlane::Actions::TestsFromXctestrunAction).to receive(:run)
             .and_return(mock_xctestrun)
 
           test_collector = TestCollector.new(
