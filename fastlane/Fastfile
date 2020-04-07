@@ -16,9 +16,7 @@ lane :testing do
     scheme: 'AtomicBoy',
     skip_testing: ["AtomicBoyUITests/AtomicBoyUITests/testExample11"],
     try_count: 3,
-    output_types: 'xcresult',
-    output_files: 'result.xcresult',
     fail_build: false,
-    destination: 'platform=iOS Simulator,name=iPhone 8,OS=13.3'
+    code_coverage: true
   )
 end

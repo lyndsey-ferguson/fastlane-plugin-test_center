@@ -1,44 +1,44 @@
 {
-  "configurations": [
+  "configurations" : [
     {
-      "id": "1162AED2-E8D8-44D4-82D6-3290F84BA621",
-      "name": "Configuration 1",
-      "options": {
+      "id" : "1162AED2-E8D8-44D4-82D6-3290F84BA621",
+      "name" : "Configuration 1",
+      "options" : {
+
       }
     }
   ],
-  "defaultOptions": {
-    "codeCoverage": false,
-    "targetForVariableExpansion": {
-      "containerPath": "container:AtomicBoy.xcodeproj",
-      "identifier": "26DB0F4E1FA12D4B0023C31D",
-      "name": "AtomicBoy"
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:AtomicBoy.xcodeproj",
+      "identifier" : "26DB0F4E1FA12D4B0023C31D",
+      "name" : "AtomicBoy"
     }
   },
-  "testTargets": [
+  "testTargets" : [
     {
-      "selectedTests": [
+      "selectedTests" : [
         "AtomicBoyTests\/testExample",
         "AtomicBoyTests\/testPerformanceExample"
       ],
-      "target": {
-        "containerPath": "container:AtomicBoy.xcodeproj",
-        "identifier": "26DB0F6D1FA12D4B0023C31D",
-        "name": "AtomicBoyTests"
+      "target" : {
+        "containerPath" : "container:AtomicBoy.xcodeproj",
+        "identifier" : "26DB0F6D1FA12D4B0023C31D",
+        "name" : "AtomicBoyTests"
       }
     },
     {
-      "selectedTests": [
+      "selectedTests" : [
         "AtomicBoyUITests\/testExample",
         "AtomicBoyUITests\/testExample2",
         "AtomicBoyUITests\/testExample3"
       ],
-      "target": {
-        "containerPath": "container:AtomicBoy.xcodeproj",
-        "identifier": "26DB0F781FA12D4B0023C31D",
-        "name": "AtomicBoyUITests"
+      "target" : {
+        "containerPath" : "container:AtomicBoy.xcodeproj",
+        "identifier" : "26DB0F781FA12D4B0023C31D",
+        "name" : "AtomicBoyUITests"
       }
     }
   ],
-  "version": 1
+  "version" : 1
 }
