@@ -12,6 +12,7 @@ module TestCenter::Helper::MultiScanManager
       mocked_report_collator = OpenStruct.new
       allow(mocked_report_collator).to receive(:collate)
       allow(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).and_return(mocked_report_collator)
+      allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
     end
 
     after(:each) do
@@ -92,14 +93,14 @@ module TestCenter::Helper::MultiScanManager
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           retry_test_runner_failures: true
         })
-        
+
         session_log_io = StringIO.new('Everything went wrong!')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
-  
+
         allow(Dir).to receive(:glob)
                   .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
                   .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log', 'D/E/F/Session-AtomicBoyUITests-Today.log'])
-  
+
         allow(File).to receive(:mtime).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(1)
         allow(File).to receive(:mtime).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(2)
         allow(File).to receive(:open).with('D/E/F/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
@@ -292,6 +293,20 @@ module TestCenter::Helper::MultiScanManager
         helper = RetryingScanHelper.new(destination: "platform=iOS Simulator,id=A00")
         expect(helper).not_to receive(:`)
         helper.quit_simulator
+      end
+    end
+
+    describe '#handle_build_failure' do
+      it 'raises an error when the log indicates that the test device is locked' do
+        helper = RetryingScanHelper.new(destination: "platform=iOS Simulator,id=A00")
+
+        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
+
+        mocked_last_lines_of_log = File.read('./spec/fixtures/locked_device_log.txt')
+        allow(helper).to receive(:last_lines_of_test_session_log).and_return(mocked_last_lines_of_log)
+        expect { helper.handle_build_failure(FastlaneCore::Interface::FastlaneBuildFailure) }.to(
+          raise_error(FastlaneCore::Interface::FastlaneBuildFailure)
+        )
       end
     end
 
@@ -701,7 +716,6 @@ module TestCenter::Helper::MultiScanManager
           output_types: 'junit,xcresult',
           output_files: 'report.xml,report.xcresult'
         )
-        allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
         scan_options = helper.scan_options
         expect(scan_options[:xcargs]).not_to include('resultBundlePath')
       end

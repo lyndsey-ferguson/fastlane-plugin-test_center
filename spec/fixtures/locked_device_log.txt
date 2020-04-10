@@ -1,0 +1,49 @@
+;96;49m[worker 2] [0m2020-03-01 23:44:06.513 xcodebuild[2813:283817] [MT] iPhoneConnect: 📱<DVTiOSDevice (0x7ff6f3f87a90), Cyberbeni's iPhone 11 Pro, iPhone, 13.3.1 (17D50), 00008030-001C19D43CA0802E> == END: Underlying device preparation errors ==
+[0;96;49m[worker 2] [0m2020-03-01 23:44:23.238 xcodebuild[2813:283817] [MT] IDETestOperationsObserverDebug: 31.825 elapsed -- Testing started completed.
+[0;96;49m[worker 2] [0m2020-03-01 23:44:23.238 xcodebuild[2813:283817] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+[0;96;49m[worker 2] [0m2020-03-01 23:44:23.238 xcodebuild[2813:283817] [MT] IDETestOperationsObserverDebug: 31.825 sec, +31.825 sec -- end
+[0;96;49m[worker 2] [0m2020-03-01 23:44:24.419 xcodebuild[2813:284198]  DTDeviceKit: Failed to mount DDI from '<DVTFilePath:0x7ff6f430e280:'/Applications/Xcode1131.app/Contents/Developer/Platforms/WatchOS.platform/DeviceSupport/6.1/DeveloperDiskImage.dmg'>', error=-402652958: Error Domain=com.apple.dtdevicekit Code=-402652958 "Development cannot be enabled while your device is locked." UserInfo={NSLocalizedFailureReason=Please unlock your device and reattach. (0xE80000E2)., com.apple.dtdevicekit.stacktrace=(
+[0;96;49m[worker 2] [0m  0   DTDeviceKitBase                     0x000000011c60f6e7 DTDKCreateNSError + 109
+[0;96;49m[worker 2] [0m  1   DTDeviceKitBase                     0x000000011c60fde9 DTDK_AMDErrorToNSError + 792
+[0;96;49m[worker 2] [0m  2   DTDeviceKitBase                     0x000000011c64d780 -[DTDKMobileDeviceToken _mountDeveloperDiskImage:withError:] + 844
+[0;96;49m[worker 2] [0m  3   DTDeviceKitBase                     0x000000011c64e29d __58-[DTDKMobileDeviceToken mountDeveloperDiskImageWithError:]_block_invoke + 699
+[0;96;49m[worker 2] [0m  4   libdispatch.dylib                   0x00007fff731b750e _dispatch_client_callout + 8
+[0;96;49m[worker 2] [0m  5   libdispatch.dylib                   0x00007fff731c3567 _dispatch_lane_barrier_sync_invoke_and_complete + 60
+[0;96;49m[worker 2] [0m  6   DTDeviceKitBase                     0x000000011c64df80 -[DTDKMobileDeviceToken mountDeveloperDiskImageWithError:] + 199
+[0;96;49m[worker 2] [0m  7   IDEiOSSupportCore                   0x000000011c209107 __28-[DVTiOSDevice attachToken:]_block_invoke_4 + 254
+[0;96;49m[worker 2] [0m  8   DVTFoundation                       0x000000010f3bde7a __DVT_CALLING_CLIENT_BLOCK__ + 7
+[0;96;49m[worker 2] [0m  9   DVTFoundation                       0x000000010f3bf552 __DVTDispatchAsync_block_invoke + 809
+[0;96;49m[worker 2] [0m  10  libdispatch.dylib                   0x00007fff731b6583 _dispatch_call_block_and_release + 12
+[0;96;49m[worker 2] [0m  11  libdispatch.dylib                   0x00007fff731b750e _dispatch_client_callout + 8
+[0;96;49m[worker 2] [0m  12  libdispatch.dylib                   0x00007fff731b96c0 _dispatch_continuation_pop + 414
+[0;96;49m[worker 2] [0m  13  libdispatch.dylib                   0x00007fff731b8dbe _dispatch_async_redirect_invoke + 703
+[0;96;49m[worker 2] [0m  14  libdispatch.dylib                   0x00007fff731c57e2 _dispatch_root_queue_drain + 326
+[0;96;49m[worker 2] [0m  15  libdispatch.dylib                   0x00007fff731c5f22 _dispatch_worker_thread2 + 92
+[0;96;49m[worker 2] [0m  16  libsystem_pthread.dylib             0x00007fff734116b6 _pthread_wqthread + 220
+[0;96;49m[worker 2] [0m  17  libsystem_pthread.dylib             0x00007fff73410827 start_wqthread + 15
+[0;96;49m[worker 2] [0m), DVTRadarComponentKey=487927, NSLocalizedDescription=Development cannot be enabled while your device is locked.}
+[0;96;49m[worker 2] [0m2020-03-01 23:44:24.421 xcodebuild[2813:284198]  iPhoneSupport: 📱<DVTiOSDevice (0x7ff6f3f87a90), Cyberbeni's iPhone 11 Pro, iPhone, 13.3.1 (17D50), 00008030-001C19D43CA0802E> unable to mount DeveloperDiskImage (Error Domain=com.apple.dtdevicekit Code=-402652958 "Development cannot be enabled while your device is locked." UserInfo={NSLocalizedFailureReason=Please unlock your device and reattach. (0xE80000E2)., com.apple.dtdevicekit.stacktrace=(
+[0;96;49m[worker 2] [0m  0   DTDeviceKitBase                     0x000000011c60f6e7 DTDKCreateNSError + 109
+[0;96;49m[worker 2] [0m  1   DTDeviceKitBase                     0x000000011c60fde9 DTDK_AMDErrorToNSError + 792
+[0;96;49m[worker 2] [0m  2   DTDeviceKitBase                     0x000000011c64d780 -[DTDKMobileDeviceToken _mountDeveloperDiskImage:withError:] + 844
+[0;96;49m[worker 2] [0m  3   DTDeviceKitBase                     0x000000011c64e29d __58-[DTDKMobileDeviceToken mountDeveloperDiskImageWithError:]_block_invoke + 699
+[0;96;49m[worker 2] [0m  4   libdispatch.dylib                   0x00007fff731b750e _dispatch_client_callout + 8
+[0;96;49m[worker 2] [0m  5   libdispatch.dylib                   0x00007fff731c3567 _dispatch_lane_barrier_sync_invoke_and_complete + 60
+[0;96;49m[worker 2] [0m  6   DTDeviceKitBase                     0x000000011c64df80 -[DTDKMobileDeviceToken mountDeveloperDiskImageWithError:] + 199
+[0;96;49m[worker 2] [0m  7   IDEiOSSupportCore                   0x000000011c209107 __28-[DVTiOSDevice attachToken:]_block_invoke_4 + 254
+[0;96;49m[worker 2] [0m  8   DVTFoundation                       0x000000010f3bde7a __DVT_CALLING_CLIENT_BLOCK__ + 7
+[0;96;49m[worker 2] [0m  9   DVTFoundation                       0x000000010f3bf552 __DVTDispatchAsync_block_invoke + 809
+[0;96;49m[worker 2] [0m  10  libdispatch.dylib                   0x00007fff731b6583 _dispatch_call_block_and_release + 12
+[0;96;49m[worker 2] [0m  11  libdispatch.dylib                   0x00007fff731b750e _dispatch_client_callout + 8
+[0;96;49m[worker 2] [0m  12  libdispatch.dylib                   0x00007fff731b96c0 _dispatch_continuation_pop + 414
+[0;96;49m[worker 2] [0m  13  libdispatch.dylib                   0x00007fff731b8dbe _dispatch_async_redirect_invoke + 703
+[0;96;49m[worker 2] [0m  14  libdispatch.dylib                   0x00007fff731c57e2 _dispatch_root_queue_drain + 326
+[0;96;49m[worker 2] [0m  15  libdispatch.dylib                   0x00007fff731c5f22 _dispatch_worker_thread2 + 92
+[0;96;49m[worker 2] [0m  16  libsystem_pthread.dylib             0x00007fff734116b6 _pthread_wqthread + 220
+[0;96;49m[worker 2] [0m  17  libsystem_pthread.dylib             0x00007fff73410827 start_wqthread + 15
+[0;96;49m[worker 2] [0m), DVTRadarComponentKey=487927, NSLocalizedDescription=Development cannot be enabled while your device is locked.})
+[0;96;49m[worker 2] [0mTesting failed:
+[0;96;49m[worker 2] [0m  BugreportUITests:
+[0;96;49m[worker 2] [0m    BugreportUITests-Runner.app (2835) encountered an error (Early unexpected exit, operation never finished bootstrapping - no restart will be attempted. (Underlying error: Test runner exited before starting test execution.))
+[0;96;49m[worker 2] [0m
+[0;96;49m[worker 2] [0m** TEST EXECUTE FAILED **
