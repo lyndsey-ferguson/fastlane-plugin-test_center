@@ -1,4 +1,9 @@
 require_relative 'test_center_utils'
+require 'pry-byebug'
+require 'clamp'
+require 'yaml'
+require 'slather'
+require 'slather/command/coverage_command.rb'
 
 # Retrieves the example code from each action and runs it to ensure that everything
 # is working as intended.
@@ -19,12 +24,24 @@ lane :testing do
     fail_build: false,
     code_coverage: true
   )
-  slather(
-    scheme: "AtomicBoy",
-    proj: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    cobertura_xml: true,
-    use_bundle_exec: true,
-    verbose: true
+  byebug
+  cmd = ::CoverageCommand.run(
+      Dir.pwd,
+      [
+        File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+        "--scheme", 'AtomicBoy',
+        "--workspace", File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+        "--cobertura-xml",
+        "--verbose"
+      ]
   )
+
+# slather(
+#    scheme: "AtomicBoy",
+#    proj: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+#    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+#    cobertura_xml: true,
+#    use_bundle_exec: true,
+#    verbose: true
+#  )
 end
