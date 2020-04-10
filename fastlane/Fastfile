@@ -14,6 +14,7 @@ lane :testing do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
+    skip_testing: ["AtomicBoyUITests/AtomicBoyUITests/testExample11"],
     try_count: 3,
     output_types: 'xcresult',
     output_files: 'result.xcresult',

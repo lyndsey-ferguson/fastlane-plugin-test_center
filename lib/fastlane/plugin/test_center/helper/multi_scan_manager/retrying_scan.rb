@@ -17,16 +17,18 @@ module TestCenter
         end
         # :nocov:
 
-        def prepare_scan_config_for_destination
+        def prepare_scan_config
           # this allows multi_scan's `destination` option to be picked up by `scan`
           scan_config._values.delete(:device)
           ENV.delete('SCAN_DEVICE')
           scan_config._values.delete(:devices)
           ENV.delete('SCAN_DEVICES')
+          # this prevents double -resultBundlePath args to xcodebuild
           if ReportNameHelper.includes_xcresult?(@options[:output_types])
             scan_config._values.delete(:result_bundle)
             ENV.delete('SCAN_RESULT_BUNDLE')
           end
+          scan_config._values.delete(:skip_testing)
           scan_cache.clear
         end
 
@@ -35,8 +37,9 @@ module TestCenter
           scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
                                   .merge(@retrying_scan_helper.scan_options)
 
-          prepare_scan_config_for_destination
+          prepare_scan_config
           scan_options[:build_for_testing] = false
+          scan_options.delete(:skip_testing)
           FastlaneCore::UI.verbose("retrying_scan #update_scan_options")
           scan_options.each do |k,v|
             next if v.nil?

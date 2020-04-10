@@ -18,22 +18,22 @@ module TestCenter::Helper::MultiScanManager
       @mock_scan_cache = { destination: ["platform=iOS Simulator,id=HungryHippo"] }
       allow_any_instance_of(RetryingScan).to receive(:scan_cache).and_return(@mock_scan_cache)
     end
-    
-    describe '#prepare_scan_config_for_destination' do
+
+    describe '#prepare_scan_config' do
       it 'removes :device and :devices' do
         retrying_scan = RetryingScan.new
 
         @mock_scan_config[:device] = 'iPhone 91v'
         @mock_scan_config[:devices] = ['iPhone 92w', 'iPhone 92x']
 
-        retrying_scan.prepare_scan_config_for_destination
+        retrying_scan.prepare_scan_config
         expect(@mock_scan_config[:device]).to be_nil
         expect(@mock_scan_config[:devices]).to be_nil
       end
 
       it 'clears out the Scan cache' do
         retrying_scan = RetryingScan.new
-        retrying_scan.prepare_scan_config_for_destination
+        retrying_scan.prepare_scan_config
         expect(@mock_scan_cache).to be_empty
       end
 
@@ -41,8 +41,8 @@ module TestCenter::Helper::MultiScanManager
         allow(ReportNameHelper).to receive(:includes_xcresult?).and_return(true)
         retrying_scan = RetryingScan.new
         @mock_scan_config[:result_bundle] = true
-        retrying_scan.prepare_scan_config_for_destination
-        expect(@mock_scan_config[:result_bundle]).to be_falsey 
+        retrying_scan.prepare_scan_config
+        expect(@mock_scan_config[:result_bundle]).to be_falsey
       end
     end
 
@@ -53,7 +53,7 @@ module TestCenter::Helper::MultiScanManager
             derived_data_path: './path/to/derived_data_path'
           }
         )
-        expect(retrying_scan).to receive(:prepare_scan_config_for_destination)
+        expect(retrying_scan).to receive(:prepare_scan_config)
         retrying_scan.update_scan_options
       end
     end
@@ -103,7 +103,7 @@ module TestCenter::Helper::MultiScanManager
         expect(@mock_scan_runner).to receive(:run).ordered.once
 
         retrying_scan = RetryingScan.new(try_count: 3)
-        
+
         test_result = retrying_scan.run
         expect(test_result).to be(true)
       end
@@ -147,7 +147,7 @@ module TestCenter::Helper::MultiScanManager
         end
         expect(@mock_scan_runner).to receive(:run).ordered.once
         expect(@mock_retrying_scan_helper).to receive(:before_testrun).exactly(3).times
-        
+
         retrying_scan = RetryingScan.new(try_count: 3)
         retrying_scan.run
       end
@@ -161,7 +161,7 @@ module TestCenter::Helper::MultiScanManager
         end
         expect(@mock_scan_runner).to receive(:run).ordered.once
         expect(@mock_retrying_scan_helper).to receive(:after_testrun).exactly(3).times
-        
+
         retrying_scan = RetryingScan.new(try_count: 3)
         retrying_scan.run
       end
