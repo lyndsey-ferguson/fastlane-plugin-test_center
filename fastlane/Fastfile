@@ -19,4 +19,12 @@ lane :testing do
     fail_build: false,
     code_coverage: true
   )
+  slather(
+    scheme: "AtomicBoy",
+    proj: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    cobertura_xml: true,
+    use_bundle_exec: true,
+    verbose: true
+  )
 end
