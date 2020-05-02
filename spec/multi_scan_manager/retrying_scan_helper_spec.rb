@@ -745,5 +745,22 @@ module TestCenter::Helper::MultiScanManager
         expect(scan_options[:xcargs]).not_to include('-parallel-testing-enabled=YES')
       end
     end
+
+    describe '#update_only_testing' do
+      it 'does not crash with an empty :only_testing' do
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+          failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+        helper = RetryingScanHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          output_directory: File.absolute_path('./spec/fixtures'),
+          output_types: 'junit',
+          output_files: 'junit.xml',
+          only_testing: nil,
+          xcargs: "-parallel-testing-enabled=YES"
+        )
+        helper.update_only_testing
+      end
+    end
   end
 end
