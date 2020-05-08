@@ -15,7 +15,7 @@ module TestCenter
         unless @xctestrun_path && File.exist?(@xctestrun_path)
           FastlaneCore::UI.user_error!("Error: cannot find xctestrun file '#{@xctestrun_path}'")
         end
-        @only_testing = options[:only_testing]
+        @only_testing = options[:only_testing] || only_testing_from_testplan(options)
         if @only_testing.kind_of?(String)
           @only_testing = @only_testing.split(',')
         end
@@ -25,6 +25,36 @@ module TestCenter
         if @batch_count == 1 && options[:parallel_testrun_count] > 1
           @batch_count = options[:parallel_testrun_count]
         end
+      end
+
+      def only_testing_from_testplan(options)
+        return unless options[:testplan] && options[:scheme]
+
+        config = FastlaneCore::Configuration.create(
+          Fastlane::Actions::TestplansFromSchemeAction.available_options,
+          {
+            workspace: options[:workspace],
+            xcodeproj: options[:project],
+            scheme: options[:scheme]
+          }
+        )
+        testplans = Fastlane::Actions::TestplansFromSchemeAction.run(config)
+        FastlaneCore::UI.verbose("TestCollector found testplans: #{testplans}")
+        testplan = testplans.find do |testplan_path|
+          %r{(.*/?#{ options[:testplan] })\.xctestplan}.match?(testplan_path)
+        end
+        FastlaneCore::UI.verbose("  using :testplan option, #{options[:testplan]}, using found one: #{testplan}")
+
+        return if testplan.nil?
+
+        config = FastlaneCore::Configuration.create(
+          Fastlane::Actions::TestOptionsFromTestplanAction.available_options,
+          {
+            testplan: testplan
+          }
+        )
+        test_options = Fastlane::Actions::TestOptionsFromTestplanAction.run(config)
+        return test_options[:only_testing]
       end
 
       def default_derived_data_path(options)
