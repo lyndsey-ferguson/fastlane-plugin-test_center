@@ -13,6 +13,9 @@ about: If something isn't working as expected 🤔
 - [ ] I reviewed the [example(s)](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/master/README.md) for the action(s) I am using
 - [ ] I have removed any sensitive data such as passwords, authentication tokens, or anything else I do not want to world to see
 
+> If you love this fastlane plugin, consider sponsoring it or asking your company to sponsor it. I would really appreciate any
+> gesture: https://github.com/sponsors/lyndsey-ferguson.
+
 ### Issue Description
 <!-- Please include which _test_center_ action you are using. For example, multi_scan, tests_from_junit, etc. -->
 <!-- Please include what's happening, expected behavior, and any relevant code samples -->

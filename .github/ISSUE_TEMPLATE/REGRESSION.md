@@ -8,12 +8,14 @@ about: If a recent release broke a feature 😬 (Please make sure you know the l
 
 ### New Regression Checklist
 
-
 - [ ] Updated `fastlane-plugin-test_center` to the latest version
 - [ ] I read the [README.md](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/master/README.md)
 - [ ] I reviewed the [example(s)](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/master/README.md) for the action(s) I am using
 - [ ] I searched for [existing GitHub issues](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues)
 - [ ] I have removed any sensitive data such as passwords, authentication tokens, or anything else I do not want to world to see
+
+> If you love this fastlane plugin, consider sponsoring it or asking your company to sponsor it. I would really appreciate any
+> gesture: https://github.com/sponsors/lyndsey-ferguson.
 
 ### Regression Information
 <!-- Knowing the breaking versions and last working versions helps us track down the regression easier -->
