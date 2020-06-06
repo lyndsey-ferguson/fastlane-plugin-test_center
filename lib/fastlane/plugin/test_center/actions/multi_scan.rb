@@ -14,6 +14,10 @@ module Fastlane
     class MultiScanAction < Action
       def self.run(params)
         params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
+        if params[:try_count] < 1
+          UI.important('multi_scan will not test any if :try_count < 0, setting to 1')
+          params[:try_count] = 1
+        end
 
         strip_leading_and_trailing_whitespace_from_output_types(params)
 
