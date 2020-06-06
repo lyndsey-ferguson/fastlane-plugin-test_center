@@ -93,6 +93,10 @@ module TestCenter
             FastlaneCore::UI.important(":xcargs, #{xcargs}, contained 'build-for-testing', removing it")
             xcargs.slice!('build-for-testing')
           end
+          if xcargs.include?('-quiet')
+            FastlaneCore::UI.important('Disabling -quiet as failing tests cannot be found with it enabled.')
+            xcargs.gsub!('-quiet', '')
+          end
           xcargs.gsub!(/-parallel-testing-enabled(=|\s+)(YES|NO)/, '')
           retrying_scan_options = @reportnamer.scan_options.merge(
             {
