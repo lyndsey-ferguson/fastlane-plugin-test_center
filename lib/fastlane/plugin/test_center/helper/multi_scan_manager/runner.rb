@@ -207,8 +207,42 @@ module TestCenter
             File.absolute_path(output_directory),
             @test_collector.testables.first
           )
+          merge_single_testable_xcresult_with_final_xcresult(report_files_dir, File.absolute_path(output_directory))
           FileUtils.cp_r("#{report_files_dir}/.", File.absolute_path(output_directory))
           FileUtils.rm_rf(report_files_dir)
+        end
+
+        def merge_single_testable_xcresult_with_final_xcresult(testable_output_dir, final_output_dir)
+          reportnamer = ReportNameHelper.new(
+            @options[:output_types],
+            @options[:output_files],
+            @options[:custom_report_file_name]
+          )
+          return unless reportnamer.includes_xcresult?
+
+          xcresult_bundlename = reportnamer.xcresult_bundlename
+          src_xcresult_bundlepath = File.join(testable_output_dir, xcresult_bundlename)
+          dst_xcresult_bundlepath = File.join(final_output_dir, xcresult_bundlename)
+
+          # We do not need to merge if one of these do not exist
+          return unless File.exist?(src_xcresult_bundlepath) || File.exist?(dst_xcresult_bundlepath)
+
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::CollateXcresultsAction.available_options,
+            {
+              xcresults: [src_xcresult_bundlepath, dst_xcresult_bundlepath],
+              collated_xcresult: dst_xcresult_bundlepath
+            }
+          )
+          FastlaneCore::UI.verbose("Merging xcresult '#{src_xcresult_bundlepath}' to '#{dst_xcresult_bundlepath}'")
+          Fastlane::Actions::CollateXcresultsAction.run(config)
+          FileUtils.rm_rf(src_xcresult_bundlepath)
+          if @result_bundle_desired
+            xcresult_bundlename = reportnamer.xcresult_bundlename
+            test_result_bundlename = File.basename(xcresult_bundlename, '.*') + '.test_result'
+            test_result_bundlename_path = File.join(testable_output_dir, test_result_bundlename)
+            FileUtils.rm_rf(test_result_bundlename_path)
+          end
         end
 
         def symlink_result_bundle_to_xcresult(output_dir, reportname_helper)
