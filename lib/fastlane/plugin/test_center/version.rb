@@ -1,5 +1,5 @@
 module Fastlane
   module TestCenter
-    VERSION = "3.10.3"
+    VERSION = "3.11.0"
   end
 end
