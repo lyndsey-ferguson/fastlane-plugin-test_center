@@ -740,8 +740,8 @@ module TestCenter::Helper::MultiScanManager
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
 
         allow(Dir).to receive(:glob)
-                          .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
-                          .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
+          .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+          .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
 
         allow(File).to receive(:open).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
 
@@ -763,13 +763,13 @@ module TestCenter::Helper::MultiScanManager
             end
         )
         expect(actual_testrun_info).to include(
-                                           failed: [],
-                                           passing: [],
-                                           test_operation_failure: 'Launch session expired before checking in',
-                                           batch: 1,
-                                           try_count: 1,
-                                           report_filepath: nil
-                                       )
+             failed: [],
+             passing: [],
+             test_operation_failure: 'Launch session expired before checking in',
+             batch: 1,
+             try_count: 1,
+             report_filepath: nil
+         )
       end
 
       it 'does not duplicate the resultBundlePath xcarg for pre Xcode 11 installs when using Xcode 10 or earlier' do
