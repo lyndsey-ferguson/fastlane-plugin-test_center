@@ -91,11 +91,11 @@ For more information about how the `fastlane` plugin system works, check out the
 
 _fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
 
-## Supporter
+## Supporters
 
 I'm grateful to all of the people who contributed back to `test_center`, all the people who helped test for new features or bug fixes, but most importantly I am grateful to my wife who supports my crazy passion for making software.
 
-### Sponsors
+### Basic Supporters
 
 ![Владислав Давыдов](https://avatars1.githubusercontent.com/u/47553334?s=44&u=4691860dba898943b947180b3d28bb85851b0d7c&v=4)
 [vdavydovHH](https://github.com/vdavydovHH)
