@@ -21,7 +21,7 @@ Have you ever spent too much time trying to fix fragile tests only to give up wi
 
 ## Features
 
-This plugin makes testing your iOS app easier by providing you actions that give you greater control over everything related to testing your app. 
+This plugin makes testing your iOS app easier by providing you actions that give you greater control over everything related to testing your app.
 
 `multi_scan` began when I created an action to only re-run the failed tests in order to determine if they were truly failing, or if they were failing randomly due to a fragile infrastructure. This action morphed into an entire plugin with many actions in the testing category.
 
@@ -35,6 +35,8 @@ _read the documentation on each action by clicking on the action name_
 | [`suppress_tests_from_junit`](docs/feature_details/suppress_tests_from_junit.md) | suppress tests in an Xcode Scheme using those in a Junit test report | ios, mac |
 | [`suppress_tests`](docs/feature_details/suppress_tests.md) | suppress tests in an Xcode Scheme | ios, mac |
 | [`suppressed_tests`](docs/feature_details/suppressed_tests.md) | returns a list of the suppressed tests in your Xcode Project or Scheme | ios, mac |
+| [`test_options_from_testplan`](docs/feature_details/test_options_from_testplan.md) | returns the tests and test code coverage configuration for a given testplan | ios, mac |
+| [`testplans_from_scheme`](docs/feature_details/testplans_from_scheme.md) | returns the testplans that an Xcode Scheme references | ios, mac |
 | [`tests_from_junit`](docs/feature_details/tests_from_junit.md) | returns the passing and failing tests in a Junit test report | ios, mac |
 | [`tests_from_xctestrun`](docs/feature_details/tests_from_xctestrun.md) | returns a list of tests for each test target in a `xctestrun` file  | ios, mac |
 | [`collate_junit_reports`](docs/feature_details/collate_junit_reports.md) | combines multiple Junit test reports into one report | ios, mac |
@@ -62,7 +64,7 @@ The most popular action in the `test_center` plugin is `multi_scan`, and if you 
 multi_scan(
   project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
   scheme: 'AtomicBoy',
-  try_count: 3, # retry _failing_ tests up to three times^1. 
+  try_count: 3, # retry _failing_ tests up to three times^1.
   fail_build: false,
   parallel_testrun_count: 4 # run subsets of your tests on parallel simulators^2
 )
