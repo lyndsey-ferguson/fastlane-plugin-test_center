@@ -45,7 +45,7 @@ module TestCenter
 
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
-          if FastlaneCore::Helper.xcode_at_least?('11.0.0')
+          if FastlaneCore::Helper.xcode_at_least?('11')
             xcresults += Dir.glob("#{output_directory}/*.xcresult")
           end
           FastlaneCore::UI.verbose("Deleting xcresults:")
@@ -292,7 +292,7 @@ module TestCenter
         end
 
         def retrieve_test_operation_failure(test_session_last_messages)
-          if FastlaneCore::Helper.xcode_at_least?(11)
+          if FastlaneCore::Helper.xcode_at_least?('11')
             retrieve_test_operation_failure_post_xcode11(test_session_last_messages)
           else
             retrieve_test_operation_failure_pre_xcode11(test_session_last_messages)
@@ -346,7 +346,7 @@ module TestCenter
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
 
-          result_extension = FastlaneCore::Helper.xcode_at_least?(11) ? '.xcresult' : '.test_result'
+          result_extension = FastlaneCore::Helper.xcode_at_least?('11') ? '.xcresult' : '.test_result'
           
           glob_pattern = "#{output_directory}/*#{result_extension}"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
