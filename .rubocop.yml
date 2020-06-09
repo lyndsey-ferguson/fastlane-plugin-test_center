@@ -87,6 +87,10 @@ Layout/HashAlignment:
 Layout/DotPosition:
   Enabled: false
 
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+
 # We allow !! as it's an easy way to convert ot boolean
 Style/DoubleNegation:
   Enabled: false
@@ -118,6 +122,12 @@ Lint/UnusedBlockArgument:
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 
+Lint/RaiseException:
+  Enabled: false
+
+Lint/StructNewOverride:
+  Enabled: false
+
 # Needed for $verbose
 Style/GlobalVars:
   Enabled: false
@@ -128,6 +138,9 @@ Style/ClassAndModuleChildren:
 
 # $? Exit
 Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/ExponentialNotation:
   Enabled: false
 
 Metrics/AbcSize:

@@ -232,7 +232,7 @@ module Fastlane
       end
 
       def self.prepare_scan_options_for_build_for_testing(scan_options)
-        build_options = scan_options.merge(build_for_testing: true).reject { |k| k == :test_without_building }
+        build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building, testplan].include?(k) }
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
           ScanHelper.scan_options_from_multi_scan_options(build_options)
@@ -244,7 +244,11 @@ module Fastlane
       end
 
       def self.update_xctestrun_after_build(scan_options)
-        xctestrun_files = Dir.glob("#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun")
+        glob_pattern = "#{Scan.config[:derived_data_path]}/Build/Products/*.xctestrun"
+        if scan_options[:testplan]
+          glob_pattern = "#{Scan.config[:derived_data_path]}/Build/Products/*#{scan_options[:testplan]}*.xctestrun"
+        end
+        xctestrun_files = Dir.glob(glob_pattern)
         UI.verbose("After building, found xctestrun files #{xctestrun_files} (choosing 1st)")
         scan_options[:xctestrun] = xctestrun_files.first
       end

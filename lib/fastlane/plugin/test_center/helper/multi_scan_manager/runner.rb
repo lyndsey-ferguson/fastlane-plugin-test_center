@@ -1,4 +1,3 @@
-
 module TestCenter
   module Helper
     module MultiScanManager
@@ -40,7 +39,8 @@ module TestCenter
           return if @options[:invocation_based_tests] && @options[:only_testing].nil?
           return if @test_collector
 
-          @test_collector = TestCenter::Helper::TestCollector.new(@options)
+          @test_collector = TestCollector.new(@options)
+          @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.test_batches.size
         end
 

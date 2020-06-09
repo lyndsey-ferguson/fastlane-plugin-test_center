@@ -1,3 +1,5 @@
+require_relative 'reportname_helper'
+require_relative 'test_collector'
 require_relative 'multi_scan_manager/device_manager'
 require_relative 'multi_scan_manager/report_collator'
 require_relative 'multi_scan_manager/retrying_scan_helper'
