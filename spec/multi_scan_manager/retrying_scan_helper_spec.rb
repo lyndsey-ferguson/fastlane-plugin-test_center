@@ -12,7 +12,6 @@ module TestCenter::Helper::MultiScanManager
       mocked_report_collator = OpenStruct.new
       allow(mocked_report_collator).to receive(:collate)
       allow(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).and_return(mocked_report_collator)
-      allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
     end
 
     after(:each) do
@@ -153,7 +152,8 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun
       end
 
-      it 'renames the resultant test bundle after failure' do
+      it 'renames the resultant test bundle after failure when using Xcode 10 or earlier' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('10')
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
@@ -173,6 +173,30 @@ module TestCenter::Helper::MultiScanManager
         expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-2.test_result')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(File).to receive(:rename).with('./AtomicDragon.test_result', './AtomicDragon-3.test_result')
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+      end
+
+      it 'renames the resultant test bundle after failure when using Xcode 11 or later' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('11')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+            failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
+        )
+
+        allow(Dir).to receive(:glob).with(%r{/.*/path/to/output/directory/.*\.xcresul}).and_return(['./AtomicDragon.xcresult', './AtomicDragon-99.xcresult'])
+        allow(FileUtils).to receive(:mkdir_p)
+        helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: File.absolute_path('./path/to/output/directory'),
+            result_bundle: true,
+            only_testing: []
+        )
+        expect(File).to receive(:rename).with('./AtomicDragon.xcresult', './AtomicDragon-1.xcresult')
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        expect(File).to receive(:rename).with('./AtomicDragon.xcresult', './AtomicDragon-2.xcresult')
+        helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
+        expect(File).to receive(:rename).with('./AtomicDragon.xcresult', './AtomicDragon-3.xcresult')
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
 
@@ -672,7 +696,8 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure' do
+      it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure when using Xcode 10 or earlier' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('10')
         session_log_io = StringIO.new('Test operation failure: Launch session expired before checking in')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
 
@@ -709,7 +734,46 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'does not duplicate the resultBundlePath xcarg for pre Xcode 11 installs' do
+      it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure when using Xcode 11 or later' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('11')
+        session_log_io = StringIO.new('This is an unrecoverable infrastructure failure')
+        allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
+
+        allow(Dir).to receive(:glob)
+          .with(%r{.*AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/Logs/Test/\*\.xcresult/\*_Test/Diagnostics/\*\*/Session-\*\.log})
+          .and_return(['A/B/C/Session-AtomicBoyUITests-Today.log'])
+
+        allow(File).to receive(:open).with('A/B/C/Session-AtomicBoyUITests-Today.log').and_return(session_log_io)
+
+        actual_testrun_info = {}
+        test_run_block = lambda do |testrun_info|
+          actual_testrun_info = testrun_info
+        end
+
+        helper = RetryingScanHelper.new(
+            derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+            output_directory: File.absolute_path('./path/to/output/directory'),
+            testrun_completed_block: test_run_block
+        )
+        expect {
+          helper.after_testrun(FastlaneCore::Interface::FastlaneBuildFailure.new('no check-in'))
+        }.to(
+            raise_error(FastlaneCore::Interface::FastlaneBuildFailure) do |error|
+              expect(error.message).to match("no check-in")
+            end
+        )
+        expect(actual_testrun_info).to include(
+             failed: [],
+             passing: [],
+             test_operation_failure: 'Unknown test operation failure',
+             batch: 1,
+             try_count: 1,
+             report_filepath: nil
+         )
+      end
+
+      it 'does not duplicate the resultBundlePath xcarg for pre Xcode 11 installs when using Xcode 10 or earlier' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('10')
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
@@ -721,6 +785,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'adds the resultBundlePath xcarg for post Xcode 11 installs' do
+        allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('11')
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),

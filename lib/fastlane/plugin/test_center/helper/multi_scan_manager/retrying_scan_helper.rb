@@ -45,7 +45,7 @@ module TestCenter
 
           derived_data_path = File.expand_path(@options[:derived_data_path] || Scan.config[:derived_data_path])
           xcresults = Dir.glob("#{derived_data_path}/Logs/Test/*.xcresult")
-          if FastlaneCore::Helper.xcode_at_least?('11.0.0')
+          if FastlaneCore::Helper.xcode_at_least?('11')
             xcresults += Dir.glob("#{output_directory}/*.xcresult")
           end
           FastlaneCore::UI.verbose("Deleting xcresults:")
@@ -292,7 +292,7 @@ module TestCenter
         end
 
         def retrieve_test_operation_failure(test_session_last_messages)
-          if FastlaneCore::Helper.xcode_at_least?(11)
+          if FastlaneCore::Helper.xcode_at_least?('11')
             retrieve_test_operation_failure_post_xcode11(test_session_last_messages)
           else
             retrieve_test_operation_failure_pre_xcode11(test_session_last_messages)
@@ -306,6 +306,8 @@ module TestCenter
             test_operation_failure = 'Test device locked'
           elsif /Test runner exited before starting test execution/ =~ test_session_last_messages
             test_operation_failure = 'Test runner exited before starting test execution'
+          else
+            test_operation_failure = 'Unknown test operation failure'
           end
           test_operation_failure
         end
@@ -346,15 +348,17 @@ module TestCenter
         def move_test_result_bundle_for_next_run
           return unless @options[:result_bundle]
 
-          glob_pattern = "#{output_directory}/*.test_result"
+          result_extension = FastlaneCore::Helper.xcode_at_least?('11') ? '.xcresult' : '.test_result'
+          
+          glob_pattern = "#{output_directory}/*#{result_extension}"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|
-            test_result =~ /.*-\d+\.test_result/
+            test_result =~ /.*-\d+\#{result_extension}/
           end
           src_test_bundle = unnumbered_test_result_bundles.first
           dst_test_bundle_parent_dir = File.dirname(src_test_bundle)
-          dst_test_bundle_basename = File.basename(src_test_bundle, '.test_result')
-          dst_test_bundle = "#{dst_test_bundle_parent_dir}/#{dst_test_bundle_basename}-#{@testrun_count}.test_result"
+          dst_test_bundle_basename = File.basename(src_test_bundle, result_extension)
+          dst_test_bundle = "#{dst_test_bundle_parent_dir}/#{dst_test_bundle_basename}-#{@testrun_count}#{result_extension}"
           FastlaneCore::UI.verbose("Moving test_result '#{src_test_bundle}' to '#{dst_test_bundle}'")
           File.rename(src_test_bundle, dst_test_bundle)
         end
