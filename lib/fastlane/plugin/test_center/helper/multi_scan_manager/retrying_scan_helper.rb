@@ -306,6 +306,8 @@ module TestCenter
             test_operation_failure = 'Test device locked'
           elsif /Test runner exited before starting test execution/ =~ test_session_last_messages
             test_operation_failure = 'Test runner exited before starting test execution'
+          else
+            test_operation_failure = 'Unknown test operation failure'
           end
           test_operation_failure
         end

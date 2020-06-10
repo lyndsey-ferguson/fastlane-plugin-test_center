@@ -736,7 +736,7 @@ module TestCenter::Helper::MultiScanManager
 
       it 'sends junit test_run info to the call back after an unrecoverable infrastructure failure when using Xcode 11 or later' do
         allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('11')
-        session_log_io = StringIO.new('Test operation failure: Launch session expired before checking in')
+        session_log_io = StringIO.new('This is an unrecoverable infrastructure failure')
         allow(session_log_io).to receive(:stat).and_return(OpenStruct.new(size: session_log_io.size))
 
         allow(Dir).to receive(:glob)
@@ -765,7 +765,7 @@ module TestCenter::Helper::MultiScanManager
         expect(actual_testrun_info).to include(
              failed: [],
              passing: [],
-             test_operation_failure: 'Launch session expired before checking in',
+             test_operation_failure: 'Unknown test operation failure',
              batch: 1,
              try_count: 1,
              report_filepath: nil
