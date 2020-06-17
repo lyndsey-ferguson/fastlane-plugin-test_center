@@ -10,20 +10,12 @@ lane :run_examples do
   end
 end
 
-lane :testplan do
-  puts test_options_from_testplan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    testplan: 'AtomicBoy_2'
-  )
-end
-
 lane :testing do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
-    testplan: 'AtomicBoy_2',
     try_count: 3,
-    fail_build: false
+    fail_build: false,
+    testplan: 'AtomicBoy_2'
   )
 end

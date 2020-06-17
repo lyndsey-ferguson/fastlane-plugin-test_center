@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:SuperAtomicBoy_2.xctestplan">
+   </FileRef>
+   <FileRef
       location = "group:AtomicBoy_2.xctestplan">
    </FileRef>
    <FileRef
