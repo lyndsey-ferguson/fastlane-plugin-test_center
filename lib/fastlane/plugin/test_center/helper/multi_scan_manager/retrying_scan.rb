@@ -15,6 +15,10 @@ module TestCenter
         def scan_cache
           Scan.cache
         end
+
+        def scan_devices
+          Scan.devices
+        end
         # :nocov:
 
         def prepare_scan_config
@@ -46,6 +50,10 @@ module TestCenter
 
             scan_config.set(k,v) unless v.nil?
             FastlaneCore::UI.verbose("\tSetting #{k.to_s} to #{v}")
+          end
+          if scan_devices
+            FastlaneCore::UI.verbose("\tSetting Scan.devices to an empty array")
+            scan_devices = []
           end
         end
 

@@ -16,6 +16,7 @@ lane :testing do
     scheme: 'AtomicBoy',
     try_count: 3,
     fail_build: false,
-    testplan: 'AtomicBoy_2'
+    include_simulator_logs: true,
+    device: "iPhone 8"
   )
 end
