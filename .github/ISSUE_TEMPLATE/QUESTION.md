@@ -12,7 +12,7 @@ about: Not sure how something works or how to implement some functionality? Ask 
 - [ ] I searched for [existing GitHub issues](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues)
 
 > If you love this fastlane plugin, consider sponsoring it or asking your company to sponsor it. I would really appreciate any
-> gesture: https://github.com/sponsors/lyndsey-ferguson.
+> gesture: https://github.com/sponsors/lyndsey-ferguson. 😍
 
 ### Question Subject
 <!-- What tool/action do you have a question about? -->
