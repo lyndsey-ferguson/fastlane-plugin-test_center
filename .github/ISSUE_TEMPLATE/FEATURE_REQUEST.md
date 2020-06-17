@@ -10,7 +10,7 @@ about: A suggestion for a new feature ✨
 <!-- Why should this feature be implemented? What problem does it solve? -->
 
 > If you love this fastlane plugin, consider sponsoring it or asking your company to sponsor it. I would really appreciate any
-> gesture: https://github.com/sponsors/lyndsey-ferguson.
+> gesture: https://github.com/sponsors/lyndsey-ferguson. 😍
 
 #### Feature Description
 <!-- Describe your feature request in detail -->
