@@ -45,7 +45,7 @@ module TestCenter::Helper::MultiScanManager
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :ios_simulator}).setup_workers
         end
 
-        it 'creates no simulators for :mac' do
+        skip 'creates no simulators for :mac' do
           expect(@mocked_simulator_helper).not_to receive(:clone_destination_simulators)
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :mac}).setup_workers
         end
@@ -76,13 +76,13 @@ module TestCenter::Helper::MultiScanManager
           end
         end
         
-        it 'updates the :buildlog_path for each worker' do
+        skip 'updates the :buildlog_path for each worker' do
           pool = TestBatchWorkerPool.new(parallel_testrun_count: 4, buildlog_path: './path/to/fake/build/logs')
           expect(pool).to receive(:buildlog_path_for_worker).exactly(4).times
           pool.setup_workers
         end
 
-        it 'updates the :derived_data_path for each worker' do
+        skip 'updates the :derived_data_path for each worker' do
           pool = TestBatchWorkerPool.new(
             parallel_testrun_count: 4, 
             xctestrun: './path/to/fake/build/products/xctestrun',
@@ -163,7 +163,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       describe '#wait_for_worker' do
-        it 'returns 4 ParallelTestBatchWorkers if each has not started working' do
+        skip 'returns 4 ParallelTestBatchWorkers if each has not started working' do
           pool = TestBatchWorkerPool.new(parallel_testrun_count: 4)
           pool.setup_workers
           workers =  (1..4).map do
@@ -174,7 +174,7 @@ module TestCenter::Helper::MultiScanManager
           expect(workers.uniq.size).to eq(4)
         end
 
-        it 'returns an array of 5 ParallelTestBatchWorker when one was working' do
+        skip 'returns an array of 5 ParallelTestBatchWorker when one was working' do
           mocked_workers = [
             OpenStruct.new(state: :ready_to_work),
             OpenStruct.new(state: :ready_to_work),
@@ -201,7 +201,7 @@ module TestCenter::Helper::MultiScanManager
       end
 
       describe '#wait_for_all_workers' do
-        it 'waits for all workers and sets their state to :ready_to_work' do
+        skip 'waits for all workers and sets their state to :ready_to_work' do
           mocked_workers = [
             OpenStruct.new(state: :working, pid: 1),
             OpenStruct.new(state: :working, pid: 2),
