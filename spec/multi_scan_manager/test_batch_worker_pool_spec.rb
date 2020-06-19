@@ -45,7 +45,7 @@ module TestCenter::Helper::MultiScanManager
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :ios_simulator}).setup_workers
         end
 
-        skip 'creates no simulators for :mac' do
+        it 'creates no simulators for :mac' do
           expect(@mocked_simulator_helper).not_to receive(:clone_destination_simulators)
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :mac}).setup_workers
         end

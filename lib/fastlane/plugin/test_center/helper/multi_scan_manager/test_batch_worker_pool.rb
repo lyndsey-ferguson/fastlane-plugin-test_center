@@ -47,6 +47,7 @@ module TestCenter
         end
 
         def simulator_devices_for_worker(worker_index)
+          return nil unless @options[:platform] == :ios_simulator
           @clones[worker_index]
         end
 
