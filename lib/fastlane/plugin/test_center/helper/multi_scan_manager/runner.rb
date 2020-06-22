@@ -224,8 +224,10 @@ module TestCenter
           src_xcresult_bundlepath = File.join(testable_output_dir, xcresult_bundlename)
           dst_xcresult_bundlepath = File.join(final_output_dir, xcresult_bundlename)
 
-          # We do not need to merge if one of these do not exist
-          return unless File.exist?(src_xcresult_bundlepath) || File.exist?(dst_xcresult_bundlepath)
+          # if there is no destination bundle to merge to, skip it as any source bundle will be copied when complete.
+          return if !File.exist?(dst_xcresult_bundlepath)
+          # if there is no source bundle to merge, skip it as there is nothing to merge.
+          return if !File.exist?(src_xcresult_bundlepath)
 
           config = FastlaneCore::Configuration.create(
             Fastlane::Actions::CollateXcresultsAction.available_options,
