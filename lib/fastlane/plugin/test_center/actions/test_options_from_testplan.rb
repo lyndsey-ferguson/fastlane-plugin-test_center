@@ -14,6 +14,7 @@ module Fastlane
           if test_target.key?('selectedTests')
             UI.verbose("  Found selectedTests")
             test_identifiers = test_target['selectedTests'].each do |selected_test|
+              selected_test.delete!('()')
               UI.verbose("    Found test: '#{selected_test}'")
               only_testing << "#{testable}/#{selected_test.sub('\/', '/')}"
             end
