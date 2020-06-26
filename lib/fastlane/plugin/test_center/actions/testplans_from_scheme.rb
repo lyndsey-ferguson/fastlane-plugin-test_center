@@ -2,30 +2,43 @@ module Fastlane
   module Actions
     class TestplansFromSchemeAction < Action
       def self.run(params)
-        scheme = params[:scheme]
-        scheme_filepaths = schemes_from_project(params[:xcodeproj], scheme) || schemes_from_workspace(params[:workspace], scheme)
-        if scheme_filepaths.length.zero?
-          UI.user_error!("Error: cannot find any schemes in the Xcode project") if params[:xcodeproj]
-          UI.user_error!("Error: cannot find any schemes in the Xcode workspace") if params[:workspace]
-        end
+        scheme_filepaths = schemes(params)
         testplan_paths = []
         scheme_filepaths.each do |scheme_filepath|
           UI.verbose("Looking in Scheme '#{scheme_filepath}' for any testplans")
           xcscheme = Xcodeproj::XCScheme.new(scheme_filepath)
-          next if xcscheme.test_action.nil?
-          next if xcscheme.test_action.testables.to_a.empty?
-          next if xcscheme.test_action.testables[0].buildable_references.to_a.empty?
-          next if xcscheme.test_action.test_plans.to_a.empty?
-
-          xcodeproj = xcscheme.test_action.testables[0].buildable_references[0].target_referenced_container.sub('container:', '')
-          container_dir = scheme_filepath.sub(/#{xcodeproj}.*/, '')
+          next unless scheme_has_testplans?(xcscheme)
+          scheme_container_dir = File.absolute_path(scheme_filepath).sub(%r{/[^/]*\.(xcworkspace|xcodeproj)/.*}, '')
           xcscheme.test_action.test_plans.each do |testplan|
-            testplan_path = File.absolute_path(File.join(container_dir, testplan.target_referenced_container.sub('container:', '')))
+            testplan_path = File.absolute_path(File.join(scheme_container_dir, testplan.target_referenced_container.sub('container:', '')))
             UI.verbose("  found testplan '#{testplan_path}'")
             testplan_paths << testplan_path
           end
         end
         testplan_paths
+      end
+
+      def self.scheme_has_testplans?(xcscheme)
+          return !(
+            xcscheme.test_action.nil? ||
+            xcscheme.test_action.testables.to_a.empty? ||
+            xcscheme.test_action.testables[0].buildable_references.to_a.empty? ||
+            xcscheme.test_action.test_plans.to_a.empty?
+          )
+      end
+
+      def self.schemes(params)
+        scheme = params[:scheme]
+        scheme_filepaths = schemes_from_project(params[:xcodeproj], scheme) || schemes_from_workspace(params[:workspace], scheme)
+        if scheme_filepaths.length.zero?
+          scheme_detail_message = ''
+          if scheme
+            scheme_detail_message = "named '#{scheme}' "
+          end
+          UI.user_error!("Error: cannot find any schemes #{scheme_detail_message}in the Xcode project") if params[:xcodeproj]
+          UI.user_error!("Error: cannot find any schemes #{scheme_detail_message}in the Xcode workspace") if params[:workspace]
+        end
+        scheme_filepaths
       end
 
       def self.schemes_from_project(project_path, scheme)
@@ -37,9 +50,16 @@ module Fastlane
       def self.schemes_from_workspace(workspace_path, scheme)
         return nil unless workspace_path
 
-        xcworkspace = Xcodeproj::Workspace.new_from_xcworkspace(workspace_path)
         scheme_filepaths = []
-        xcworkspace.file_references.each do |file_reference|
+        scheme_filepaths.concat(schemes_from_project(workspace_path, scheme))
+        return scheme_filepaths unless scheme_filepaths.empty?
+
+        xcworkspace = Xcodeproj::Workspace.new_from_xcworkspace(workspace_path)
+        xcodeprojects = xcworkspace.file_references.select do |file_reference|
+          file_reference.path.end_with?('xcodeproj')
+        end
+
+        xcodeprojects.each do |file_reference|
           next if file_reference.path.include?('Pods/Pods.xcodeproj')
 
           project_path = file_reference.absolute_path(File.dirname(workspace_path))

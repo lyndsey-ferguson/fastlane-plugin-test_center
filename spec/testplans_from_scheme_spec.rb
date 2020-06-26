@@ -56,7 +56,7 @@ module Fastlane::Actions
         end"
         expect { Fastlane::FastFile.new.parse(fastfile).runner.execute(:test) }.to(
           raise_error(FastlaneCore::Interface::FastlaneError) do |error|
-            expect(error.message).to match("Error: cannot find any schemes in the Xcode workspace")
+            expect(error.message).to match("Error: cannot find any schemes named 'HappyHelper' in the Xcode workspace")
           end
         )
       end
