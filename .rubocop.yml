@@ -156,6 +156,9 @@ Style/RedundantRegexpCharacterClass:
 Style/RedundantRegexpEscape:
   Enabled: true
 
+Style/RedundantFetchBlock:
+  Enabled: true
+
 Style/SlicingWithRange:
   Enabled: true
 
