@@ -90,6 +90,8 @@ Layout/DotPosition:
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
 
 # We allow !! as it's an easy way to convert ot boolean
 Style/DoubleNegation:
@@ -128,6 +130,11 @@ Lint/RaiseException:
 Lint/StructNewOverride:
   Enabled: false
 
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: true
 # Needed for $verbose
 Style/GlobalVars:
   Enabled: false
@@ -142,6 +149,15 @@ Style/SpecialGlobalVars:
 
 Style/ExponentialNotation:
   Enabled: false
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: true
+
+Style/RedundantRegexpEscape:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true
 
 Metrics/AbcSize:
   Enabled: false

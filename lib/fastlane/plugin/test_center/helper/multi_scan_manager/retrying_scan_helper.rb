@@ -337,8 +337,12 @@ module TestCenter
 
           glob_pattern = "#{output_directory}/system_logs-*.{log,logarchive}"
           logs = Dir.glob(glob_pattern)
+          batch_prefix = ''
+          if @options[:batch]
+            batch_prefix = "batch-#{@options[:batch]}-"
+          end
           logs.each do |log_filepath|
-            new_logname = "try-#{testrun_count}-#{File.basename(log_filepath)}"
+            new_logname = "#{batch_prefix}try-#{testrun_count}-#{File.basename(log_filepath)}"
             new_log_filepath = "#{File.dirname(log_filepath)}/#{new_logname}"
             FastlaneCore::UI.verbose("Moving simulator log '#{log_filepath}' to '#{new_log_filepath}'")
             File.rename(log_filepath, new_log_filepath)

@@ -47,6 +47,11 @@ module TestCenter
             scan_config.set(k,v) unless v.nil?
             FastlaneCore::UI.verbose("\tSetting #{k.to_s} to #{v}")
           end
+          if @options[:scan_devices_override]
+            scan_device_names = @options[:scan_devices_override].map { |device| device.name }
+            FastlaneCore::UI.verbose("\tSetting Scan.devices to #{scan_device_names}")
+            Scan.devices.replace(@options[:scan_devices_override])
+          end
         end
 
         # :nocov:

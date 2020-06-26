@@ -284,6 +284,9 @@ module TestCenter
             scheme: @options[:scheme],
             result_bundle: @options[:result_bundle]
           ).collate
+          logs_glog_pattern = "#{source_reports_directory_glob}/*system_logs-*.{log,logarchive}"
+          logs = Dir.glob(logs_glog_pattern)
+          FileUtils.mv(logs, absolute_output_directory)
           FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
           symlink_result_bundle_to_xcresult(absolute_output_directory, report_name_helper)
           true

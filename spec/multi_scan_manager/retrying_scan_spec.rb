@@ -56,6 +56,29 @@ module TestCenter::Helper::MultiScanManager
         expect(retrying_scan).to receive(:prepare_scan_config)
         retrying_scan.update_scan_options
       end
+
+      it 'updates Scan.devices when :scan_devices_override is set' do
+        Scan.devices = initial_scan_devices = [
+          OpenStruct.new(name: 'Alpha'),
+          OpenStruct.new(name: 'Beta')
+        ]
+
+        overridden_scan_devices = [
+          OpenStruct.new(name: 'Alpha'),
+          OpenStruct.new(name: 'Beta')
+        ]
+        retrying_scan = RetryingScan.new(
+          {
+            derived_data_path: './path/to/derived_data_path',
+            scan_devices_override: overridden_scan_devices
+          }
+        )
+        allow(retrying_scan).to receive(:prepare_scan_config)
+
+        retrying_scan.update_scan_options
+
+        expect(Scan.devices).to eq(overridden_scan_devices)
+      end
     end
 
     describe 'scan' do
