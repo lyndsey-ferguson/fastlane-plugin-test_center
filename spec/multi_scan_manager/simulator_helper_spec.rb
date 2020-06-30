@@ -104,6 +104,26 @@ module TestCenter::Helper::MultiScanManager
         result = helper.clone_destination_simulators
         expect(result).to eq(cloned_simulators.map { |s| [ s ] })
       end
+
+      it 'creates multiple cloned simulators for each batch' do
+        @mocked_scan_config[:destination] = @mocked_scan_config[:destination] << 'platform=iOS Simulator,id=C3C9E104-8A3C-4BD0-9285-2112D3F783FA'
+        allow(::Scan).to receive(:config).and_return(@mocked_scan_config)
+        @mocked_simulators.each do |mocked_simulator|
+          allow(mocked_simulator).to receive(:rename)
+        end
+
+        helper = SimulatorHelper.new(
+          derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
+          project: File.absolute_path('AtomicBoy/AtomicBoy.xcodeproj'),
+          scheme: 'Atlas',
+          parallel_testrun_count: 2,
+          pre_delete_cloned_simulators: false
+        )
+        cloned_simulators = helper.clone_destination_simulators
+        expect(cloned_simulators[0].size).to eq(2)
+        expect(cloned_simulators[1].size).to eq(2)
+      end
+
     end
   end
 end
