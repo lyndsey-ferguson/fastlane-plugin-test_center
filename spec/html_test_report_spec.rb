@@ -210,6 +210,14 @@ module TestCenter::Helper::HtmlTestReport
           testcases_titles = testsuite_1.testcases.map(&:title)
           expect(testcases_titles).to eq(["testExample2", "testExample"])
         end
+
+        it 'removes failing duplicate testcases' do
+          html_report = Report.new(REXML::Document.new(File.new(File.open('./spec/fixtures/report-6.html'))))
+          testsuite_1 = html_report.testsuites[0]
+          testsuite_1.remove_duplicate_testcases
+          testcases_passings = testsuite_1.testcases.map(&:passing?)
+          expect(testcases_passings).to eq([false, true])
+        end
       end
 
       describe '#collate_testsuite' do
