@@ -181,11 +181,26 @@ module TestCenter
         end
 
         def remove_duplicate_testcases
-          nonuniq_testcases = testcases
+          # Get a list of all the testcases in the report's testsuite
+          # and reverse the order so that we'll get the tests that
+          # passed _after_ they failed first. That way, when
+          # uniq is called, it will grab the first non-repeated test
+          # it finds; for duplicated tests (tests that were re-run), it will
+          # actually grab the last test that was run of that set.
+          #
+          # For example, if `testcases` is
+          # `['a(passing)', 'b(passing)', 'c(passing)', 'dup1(failing)', 'dup2(failing)', 'dup1(passing)', 'dup2(passing)' ]`
+          # then, testcases.reverse will be
+          # `['dup2(passing)', 'dup1(passing)', 'dup2(failing)', 'dup1(failing)', 'c(passing)', 'b(passing)', 'a(passing)']`
+          # then `uniq_testcases` will be
+          # `['dup2(passing)', 'dup1(passing)', 'c(passing)', 'b(passing)', 'a(passing)']`
+          nonuniq_testcases = testcases.reverse
           uniq_testcases = nonuniq_testcases.uniq { |tc| tc.title }
           (nonuniq_testcases - uniq_testcases).each do |tc|
+            # here, we would be deleting ['dup2(failing)', 'dup1(failing)']
             failure_details = tc.failure_details
-            tc.root.parent.delete_element(failure_details)
+            # failure_details can be nil if this is a passing testcase
+            tc.root.parent.delete_element(failure_details) unless failure_details.nil?
             tc.root.parent.delete_element(tc.root)
           end
         end

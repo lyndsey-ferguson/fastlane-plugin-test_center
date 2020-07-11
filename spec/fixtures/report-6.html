@@ -111,9 +111,9 @@
       <section class="right">
         <section id="counters">
           <h2 id="test-count"><span class="number">4</span> tests</h2>
-          
+
           <h2 id="fail-count"><span class="number">4</span> failures</h2>
-          
+
         </section>
         <section id="segment-bar">
           <a id="all-segment" onclick="selectSegment(this);" class="selected">All</a><a id="failing-segment" onclick="selectSegment(this);">Failing</a><a id="passing-segment" onclick="selectSegment(this);">Passing</a>
@@ -121,127 +121,104 @@
       </section>
     </header>
     <section id="test-suites">
-      
-        
+
+
         <section class="test-suite failing" id="AtomicBoyUITests">
           <section class="heading" onclick="toggleTests(this);">
             <h3 class="title">AtomicBoyUITests</h3>
           </section>
           <section class="tests">
             <table>
-            
+
               <tr class="test failing odd"  onclick="toggleDetails('testExample2');">
                 <td>
-                  
+
                 </td>
                 <td><h3 class="title">testExample2</h3></td>
               </tr>
-              
+
                 <tr class="details failing testExample2">
                   <td></td>
                   <td>
-                    
+
                       <section class="test-detail reason">((false) is true) failed</section>
-                    
-                    
+
+
                       <section class="test-detail snippet"></section>
                       <section class="test-detail">AtomicBoyUITests.m:48</section>
-                    
-                    
+
+
                   </td>
                 </tr>
 
               <tr class="test failing "  onclick="toggleDetails('testExample');">
                 <td>
-                  
+
                 </td>
                 <td><h3 class="title">testExample</h3></td>
               </tr>
-              
+
                 <tr class="details failing testExample">
                   <td></td>
                   <td>
-                    
+
                       <section class="test-detail reason">((false) is true) failed</section>
-                    
-                    
+
+
                       <section class="test-detail snippet"></section>
                       <section class="test-detail">AtomicBoyUITests.m:40</section>
-                    
-                    
+
+
                   </td>
                 </tr>
-              
-            
-              
-              <tr class="test failing odd"  onclick="toggleDetails('testExample');">
-                <td>
-                  
-                </td>
-                <td><h3 class="title">testExample</h3></td>
-              </tr>
-              
-              <tr class="test failing odd"  onclick="toggleDetails('testExample');">
+
+
+
+              <tr class="test passing odd"  onclick="toggleDetails('testExample');">
                 <td>
 
                 </td>
                 <td><h3 class="title">testExample</h3></td>
               </tr>
-
-                <tr class="details failing testExample">
-                  <td></td>
-                  <td>
-                    
-                      <section class="test-detail reason">((false) is true) failed</section>
-                    
-                    
-                      <section class="test-detail snippet"></section>
-                      <section class="test-detail">AtomicBoyUITests.m:48</section>
-                    
-                    
-                  </td>
-                </tr>
-              
-            
             </table>
           </section>
         </section>
-      
-        
+
+
         <section class="test-suite failing" id="AtomicBoyUITests.SwiftAtomicBoyUITests">
           <section class="heading" onclick="toggleTests(this);">
             <h3 class="title">AtomicBoyUITests.SwiftAtomicBoyUITests</h3>
           </section>
           <section class="tests">
             <table>
-            
-              
+
+
               <tr class="test failing "  onclick="toggleDetails('testExample');">
                 <td>
-                  
+
                 </td>
                 <td><h3 class="title">testExample</h3></td>
               </tr>
-              
+
                 <tr class="details failing testExample">
                   <td></td>
                   <td>
-                    
+
                       <section class="test-detail reason">XCTAssertTrue failed - </section>
-                    
-                    
+
+
                       <section class="test-detail snippet"></section>
                       <section class="test-detail">SwiftAtomicBoyUITests.swift:14</section>
-                    
-                    
+
+
                   </td>
                 </tr>
-              
-            
+
+
             </table>
           </section>
         </section>
-      
+
     </section>
     <footer>Report generated with <a href="https://github.com/supermarin/xcpretty">xcpretty</a></footer>
   </body>
