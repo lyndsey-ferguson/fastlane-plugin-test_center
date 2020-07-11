@@ -6,6 +6,7 @@ module TestCenter
       require 'json'
       require 'shellwords'
       require 'snapshot/reset_simulators'
+      require_relative '../fastlane_core/device_manager/simulator_extensions'
 
       class Runner
         attr_reader :retry_total_count
@@ -21,6 +22,7 @@ module TestCenter
           end
           @batch_count = 1 # default count. Will be updated by setup_testcollector
           setup_testcollector
+          setup_logcollection
         end
 
         def update_options_to_use_xcresult_output
@@ -33,6 +35,17 @@ module TestCenter
           @options[:output_types] = updated_output_types
           @options[:output_files] = updated_output_files
           @options.reject! { |k,_| k == :result_bundle }
+        end
+
+        def setup_logcollection
+          return unless @options[:include_simulator_logs]
+          return unless Scan::Runner.method_defined?(:prelaunch_simulators)
+
+          # We need to prelaunch the simulators so xcodebuild
+          # doesn't shut it down before we have a chance to get
+          # the logs.
+          @options[:prelaunch_simulator] = true
+          FastlaneCore::Simulator.send(:include, FixedCopyLogarchiveFastlaneSimulator)
         end
 
         def setup_testcollector
