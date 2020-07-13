@@ -44,7 +44,14 @@ module TestCenter
           # We need to prelaunch the simulators so xcodebuild
           # doesn't shut it down before we have a chance to get
           # the logs.
-          @options[:prelaunch_simulator] = true
+          devices_to_shutdown = []
+          Scan.devices.each do |device|
+            devices_to_shutdown << device if device.state == "Shutdown"
+            device.boot
+          end
+          at_exit do
+            devices_to_shutdown.each(&:shutdown)
+          end
           FastlaneCore::Simulator.send(:include, FixedCopyLogarchiveFastlaneSimulator)
         end
 
@@ -299,7 +306,7 @@ module TestCenter
           ).collate
           logs_glog_pattern = "#{source_reports_directory_glob}/*system_logs-*.{log,logarchive}"
           logs = Dir.glob(logs_glog_pattern)
-          FileUtils.mv(logs, absolute_output_directory)
+          FileUtils.mv(logs, absolute_output_directory, force: true)
           FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
           symlink_result_bundle_to_xcresult(absolute_output_directory, report_name_helper)
           true

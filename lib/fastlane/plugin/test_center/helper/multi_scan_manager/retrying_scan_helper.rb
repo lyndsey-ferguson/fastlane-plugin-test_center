@@ -345,7 +345,7 @@ module TestCenter
             new_logname = "#{batch_prefix}try-#{testrun_count}-#{File.basename(log_filepath)}"
             new_log_filepath = "#{File.dirname(log_filepath)}/#{new_logname}"
             FastlaneCore::UI.verbose("Moving simulator log '#{log_filepath}' to '#{new_log_filepath}'")
-            File.rename(log_filepath, new_log_filepath)
+            FileUtils.mv(log_filepath, new_log_filepath, force: true)
           end
         end
 
