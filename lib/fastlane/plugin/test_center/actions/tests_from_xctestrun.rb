@@ -5,10 +5,10 @@ module Fastlane
     class TestsFromXctestrunAction < Action
       def self.run(params)
         UI.verbose("Getting tests from xctestrun file at '#{params[:xctestrun]}'")
-        return xctestrun_tests(params[:xctestrun], params[:invocation_based_tests])
+        return xctestrun_tests(params[:xctestrun], params[:invocation_based_tests], test_prefix: params[:test_prefix])
       end
 
-      def self.xctestrun_tests(xctestrun_path, invocation_based_tests)
+      def self.xctestrun_tests(xctestrun_path, invocation_based_tests, test_prefix: "test")
         xctestrun = Plist.parse_xml(xctestrun_path)
         xctestrun_rootpath = File.dirname(xctestrun_path)
         xctestrun_version = xctestrun.fetch('__xctestrun_metadata__', Hash.new).fetch('FormatVersion', 1)
@@ -37,7 +37,7 @@ module Fastlane
             test_identifiers = xctestrun_config['OnlyTestIdentifiers']
             UI.verbose("Identifiers after adding onlytest tests: #{test_identifiers.join("\n\t")}")
           else
-            test_identifiers = XCTestList.tests(xctest_path)
+            test_identifiers = XCTestList.tests(xctest_path, test_prefix: test_prefix)
             UI.verbose("Found the following tests: #{test_identifiers.join("\n\t")}")
           end
           if xctestrun_config.key?('SkipTestIdentifiers')
@@ -50,6 +50,7 @@ module Fastlane
           if test_identifiers.empty? && !invocation_based_tests
             UI.error("No tests found in '#{xctest_path}'!")
             UI.important("Is the Build Setting, `ENABLE_TESTABILITY` enabled for the test target #{testable_name}?")
+            UI.message("If your test method names use a prefix other than `test`, consider setting `:test_prefix`.")
           end
           tests[testable_name] = test_identifiers.map do |test_identifier|
             "#{testable_name}/#{test_identifier}"
@@ -114,6 +115,15 @@ module Fastlane
             is_string: false,
             default_value: false,
             optional: true
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :test_prefix,
+            description: "The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick, set this to `spec`",
+            default_value: "test",
+            optional: true,
+            verify_block: proc do |test_prefix|
+              UI.user_error!("Error: test_prefix must be non-nil and non-empty") if test_prefix.nil? || test_prefix.empty?
+            end
           )
         ]
       end
