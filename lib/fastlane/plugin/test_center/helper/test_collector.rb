@@ -6,6 +6,7 @@ module TestCenter
 
     class TestCollector
       attr_reader :xctestrun_path
+      attr_reader :only_testing
 
       def initialize(options)
         unless options[:xctestrun] || options[:derived_data_path]

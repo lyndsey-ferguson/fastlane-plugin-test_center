@@ -14,15 +14,14 @@ lane :testing do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
-    try_count: 3,
     buildlog_path: "logs/scan/",
     derived_data_path: "DerivedData",
     fail_build: false,
-    result_bundle: true,
-    batch_count: 1,
-    quit_simulators: true,
     include_simulator_logs: true,
+    device: "iPhone 8",
+    try_count: 2,
+    batch_count: 1,
     parallel_testrun_count: 4,
-    device: "iPhone 8"
+    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample3']
   )
 end
