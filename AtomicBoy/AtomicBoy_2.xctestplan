@@ -1,44 +1,90 @@
 {
-  "configurations": [
+  "configurations" : [
     {
-      "id": "1162AED2-E8D8-44D4-82D6-3290F84BA621",
-      "name": "Configuration 1",
-      "options": {
+      "id" : "1162AED2-E8D8-44D4-82D6-3290F84BA621",
+      "name" : "Configuration 1",
+      "options" : {
+
       }
     }
   ],
-  "defaultOptions": {
-    "codeCoverage": false,
-    "targetForVariableExpansion": {
-      "containerPath": "container:AtomicBoy.xcodeproj",
-      "identifier": "26DB0F4E1FA12D4B0023C31D",
-      "name": "AtomicBoy"
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:AtomicBoy.xcodeproj",
+      "identifier" : "26DB0F4E1FA12D4B0023C31D",
+      "name" : "AtomicBoy"
     }
   },
-  "testTargets": [
+  "testTargets" : [
     {
-      "selectedTests": [
+      "selectedTests" : [
         "AtomicBoyTests\/testExample",
         "AtomicBoyTests\/testPerformanceExample"
       ],
-      "target": {
-        "containerPath": "container:AtomicBoy.xcodeproj",
-        "identifier": "26DB0F6D1FA12D4B0023C31D",
-        "name": "AtomicBoyTests"
+      "target" : {
+        "containerPath" : "container:AtomicBoy.xcodeproj",
+        "identifier" : "26DB0F6D1FA12D4B0023C31D",
+        "name" : "AtomicBoyTests"
       }
     },
     {
-      "selectedTests": [
+      "selectedTests" : [
         "AtomicBoyUITests\/testExample",
+        "AtomicBoyUITests\/testExample10",
+        "AtomicBoyUITests\/testExample11",
+        "AtomicBoyUITests\/testExample12",
+        "AtomicBoyUITests\/testExample13",
+        "AtomicBoyUITests\/testExample14",
+        "AtomicBoyUITests\/testExample15",
+        "AtomicBoyUITests\/testExample16",
+        "AtomicBoyUITests\/testExample17",
+        "AtomicBoyUITests\/testExample18",
+        "AtomicBoyUITests\/testExample19",
         "AtomicBoyUITests\/testExample2",
-        "AtomicBoyUITests\/testExample3"
+        "AtomicBoyUITests\/testExample20",
+        "AtomicBoyUITests\/testExample21",
+        "AtomicBoyUITests\/testExample22",
+        "AtomicBoyUITests\/testExample23",
+        "AtomicBoyUITests\/testExample24",
+        "AtomicBoyUITests\/testExample25",
+        "AtomicBoyUITests\/testExample26",
+        "AtomicBoyUITests\/testExample27",
+        "AtomicBoyUITests\/testExample28",
+        "AtomicBoyUITests\/testExample29",
+        "AtomicBoyUITests\/testExample3",
+        "AtomicBoyUITests\/testExample30",
+        "AtomicBoyUITests\/testExample31",
+        "AtomicBoyUITests\/testExample32",
+        "AtomicBoyUITests\/testExample33",
+        "AtomicBoyUITests\/testExample34",
+        "AtomicBoyUITests\/testExample35",
+        "AtomicBoyUITests\/testExample36",
+        "AtomicBoyUITests\/testExample37",
+        "AtomicBoyUITests\/testExample38",
+        "AtomicBoyUITests\/testExample39",
+        "AtomicBoyUITests\/testExample4",
+        "AtomicBoyUITests\/testExample40",
+        "AtomicBoyUITests\/testExample41",
+        "AtomicBoyUITests\/testExample42",
+        "AtomicBoyUITests\/testExample43",
+        "AtomicBoyUITests\/testExample44",
+        "AtomicBoyUITests\/testExample45",
+        "AtomicBoyUITests\/testExample46",
+        "AtomicBoyUITests\/testExample47",
+        "AtomicBoyUITests\/testExample48",
+        "AtomicBoyUITests\/testExample5",
+        "AtomicBoyUITests\/testExample6",
+        "AtomicBoyUITests\/testExample7",
+        "AtomicBoyUITests\/testExample8",
+        "AtomicBoyUITests\/testExample9"
       ],
-      "target": {
-        "containerPath": "container:AtomicBoy.xcodeproj",
-        "identifier": "26DB0F781FA12D4B0023C31D",
-        "name": "AtomicBoyUITests"
+      "target" : {
+        "containerPath" : "container:AtomicBoy.xcodeproj",
+        "identifier" : "26DB0F781FA12D4B0023C31D",
+        "name" : "AtomicBoyUITests"
       }
     }
   ],
-  "version": 1
+  "version" : 1
 }

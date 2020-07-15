@@ -4,12 +4,6 @@
 
 Performing analysis on an `.xcresult` bundle? Get the failing and passing tests using this action.
 
-> **Note**: I'm making this new action available to Supporters first to show them appreciation. I'll open it up to everyone else on September 1st, 2020.
->
-> Interested in joining? Click [here ♥️](https://github.com/sponsors/lyndsey-ferguson) and select a tier that gives you early access to new features.
->
-> **Bonus**: if your organization (👨‍👩‍👧‍) becomes a Sponsor, every member of that org gets that same early access!
-
 ## Example
 
 <!-- tests_from_xcresult examples: begin -->
