@@ -35,9 +35,16 @@ If you have a large number of tests, and you want to inspect the overall status 
 
 ## Better Results Reporting
 
-Do you have multiple test targets and the normal operation of `:scan` is providing you a test report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that. It will provide a separate test report for each test target. It can handle JUnit, HTML, JSON, and Apple's `test_result` bundles.
+Do you have multiple test targets and the normal operation of `:scan` is providing you a test report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that. It will provide a separate test report for each test target. It can handle JUnit, HTML, JSON, and Apple's `xcresult` bundles.
 
-`test_result` bundles are particularly useful because they contain screenshots of the UI when a UI test fails so you can review what was actually there compared to what you expected.
+`xcresult` bundles are particularly useful because they contain screenshots of the UI when a UI test fails so you can review what was actually there compared to what you expected.
+
+> **Notes about `xcresult` and `result_bundle`**:
+> 1. `multi_scan` adds support for `xcresult` as an additional `:output_type`. This allows you to name your `xcresult` files using the `:output_files` parameter (`scan` does not support this).
+>
+> 2. If you pass `xcresult` as a type, `multi_scan` will _not_ pass the `result_bundle` parameter down to `scan` to ensure that your chosen name in `output_files` is used.
+>
+> 3. The `result_bundle` option used to provide `.result_bundle` files. `scan` recently changed that file extension to `.xcresult` to match what Apple is naming the file, and this broke builds expecting the `.result_bundle` extension. As a fix, `multi_scan` creates a `.result_bundle` symbolic link to the `.xcresult` bundle.
 
 ****
 
