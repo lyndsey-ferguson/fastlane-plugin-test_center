@@ -235,7 +235,7 @@ module Fastlane
         build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building testplan include_simulator_logs].include?(k) }
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          ScanHelper.scan_options_from_multi_scan_options(build_options)
+          ScanHelper.scan_options_from_multi_scan_options(build_options).merge(include_simulator_logs: false)
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)

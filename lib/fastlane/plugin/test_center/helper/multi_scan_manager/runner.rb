@@ -23,6 +23,7 @@ module TestCenter
           @batch_count = 1 # default count. Will be updated by setup_testcollector
           setup_testcollector
           setup_logcollection
+          FastlaneCore::UI.verbose("< done in TestCenter::Helper::MultiScanManager.initialize")
         end
 
         def update_options_to_use_xcresult_output
@@ -38,12 +39,14 @@ module TestCenter
         end
 
         def setup_logcollection
+          FastlaneCore::UI.verbose("> setup_logcollection")
           return unless @options[:include_simulator_logs]
-          return unless Scan::Runner.method_defined?(:prelaunch_simulators)
+          return if Scan::Runner.method_defined?(:prelaunch_simulators)
 
           # We need to prelaunch the simulators so xcodebuild
           # doesn't shut it down before we have a chance to get
           # the logs.
+          FastlaneCore::UI.verbose("\t collecting devices to boot for log collection")
           devices_to_shutdown = []
           Scan.devices.each do |device|
             devices_to_shutdown << device if device.state == "Shutdown"
@@ -52,6 +55,7 @@ module TestCenter
           at_exit do
             devices_to_shutdown.each(&:shutdown)
           end
+          FastlaneCore::UI.verbose("\t fixing FastlaneCore::Simulator.copy_logarchive")
           FastlaneCore::Simulator.send(:include, FixedCopyLogarchiveFastlaneSimulator)
         end
 
