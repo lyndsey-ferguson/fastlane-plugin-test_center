@@ -22,6 +22,7 @@ lane :testing do
     batch_count: 1,
     quit_simulators: true,
     include_simulator_logs: true,
+    skip_build: true,
     parallel_testrun_count: 4,
     device: "iPhone 8"
   )

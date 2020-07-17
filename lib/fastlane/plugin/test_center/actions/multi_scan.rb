@@ -170,8 +170,10 @@ module Fastlane
         reset_scan_config_to_defaults
         use_scanfile_to_override_settings(scan_options)
         turn_off_concurrent_workers(scan_options)
+        UI.important("Turning off :skip_build as it doesn't do anything with multi_scan") if scan_options[:skip_build]
+        scan_options.reject! { |k,v| k == :skip_build }
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
-        if scan_options[:test_without_building] || scan_options[:skip_build]
+        if scan_options[:test_without_building]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
         else

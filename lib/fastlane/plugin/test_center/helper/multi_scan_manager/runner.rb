@@ -73,9 +73,7 @@ module TestCenter
         end
 
         def should_run_tests_through_single_try?
-          should_run_for_invocation_tests = @options[:invocation_based_tests] && @options[:only_testing].nil?
-          should_run_for_skip_build = @options[:skip_build]
-          (should_run_for_invocation_tests || should_run_for_skip_build)
+          @options[:invocation_based_tests] && @options[:only_testing].nil?
         end
 
 
