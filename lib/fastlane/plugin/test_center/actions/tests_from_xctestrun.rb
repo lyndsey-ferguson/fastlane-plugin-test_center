@@ -17,12 +17,14 @@ module Fastlane
         if xctestrun_version == 1
           xctestrun.each do |testable_name, test_target_config|
             next if ignoredTestables.include? testable_name
+            test_target_config['TestableName'] = testable_name
             test_targets << test_target_config
           end
         else
           test_configurations = xctestrun['TestConfigurations']
           test_configurations.each do |configuration|
             configuration['TestTargets'].each do |test_target|
+              test_target['TestableName'] = test_target['BlueprintName']
               test_targets << test_target
             end
           end
@@ -30,7 +32,7 @@ module Fastlane
 
         tests = Hash.new([])
         test_targets.each do |xctestrun_config|
-          testable_name = xctestrun_config['ProductModuleName']
+          testable_name = xctestrun_config['TestableName']
           xctest_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
           test_identifiers = []
           if xctestrun_config.key?('OnlyTestIdentifiers')

@@ -47,10 +47,10 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     end"
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
     expect(tests).to include(
-      'AtomicBoyTests' => [
-        'AtomicBoyTests/AtomicBoyTests/testUnit1',
-        'AtomicBoyTests/AtomicBoyTests/testUnit2',
-        'AtomicBoyTests/AtomicBoyTests/testUnit3'
+      'Atomic Boy Tests' => [
+        'Atomic Boy Tests/AtomicBoyTests/testUnit1',
+        'Atomic Boy Tests/AtomicBoyTests/testUnit2',
+        'Atomic Boy Tests/AtomicBoyTests/testUnit3'
       ],
       'AtomicBoyUITests' => [
         'AtomicBoyUITests/AtomicBoyTests/testUI1',
@@ -80,7 +80,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     expect(FastlaneCore::UI).to receive(:error).with(/^No tests found.*/).twice
     expect(FastlaneCore::UI).to receive(:important).with(/^Is the Build Setting, `ENABLE_TESTABILITY` enabled.*/).twice
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
-    expect(tests).to eq({'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
+    expect(tests).to eq({'Atomic Boy Tests' => [], 'AtomicBoyUITests' => [] })
   end
 
   it 'returns all the tests in useTestSelectionWhitelist enabled xctestrun file' do
