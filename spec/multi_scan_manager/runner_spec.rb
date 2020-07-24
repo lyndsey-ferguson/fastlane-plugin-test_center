@@ -132,20 +132,6 @@ module TestCenter::Helper::MultiScanManager
         runner.run
       end
 
-      it 'runs :run_tests_through_single_try when given :skip_build' do
-        runner = Runner.new(
-          {
-            output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests',
-            try_count: 2,
-            skip_build: true
-          }
-        )
-        expect(runner).to receive(:run_tests_through_single_try)
-        expect(runner).to receive(:run_test_batches)
-        runner.run
-      end
-
       it 'does not run single_try_scan when not appropriate' do
         invocation_runner = Runner.new(
           {
