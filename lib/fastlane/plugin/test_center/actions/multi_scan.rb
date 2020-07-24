@@ -233,8 +233,28 @@ module Fastlane
         scan_options[:derived_data_path] = Scan.config[:derived_data_path]
       end
 
+      def self.remove_xcresult_from_build_options(build_options)
+        # convert the :output_types comma separated string of types into an array with no whitespace
+        output_types = build_options[:output_types].to_s.split(',').map(&:strip)
+        xcresult_index = output_types.index('xcresult')
+
+        unless xcresult_index.nil?
+          output_types.delete_at(xcresult_index)
+          # set :output_types value to comma separated string of remaining output types
+          build_options[:output_types] = output_types.join(',')
+
+          if build_options[:output_files] # not always set
+            output_files = build_options[:output_files].split(',').map(&:strip)
+            output_files.delete_at(xcresult_index)
+
+            build_options[:output_files] = output_files.join(',')
+          end
+        end
+      end
+
       def self.prepare_scan_options_for_build_for_testing(scan_options)
         build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building testplan include_simulator_logs].include?(k) }
+        remove_xcresult_from_build_options(build_options)
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
           ScanHelper.scan_options_from_multi_scan_options(build_options).merge(include_simulator_logs: false)

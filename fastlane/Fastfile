@@ -15,13 +15,15 @@ lane :testing do
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
     buildlog_path: "logs/scan/",
+    output_types: " html , junit",
+    output_files: " index.html , report.junit",
     derived_data_path: "DerivedData",
     fail_build: false,
     include_simulator_logs: true,
-    device: "iPhone 8",
     try_count: 2,
     batch_count: 1,
     parallel_testrun_count: 4,
-    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample3']
+    result_bundle: true,
+    device: "iPhone 8"
   )
 end
