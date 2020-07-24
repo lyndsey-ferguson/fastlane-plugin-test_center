@@ -170,8 +170,10 @@ module Fastlane
         reset_scan_config_to_defaults
         use_scanfile_to_override_settings(scan_options)
         turn_off_concurrent_workers(scan_options)
+        UI.important("Turning off :skip_build as it doesn't do anything with multi_scan") if scan_options[:skip_build]
+        scan_options.reject! { |k,v| k == :skip_build }
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
-        if scan_options[:test_without_building] || scan_options[:skip_build]
+        if scan_options[:test_without_building]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
         else
@@ -235,7 +237,7 @@ module Fastlane
         build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building testplan include_simulator_logs].include?(k) }
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          ScanHelper.scan_options_from_multi_scan_options(build_options)
+          ScanHelper.scan_options_from_multi_scan_options(build_options).merge(include_simulator_logs: false)
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)

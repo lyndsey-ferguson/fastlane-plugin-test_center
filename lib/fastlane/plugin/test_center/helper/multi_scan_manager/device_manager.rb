@@ -19,7 +19,7 @@ module FastlaneCore
       end
 
       def boot
-        `xcrun simctl boot #{self.udid}`
+        `xcrun simctl boot #{self.udid}` unless self.state == "Booted"
       end
 
       def shutdown
