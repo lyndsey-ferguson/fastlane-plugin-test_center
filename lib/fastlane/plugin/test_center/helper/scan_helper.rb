@@ -13,7 +13,7 @@ module TestCenter
         )
         # :nocov:
       end
-    
+
       def self.remove_preexisting_simulator_logs(params)
         return unless params[:include_simulator_logs]
     
