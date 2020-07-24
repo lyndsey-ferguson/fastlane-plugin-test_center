@@ -5,6 +5,7 @@ module TestCenter::Helper::MultiScanManager
         test_batches: [],
         xctestrun_path: ''
       )
+      allow(@mock_test_collector).to receive(:test_batches).and_return([['MockTest']])
       allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_test_collector)
       @use_refactored_parallelized_multi_scan = ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
     end

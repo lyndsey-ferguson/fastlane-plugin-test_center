@@ -66,6 +66,10 @@ module TestCenter
           @test_collector = TestCollector.new(@options)
           @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.test_batches.size
+          if @test_collector.test_batches.flatten.size < @options[:parallel_testrun_count].to_i
+            FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{@test_collector.only_testing.size}). Reducing to that number.")
+            @options[:parallel_testrun_count] = @test_collector.only_testing.size
+          end
         end
 
         def output_directory(batch_index = 0, test_batch = [])
@@ -204,11 +208,21 @@ module TestCenter
         end
 
         def scan_options_for_worker(test_batch, batch_index)
+          if @test_collector.test_batches.size > 1
+            # If there are more than 1 batch, then we want each batch result
+            # sent to a "batch index" output folder to be collated later
+            # into the requested output_folder.
+            # Otherwise, send the results from the one and only one batch
+            # to the requested output_folder
+            batch_index += 1
+            batch = batch_index
+          end
+
           {
             only_testing: test_batch.map(&:shellsafe_testidentifier),
-            output_directory: output_directory(batch_index + 1, test_batch),
+            output_directory: output_directory(batch_index, test_batch),
             try_count: @options[:try_count],
-            batch: batch_index + 1
+            batch: batch
           }
         end
 
