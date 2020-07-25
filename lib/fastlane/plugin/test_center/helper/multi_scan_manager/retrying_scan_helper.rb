@@ -29,7 +29,7 @@ module TestCenter
           return unless @options[:quit_simulators]
 
           @options.fetch(:destination).each do |destination|
-            if /id=(?<udid>\w+),?/ =~ destination
+            if /id=(?<udid>[^,$]+)/ =~ destination
               FastlaneCore::UI.verbose("Restarting Simulator #{udid}")
               `xcrun simctl shutdown #{udid} 2>/dev/null`
               `xcrun simctl boot #{udid} 2>/dev/null`
