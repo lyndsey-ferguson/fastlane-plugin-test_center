@@ -76,6 +76,9 @@ Lint/UselessAssignment:
   Exclude:
     - '**/spec/**/*'
 
+Lint/DuplicateElsifCondition:
+  Enabled: true
+
 # We could potentially enable the 2 below:
 Layout/FirstHashElementIndentation:
   Enabled: false
@@ -100,6 +103,31 @@ Style/DoubleNegation:
 # Prevent to replace [] into %i
 Style/SymbolArray:
   Enabled: false
+
+Style/AccessorGrouping:
+  Enabled: true
+
+Style/ArrayCoercion:
+  Enabled: true
+
+Style/BisectedAttrAccessor:
+  Enabled: true
+
+Style/CaseLikeIf:
+  Enabled: true
+
+Style/HashAsLastArrayItem:
+  Enabled: true
+
+Style/HashLikeCase:
+  Enabled: true
+
+Style/RedundantAssignment:
+  Enabled: true
+
+Style/RedundantFileExtensionInRequire:
+  Enabled: true
+
 
 Layout/TrailingWhitespace:
   Enabled: true
