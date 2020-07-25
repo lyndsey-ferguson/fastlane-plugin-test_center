@@ -25,17 +25,17 @@ module FastlaneCore
 
         UI.message("Booting #{self}")
 
-        `xcrun simctl boot #{self.udid}`
+        `xcrun simctl boot #{self.udid} 2>/dev/null`
         self.state = 'Booted'
       end
 
       def shutdown
         return unless is_simulator
         return unless os_type == "iOS"
-        return if self.state != 'Booted'
+        return if self.state == 'Shutdown'
 
         UI.message("Shutting down #{self.udid}")
-        `xcrun simctl shutdown #{self.udid}`
+        `xcrun simctl shutdown #{self.udid} 2>/dev/null`
         self.state = 'Shutdown'
       end
     end
