@@ -17,7 +17,7 @@ UI.important(
 test_options = test_options_from_testplan(
   testplan: 'AtomicBoy/AtomicBoy_2.xctestplan'
 )
-UI.message("The AtomicBoy_2 testplan has the following tests: #{test_options[:only_testing'}")
+UI.message("The AtomicBoy_2 testplan has the following tests: #{test_options[:only_testing]}")
 
 ```
 <!-- test_options_from_testplan examples: end -->

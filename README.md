@@ -40,6 +40,7 @@ _read the documentation on each action by clicking on the action name_
 | [`test_options_from_testplan`](docs/feature_details/test_options_from_testplan.md) | returns the tests and test code coverage configuration for a given testplan | ios, mac |
 | [`testplans_from_scheme`](docs/feature_details/testplans_from_scheme.md) | returns the testplans that an Xcode Scheme references | ios, mac |
 | [`tests_from_junit`](docs/feature_details/tests_from_junit.md) | returns the passing and failing tests in a Junit test report | ios, mac |
+| [`tests_from_xcresult`](docs/feature_details/tests_from_xcresult.md) | returns the passing and failing tests in a xcresult bundle | ios, mac |
 | [`tests_from_xctestrun`](docs/feature_details/tests_from_xctestrun.md) | returns a list of tests for each test target in a `xctestrun` file  | ios, mac |
 | [`collate_junit_reports`](docs/feature_details/collate_junit_reports.md) | combines multiple Junit test reports into one report | ios, mac |
 | [`collate_html_reports`](docs/feature_details/collate_html_reports.md) | combines multiple HTML test reports into one report | ios, mac |
