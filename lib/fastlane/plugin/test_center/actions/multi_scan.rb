@@ -358,12 +358,12 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
-            key: :test_prefix,
-            description: "The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick, set this to `spec`",
+            key: :swift_test_prefix,
+            description: "The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`",
             default_value: "test",
             optional: true,
-            verify_block: proc do |test_prefix|
-              UI.user_error!("Error: test_prefix must be non-nil and non-empty") if test_prefix.nil? || test_prefix.empty?
+            verify_block: proc do |swift_test_prefix|
+              UI.user_error!("Error: swift_test_prefix must be non-nil and non-empty") if swift_test_prefix.nil? || swift_test_prefix.empty?
             end
           ),
           FastlaneCore::ConfigItem.new(

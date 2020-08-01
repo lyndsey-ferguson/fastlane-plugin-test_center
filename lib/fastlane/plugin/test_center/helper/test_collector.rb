@@ -26,7 +26,7 @@ module TestCenter
           @batch_count = options[:parallel_testrun_count]
         end
 
-        @test_prefix = options[:test_prefix]
+        @swift_test_prefix = options[:swift_test_prefix]
       end
 
       def only_testing_from_testplan(options)
@@ -95,7 +95,7 @@ module TestCenter
           {
             xctestrun: @xctestrun_path,
             invocation_based_tests: @invocation_based_tests,
-            test_prefix: @test_prefix
+            swift_test_prefix: @swift_test_prefix
           }
         )
         ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
