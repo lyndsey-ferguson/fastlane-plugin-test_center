@@ -43,4 +43,5 @@ tests.values.flatten.each { |test_identifier| puts test_identifier }
 |:-|:-|-:|
 |xctestrun|The xctestrun file to use to find where the xctest bundle file is for test retrieval||
 |invocation_based_tests|Set to true If your test suit have invocation based tests like Kiwi|false|
+|swift_test_prefix|The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`|test|
 <!-- tests_from_xctestrun parameters: end -->

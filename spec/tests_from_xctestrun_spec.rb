@@ -20,7 +20,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/fake.xctestrun'))
     allow(XCTestList)
       .to receive(:tests)
-      .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+      .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest', swift_test_prefix: 'test')
       .and_return(
         [
           'AtomicBoyTests/testUnit1',
@@ -31,7 +31,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
 
     allow(XCTestList)
       .to receive(:tests)
-      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
+      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest', swift_test_prefix: 'test')
       .and_return(
         [
           'AtomicBoyTests/testUI1',
@@ -47,10 +47,10 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     end"
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
     expect(tests).to include(
-      'AtomicBoyTests' => [
-        'AtomicBoyTests/AtomicBoyTests/testUnit1',
-        'AtomicBoyTests/AtomicBoyTests/testUnit2',
-        'AtomicBoyTests/AtomicBoyTests/testUnit3'
+      'Atomic Boy Tests' => [
+        'Atomic Boy Tests/AtomicBoyTests/testUnit1',
+        'Atomic Boy Tests/AtomicBoyTests/testUnit2',
+        'Atomic Boy Tests/AtomicBoyTests/testUnit3'
       ],
       'AtomicBoyUITests' => [
         'AtomicBoyUITests/AtomicBoyTests/testUI1',
@@ -66,11 +66,11 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/fake.xctestrun'))
     allow(XCTestList)
       .to receive(:tests)
-      .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest')
+      .with('path/to/Debug-iphonesimulator/AtomicBoy.app/PlugIns/AtomicBoyTests.xctest', swift_test_prefix: "test")
       .and_return([])
     allow(XCTestList)
       .to receive(:tests)
-      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest')
+      .with('path/to/Debug-iphonesimulator/AtomicBoyUITests-Runner.app/PlugIns/AtomicBoyUITests.xctest', swift_test_prefix: "test")
       .and_return([])
     fastfile = "lane :test do
       tests_from_xctestrun(
@@ -80,7 +80,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     expect(FastlaneCore::UI).to receive(:error).with(/^No tests found.*/).twice
     expect(FastlaneCore::UI).to receive(:important).with(/^Is the Build Setting, `ENABLE_TESTABILITY` enabled.*/).twice
     tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
-    expect(tests).to eq({'AtomicBoyTests' => [], 'AtomicBoyUITests' => [] })
+    expect(tests).to eq({'Atomic Boy Tests' => [], 'AtomicBoyUITests' => [] })
   end
 
   it 'returns all the tests in useTestSelectionWhitelist enabled xctestrun file' do
@@ -117,7 +117,7 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
     allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/format-version-2.xctestrun'))
     allow(XCTestList)
       .to receive(:tests)
-      .with('path/to/DebugStage-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest')
+      .with('path/to/DebugStage-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest', swift_test_prefix: 'test')
       .and_return(
         [
           'AtomicBoyTests/testUnit1',
@@ -139,5 +139,26 @@ describe Fastlane::Actions::TestsFromXctestrunAction do
         'TestAppUITests/AtomicBoyTests/testUnit3'
       ]
     )
+  end
+
+  describe 'when the action is given an explicit swift_test_prefix' do
+    it 'invokces XCTestList with the given swift_test_prefix' do
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with('path/to/fake.xctestrun').and_return(true)
+      allow(File).to receive(:read).with('path/to/fake.xctestrun').and_return(File.read('./spec/fixtures/format-version-2.xctestrun'))
+      expect(XCTestList)
+        .to receive(:tests)
+        .with('path/to/DebugStage-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest', swift_test_prefix: 'spec')
+        .and_return([])
+
+      fastfile = "lane :test do
+        tests_from_xctestrun(
+          xctestrun: 'path/to/fake.xctestrun',
+          swift_test_prefix: 'spec'
+        )
+      end"
+
+      tests = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    end
   end
 end

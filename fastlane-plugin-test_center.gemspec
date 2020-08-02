@@ -1,4 +1,3 @@
-
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fastlane/plugin/test_center/version'
@@ -24,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'json'
   spec.add_dependency 'plist'
   spec.add_dependency 'xcodeproj'
-  spec.add_dependency 'xctest_list', '>= 1.1.8'
+  spec.add_dependency 'xctest_list', '>= 1.2.0'
   spec.add_dependency 'colorize'
 
   spec.add_development_dependency 'cocoapods'

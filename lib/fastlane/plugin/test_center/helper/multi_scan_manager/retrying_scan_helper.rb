@@ -29,7 +29,7 @@ module TestCenter
           return unless @options[:quit_simulators]
 
           @options.fetch(:destination).each do |destination|
-            if /id=(?<udid>\w+),?/ =~ destination
+            if /id=(?<udid>[^,$]+)/ =~ destination
               FastlaneCore::UI.verbose("Restarting Simulator #{udid}")
               `xcrun simctl shutdown #{udid} 2>/dev/null`
               `xcrun simctl boot #{udid} 2>/dev/null`
@@ -345,7 +345,7 @@ module TestCenter
             new_logname = "#{batch_prefix}try-#{testrun_count}-#{File.basename(log_filepath)}"
             new_log_filepath = "#{File.dirname(log_filepath)}/#{new_logname}"
             FastlaneCore::UI.verbose("Moving simulator log '#{log_filepath}' to '#{new_log_filepath}'")
-            File.rename(log_filepath, new_log_filepath)
+            FileUtils.mv(log_filepath, new_log_filepath, force: true)
           end
         end
 

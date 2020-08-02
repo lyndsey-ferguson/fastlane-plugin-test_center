@@ -11,18 +11,21 @@ lane :run_examples do
 end
 
 lane :testing do
+  quit_core_simulator_service
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
     scheme: 'AtomicBoy',
-    try_count: 3,
     buildlog_path: "logs/scan/",
+    output_types: " html , junit, xcresult",
+    output_files: " index.html , report.junit, result.xcresult",
     derived_data_path: "DerivedData",
     fail_build: false,
-    result_bundle: true,
-    batch_count: 1,
     quit_simulators: true,
     include_simulator_logs: true,
+    try_count: 2,
+    batch_count: 1,
     parallel_testrun_count: 4,
+    result_bundle: true,
     device: "iPhone 8"
   )
 end

@@ -1,7 +1,7 @@
 
 # ☑️  tests_from_junit
 
-Performing analysis on a test report file? Get the lists of failing and passing tests using this action.
+Performing analysis on a test report file? Get the failing and passing tests using this action.
 
 <center><img src="./images/tests_from_junit.png" alt="tests from junit" /></center>
 

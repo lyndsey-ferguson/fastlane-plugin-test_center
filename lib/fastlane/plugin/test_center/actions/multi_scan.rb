@@ -170,8 +170,10 @@ module Fastlane
         reset_scan_config_to_defaults
         use_scanfile_to_override_settings(scan_options)
         turn_off_concurrent_workers(scan_options)
+        UI.important("Turning off :skip_build as it doesn't do anything with multi_scan") if scan_options[:skip_build]
+        scan_options.reject! { |k,v| k == :skip_build }
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
-        if scan_options[:test_without_building] || scan_options[:skip_build]
+        if scan_options[:test_without_building]
           UI.verbose("Preparing Scan config options for multi_scan testing")
           prepare_scan_config(scan_options)
         else
@@ -231,11 +233,31 @@ module Fastlane
         scan_options[:derived_data_path] = Scan.config[:derived_data_path]
       end
 
+      def self.remove_xcresult_from_build_options(build_options)
+        # convert the :output_types comma separated string of types into an array with no whitespace
+        output_types = build_options[:output_types].to_s.split(',').map(&:strip)
+        xcresult_index = output_types.index('xcresult')
+
+        unless xcresult_index.nil?
+          output_types.delete_at(xcresult_index)
+          # set :output_types value to comma separated string of remaining output types
+          build_options[:output_types] = output_types.join(',')
+
+          if build_options[:output_files] # not always set
+            output_files = build_options[:output_files].split(',').map(&:strip)
+            output_files.delete_at(xcresult_index)
+
+            build_options[:output_files] = output_files.join(',')
+          end
+        end
+      end
+
       def self.prepare_scan_options_for_build_for_testing(scan_options)
-        build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building, testplan, include_simulator_logs].include?(k) }
+        build_options = scan_options.merge(build_for_testing: true).reject { |k| %i[test_without_building testplan include_simulator_logs].include?(k) }
+        remove_xcresult_from_build_options(build_options)
         Scan.config = FastlaneCore::Configuration.create(
           Fastlane::Actions::ScanAction.available_options,
-          ScanHelper.scan_options_from_multi_scan_options(build_options)
+          ScanHelper.scan_options_from_multi_scan_options(build_options).merge(include_simulator_logs: false)
         )
         values = Scan.config.values(ask: false)
         values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
@@ -355,6 +377,15 @@ module Fastlane
               UI.user_error!(
                 "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
                 "because the number of tests is unknown")
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :swift_test_prefix,
+            description: "The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`",
+            default_value: "test",
+            optional: true,
+            verify_block: proc do |swift_test_prefix|
+              UI.user_error!("Error: swift_test_prefix must be non-nil and non-empty") if swift_test_prefix.nil? || swift_test_prefix.empty?
             end
           ),
           FastlaneCore::ConfigItem.new(

@@ -6,6 +6,7 @@ module TestCenter
       require 'json'
       require 'shellwords'
       require 'snapshot/reset_simulators'
+      require_relative '../fastlane_core/device_manager/simulator_extensions'
 
       class Runner
         attr_reader :retry_total_count
@@ -21,6 +22,8 @@ module TestCenter
           end
           @batch_count = 1 # default count. Will be updated by setup_testcollector
           setup_testcollector
+          setup_logcollection
+          FastlaneCore::UI.verbose("< done in TestCenter::Helper::MultiScanManager.initialize")
         end
 
         def update_options_to_use_xcresult_output
@@ -35,6 +38,27 @@ module TestCenter
           @options.reject! { |k,_| k == :result_bundle }
         end
 
+        def setup_logcollection
+          FastlaneCore::UI.verbose("> setup_logcollection")
+          return unless @options[:include_simulator_logs]
+          return if Scan::Runner.method_defined?(:prelaunch_simulators)
+
+          # We need to prelaunch the simulators so xcodebuild
+          # doesn't shut it down before we have a chance to get
+          # the logs.
+          FastlaneCore::UI.verbose("\t collecting devices to boot for log collection")
+          devices_to_shutdown = []
+          Scan.devices.each do |device|
+            devices_to_shutdown << device if device.state == "Shutdown"
+            device.boot
+          end
+          at_exit do
+            devices_to_shutdown.each(&:shutdown)
+          end
+          FastlaneCore::UI.verbose("\t fixing FastlaneCore::Simulator.copy_logarchive")
+          FastlaneCore::Simulator.send(:include, FixedCopyLogarchiveFastlaneSimulator)
+        end
+
         def setup_testcollector
           return if @options[:invocation_based_tests] && @options[:only_testing].nil?
           return if @test_collector
@@ -42,6 +66,10 @@ module TestCenter
           @test_collector = TestCollector.new(@options)
           @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.test_batches.size
+          if @test_collector.test_batches.flatten.size < @options[:parallel_testrun_count].to_i
+            FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{@test_collector.only_testing.size}). Reducing to that number.")
+            @options[:parallel_testrun_count] = @test_collector.only_testing.size
+          end
         end
 
         def output_directory(batch_index = 0, test_batch = [])
@@ -73,9 +101,7 @@ module TestCenter
         end
 
         def should_run_tests_through_single_try?
-          should_run_for_invocation_tests = @options[:invocation_based_tests] && @options[:only_testing].nil?
-          should_run_for_skip_build = @options[:skip_build]
-          (should_run_for_invocation_tests || should_run_for_skip_build)
+          @options[:invocation_based_tests] && @options[:only_testing].nil?
         end
 
 
@@ -182,11 +208,21 @@ module TestCenter
         end
 
         def scan_options_for_worker(test_batch, batch_index)
+          if @test_collector.test_batches.size > 1
+            # If there are more than 1 batch, then we want each batch result
+            # sent to a "batch index" output folder to be collated later
+            # into the requested output_folder.
+            # Otherwise, send the results from the one and only one batch
+            # to the requested output_folder
+            batch_index += 1
+            batch = batch_index
+          end
+
           {
             only_testing: test_batch.map(&:shellsafe_testidentifier),
-            output_directory: output_directory(batch_index + 1, test_batch),
+            output_directory: output_directory(batch_index, test_batch),
             try_count: @options[:try_count],
-            batch: batch_index + 1
+            batch: batch
           }
         end
 
@@ -286,7 +322,7 @@ module TestCenter
           ).collate
           logs_glog_pattern = "#{source_reports_directory_glob}/*system_logs-*.{log,logarchive}"
           logs = Dir.glob(logs_glog_pattern)
-          FileUtils.mv(logs, absolute_output_directory)
+          FileUtils.mv(logs, absolute_output_directory, force: true)
           FileUtils.rm_rf(Dir.glob(source_reports_directory_glob))
           symlink_result_bundle_to_xcresult(absolute_output_directory, report_name_helper)
           true

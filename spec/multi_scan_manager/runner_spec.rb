@@ -5,6 +5,7 @@ module TestCenter::Helper::MultiScanManager
         test_batches: [],
         xctestrun_path: ''
       )
+      allow(@mock_test_collector).to receive(:test_batches).and_return([['MockTest']])
       allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_test_collector)
       @use_refactored_parallelized_multi_scan = ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
     end
@@ -125,20 +126,6 @@ module TestCenter::Helper::MultiScanManager
             scheme: 'AtomicUITests',
             try_count: 2,
             invocation_based_tests: true
-          }
-        )
-        expect(runner).to receive(:run_tests_through_single_try)
-        expect(runner).to receive(:run_test_batches)
-        runner.run
-      end
-
-      it 'runs :run_tests_through_single_try when given :skip_build' do
-        runner = Runner.new(
-          {
-            output_directory: './path/to/output/directory',
-            scheme: 'AtomicUITests',
-            try_count: 2,
-            skip_build: true
           }
         )
         expect(runner).to receive(:run_tests_through_single_try)
