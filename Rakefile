@@ -92,6 +92,13 @@ task :update_action_doc_examples do
   end
 end
 
+desc 'Builds and releases the new version to Sponsors'
+task :release_to_sponsors => [:build, :check_for_blacklisted_requires, :spec, :rubocop] do
+  `gem push --key sponsors \
+  --host https://rubygems.pkg.github.com/fastlane-plugin-test-center \
+  pkg/fastlane-plugin-test_center-#{Fastlane::TestCenter::VERSION}.gem`
+end
+
 Rake::Task[:build].enhance [:check_for_blacklisted_requires, :spec, :rubocop]
 
 task default: [:spec, :rubocop]
