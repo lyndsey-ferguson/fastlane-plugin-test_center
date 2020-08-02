@@ -380,6 +380,15 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
+            key: :swift_test_prefix,
+            description: "The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`",
+            default_value: "test",
+            optional: true,
+            verify_block: proc do |swift_test_prefix|
+              UI.user_error!("Error: swift_test_prefix must be non-nil and non-empty") if swift_test_prefix.nil? || swift_test_prefix.empty?
+            end
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :quit_simulators,
             env_name: "FL_MULTI_SCAN_QUIT_SIMULATORS",
             description: "If the simulators need to be killed before running the tests",
