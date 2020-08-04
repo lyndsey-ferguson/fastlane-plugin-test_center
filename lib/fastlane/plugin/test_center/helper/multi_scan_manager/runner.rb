@@ -66,9 +66,10 @@ module TestCenter
           @test_collector = TestCollector.new(@options)
           @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.test_batches.size
-          if @test_collector.test_batches.flatten.size < @options[:parallel_testrun_count].to_i
-            FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{@test_collector.test_batches.flatten.size}). Reducing to that number.")
-            @options[:parallel_testrun_count] = @test_collector.test_batches.flatten.size
+          tests = @test_collector.test_batches.flatten
+          if tests.size < @options[:parallel_testrun_count].to_i
+            FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{tests.size}). Reducing to that number.")
+            @options[:parallel_testrun_count] = tests.size
           end
         end
 

@@ -1,0 +1,23 @@
+name: Run Integration Tests
+
+on: [pull_request]
+
+jobs:
+  integration_tests:
+    if: github.event.pull_request.merged
+    runs-on: macos-latest
+    name: Run Integration Tests
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run basic integration tests
+      run: bundle exec fastlane integration_test_basic
+    - name: run parallel testrun integration tests
+      run: bundle exec fastlane :integration_test_parallel
+    - name: run batch integration tests
+      run: bundle exec fastlane :integration_test_batches
+
