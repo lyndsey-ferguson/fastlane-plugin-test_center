@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: macOS-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         ruby: [ '2.4.x', '2.5.x' ]
@@ -27,7 +27,7 @@ jobs:
 
   test_on_latest_ruby:
     name: Run Tests with the latest Ruby
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
     - name: setup
@@ -39,4 +39,4 @@ jobs:
     - name: test
       run: bundle exec rspec
     - name: run basic integration tests
-      run: bundle exec fastlane integration_test_basic
+      run: bundle exec fastlane integration_test_simple
