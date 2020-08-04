@@ -1,10 +1,12 @@
 name: Run Integration Tests
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   integration_tests:
-    if: github.event.pull_request.merged
     runs-on: macos-latest
     name: Run Integration Tests
 
@@ -17,7 +19,10 @@ jobs:
     - name: run basic integration tests
       run: bundle exec fastlane integration_test_basic
     - name: run parallel testrun integration tests
-      run: bundle exec fastlane :integration_test_parallel
+      run: bundle exec fastlane integration_test_parallel
+    - name: run parallel testrun edge cases
+      run: |
+        bundle exec fastlane integration_test_parallel_edgecase_1
     - name: run batch integration tests
-      run: bundle exec fastlane :integration_test_batches
+      run: bundle exec fastlane integration_test_batches
 

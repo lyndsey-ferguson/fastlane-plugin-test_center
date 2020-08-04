@@ -10,6 +10,16 @@ lane :run_examples do
   end
 end
 
+lane :integration_test_simple do
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    fail_build: false,
+    try_count: 2,
+    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
+  )
+end
+
 lane :integration_test_basic do
   multi_scan(
     workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
@@ -26,6 +36,17 @@ lane :integration_test_parallel do
     fail_build: false,
     try_count: 2,
     parallel_testrun_count: 2
+  )
+end
+
+lane :integration_test_parallel_edgecase_1 do
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'AtomicBoy',
+    fail_build: false,
+    try_count: 2,
+    parallel_testrun_count: 4,
+    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
   )
 end
 
