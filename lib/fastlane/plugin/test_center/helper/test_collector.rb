@@ -91,31 +91,84 @@ module TestCenter
       end
 
       def xctestrun_known_tests
-        config = FastlaneCore::Configuration.create(
-          ::Fastlane::Actions::TestsFromXctestrunAction.available_options,
-          {
-            xctestrun: @xctestrun_path,
-            invocation_based_tests: @invocation_based_tests,
-            swift_test_prefix: @swift_test_prefix
-          }
-        )
-        ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
+        unless @known_tests
+          config = FastlaneCore::Configuration.create(
+            ::Fastlane::Actions::TestsFromXctestrunAction.available_options,
+            {
+              xctestrun: @xctestrun_path,
+              invocation_based_tests: @invocation_based_tests,
+              swift_test_prefix: @swift_test_prefix
+            }
+          )
+          @known_tests = ::Fastlane::Actions::TestsFromXctestrunAction.run(config)
+        end
+        @known_tests
       end
 
-      def expand_testsuites_to_tests
+      # The purpose of this method is to expand :only_testing
+      # that has elements that are just the 'testsuite' or
+      # are just the 'testable/testsuite'. We want to take
+      # those and expand them out to the individual testcases.
+      # 'testsuite' => [
+      #   'testable/testsuite/testcase1',
+      # . 'testable/testsuite/testcase2',
+      # . 'testable/testsuite/testcase3'
+      # ]
+      # OR
+      # 'testable/testsuite' => [
+      #   'testable/testsuite/testcase1',
+      # . 'testable/testsuite/testcase2',
+      # . 'testable/testsuite/testcase3'
+      # ]
+      def expand_testsuites_to_tests(testables_tests)
+        # Remember, testable_tests is of the format:
+        # {
+        #   'testable1' => [
+        #     'testsuite1/testcase1',
+        #     'testsuite1/testcase2',
+        #     'testsuite2/testcase1',
+        #     'testsuite2/testcase2',
+        #     ...
+        #     'testsuiteN/testcase1', ... 'testsuiteN/testcaseM'
+        #   ],
+        #   ...
+        #   'testableO' => [
+        #     'testsuite1/testcase1',
+        #     'testsuite1/testcase2',
+        #     'testsuite2/testcase1',
+        #     'testsuite2/testcase2',
+        #     ...
+        #     'testsuiteN/testcase1', ... 'testsuiteN/testcaseM'
+        #   ]
+        # }
         return if @invocation_based_tests
 
+        # iterate among all the test identifers for each testable
+        # A test identifier is seperated into components by '/'
+        # if a test identifier has only 2 separators, it probably is
+        # 'testable/testsuite' (but it could be 'testsuite/testcase' )
+        all_known_tests = nil
         known_tests = []
-        @testables_tests.each do |testable, tests|
+        testables_tests.each do |testable, tests|
           tests.each_with_index do |test, index|
-            if test.count('/') < 2
-              known_tests += xctestrun_known_tests[testable]
-              test_components = test.split('/')
-              testsuite = test_components.size == 1 ? test_components[0] : test_components[1]
-              @testables_tests[testable][index] = known_tests.select { |known_test| known_test.include?(testsuite) }
+            test_components = test.split('/')
+            is_full_test_identifier = (test_components.size == 3)
+            next if is_full_test_identifier
+
+            all_known_tests ||= xctestrun_known_tests.clone
+
+            testsuite = ''
+            if test_components.size == 1
+              testsuite = test_components[0]
+            else
+              testsuite = test_components[1]
+            end
+
+            testables_tests[testable][index], all_known_tests[testable] = all_known_tests[testable].partition do |known_test|
+              known_test.split('/')[1] == testsuite
             end
           end
-          @testables_tests[testable].flatten!
+          testables_tests[testable].flatten!
         end
       end
 
@@ -123,7 +176,7 @@ module TestCenter
         unless @testables_tests
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
-            expand_testsuites_to_tests
+            expand_testsuites_to_tests(@testables_tests)
           else
             @testables_tests = xctestrun_known_tests
             if @skip_testing

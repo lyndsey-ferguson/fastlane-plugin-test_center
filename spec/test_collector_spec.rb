@@ -277,6 +277,49 @@ module TestCenter::Helper
           )
           expect(test_collector.test_batches.size).to eq(12)
         end
+
+        it 'expands testsuites to tests correctly' do
+          test_collector = TestCollector.new(
+            xctestrun: 'path/to/fake.xctestrun'
+          )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return(
+            {
+              'AtomicPuppyUITests' => [
+                'AtomicPuppyUITests/AtomicPuppyUITests/testExample1',
+                'AtomicPuppyUITests/AtomicPuppyUITests/testExample2',
+                'AtomicPuppyUITests/AtomicPuppyUITests/testExample3',
+                'AtomicPuppyUITests/AtomicPuppyUITests/testExample4',
+                'AtomicPuppyUITests/DogBowlUITests/testExample1'
+              ],
+              'PuppyUITests' => [
+                'PuppyUITests/PuppyUITests/testExample1',
+                'PuppyUITests/PuppyUITests/testExample2',
+                'PuppyUITests/PuppyUITests/testExample3',
+                'PuppyUITests/PuppyUITests/testExample4',
+                'PuppyUITests/FrenchPoodleUITests/testXample1'
+              ]
+
+            }
+          )
+          testable_tests = {
+            'AtomicPuppyUITests' => ['AtomicPuppyUITests'],
+            'PuppyUITests' => ['PuppyUITests']
+          }
+
+          resultant_testable_tests = test_collector.expand_testsuites_to_tests(testable_tests)
+          expect(resultant_testable_tests['PuppyUITests']).to eq([
+            'PuppyUITests/PuppyUITests/testExample1',
+            'PuppyUITests/PuppyUITests/testExample2',
+            'PuppyUITests/PuppyUITests/testExample3',
+            'PuppyUITests/PuppyUITests/testExample4'
+          ])
+          expect(resultant_testable_tests['AtomicPuppyUITests']).to eq([
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample1',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample2',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample3',
+            'AtomicPuppyUITests/AtomicPuppyUITests/testExample4'
+          ])
+        end
       end
     end
   end
