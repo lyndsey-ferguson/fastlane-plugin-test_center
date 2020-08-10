@@ -234,6 +234,7 @@ module TestCenter
           @test_collector.testables.each do |testable|
             collate_batched_reports_for_testable(testable)
           end
+          collate_multitarget_junits
           move_single_testable_reports_to_final_location
         end
 
@@ -293,6 +294,31 @@ module TestCenter
           test_result_bundlename_path = File.join(output_dir, test_result_bundlename)
           FileUtils.rm_rf(test_result_bundlename_path)
           File.symlink(xcresult_bundlename_path, test_result_bundlename_path)
+        end
+
+        def collate_multitarget_junits
+          return if @test_collector.testables.size < 2
+
+          Fastlane::UI.verbose("Collating test targets's junit results")
+
+          given_custom_report_file_name = @options[:custom_report_file_name]
+          given_output_types = @options[:output_types]
+          given_output_files = @options[:output_files]
+
+          report_name_helper = ReportNameHelper.new(
+            given_output_types,
+            given_output_files,
+            given_custom_report_file_name
+          )
+
+          absolute_output_directory = File.absolute_path(output_directory)
+          source_reports_directory_glob = "#{absolute_output_directory}/*"
+
+          TestCenter::Helper::MultiScanManager::ReportCollator.new(
+            source_reports_directory_glob: source_reports_directory_glob,
+            output_directory: absolute_output_directory,
+            reportnamer: report_name_helper
+          ).collate_junit_reports 
         end
 
         def collate_batched_reports_for_testable(testable)

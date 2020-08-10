@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='AtomicBoyTests.xctest' tests='2' failures='0'>
+  <testsuite name='AtomicBoyTests' tests='2' failures='0'>
+    <testcase classname='AtomicBoyTests' name='testExample' time='0.001'/>
+    <testcase classname='AtomicBoyTests' name='testPerformanceExample' time='0.252'/>
+  </testsuite>
+</testsuites>

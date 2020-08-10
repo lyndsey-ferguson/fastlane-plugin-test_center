@@ -32,6 +32,9 @@ junit_report_3 = "<?xml version='1.0' encoding='UTF-8'?>" \
 
 issue_70_report = File.read('./spec/fixtures/issue_70_report.xml')
 issue_70_report_2 = File.read('./spec/fixtures/issue_70_report-2.xml')
+atomicboy_tests_report = File.read('./spec/fixtures/AtomicBoyTests.junit')
+atomicboy_ui_tests_report = File.read('./spec/fixtures/AtomicBoyTestsUI.junit')
+
 
 issue_43_report = "<?xml version='1.0' encoding='UTF-8'?>" \
 "<testsuites name='AtomicBoyUITests.xctest' tests='3' failures='2'>" \
@@ -217,19 +220,16 @@ describe Fastlane::Actions::CollateJunitReportsAction do
         collate_junit_reports(
           reports: [
             'path/to/fake_junit_report_1.xml',
-            'path/to/fake_junit_report_2.xml',
-            'path/to/fake_junit_report_3.xml'
+            'path/to/fake_junit_report_2.xml'
           ],
           collated_report: 'path/to/report.xml'
         )
       end"
 
     allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
-    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_43_report)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(atomicboy_tests_report)
     allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
-    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_43_report_2)
-    allow(File).to receive(:exist?).with('path/to/fake_junit_report_3.xml').and_return(true)
-    allow(File).to receive(:new).with('path/to/fake_junit_report_3.xml').and_return(issue_43_report_3)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(atomicboy_ui_tests_report)
     allow(FileUtils).to receive(:mkdir_p)
 
     report_file = StringIO.new
@@ -237,13 +237,36 @@ describe Fastlane::Actions::CollateJunitReportsAction do
     Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
     report = REXML::Document.new(report_file.string)
 
-    testExample2 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample2']")
-    expect(testExample2.attribute('retries').value).to eq('2')
-    testExample3 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample3']")
-    expect(testExample3.attribute('retries').value).to eq('1')
-    testExample4 = REXML::XPath.first(report, "//testcase[@classname='AtomicBoyUITests'][@name='testExample4']")
-    expect(testExample4.attribute('retries').value).to eq('2')
+    testsuites_name = report.root.attribute('name').value
+    expect(testsuites_name.split(', ')).to include('AtomicBoyTests.xctest', 'AtomicBoyUITests.xctest')
+    ui_testsuites = REXML::XPath.match(report, "//testsuite[@package='AtomicBoyUITests.xctest']")
+    expect(ui_testsuites.size).to eq(2)
 
-    expect(report.root.attribute('retries').value).to eq('3')
+    unit_testsuites = REXML::XPath.match(report, "//testsuite[@package='AtomicBoyTests.xctest']") 
+    expect(unit_testsuites.size).to eq(1)
+  end
+
+  it 'it collates multiple tests target reports' do
+    fastfile = "lane :test do
+        collate_junit_reports(
+          reports: ['path/to/fake_junit_report_1.xml', 'path/to/fake_junit_report_2.xml'],
+          collated_report: 'path/to/report.xml'
+        )
+      end"
+
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_1.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_1.xml').and_return(issue_70_report)
+    allow(File).to receive(:exist?).with('path/to/fake_junit_report_2.xml').and_return(true)
+    allow(File).to receive(:new).with('path/to/fake_junit_report_2.xml').and_return(issue_70_report_2)
+    allow(FileUtils).to receive(:mkdir_p)
+
+    report_file = StringIO.new
+    expect(File).to receive(:open).with('path/to/report.xml', 'w').and_yield(report_file)
+    Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+    report = REXML::Document.new(report_file.string)
+
+    testable = REXML::XPath.first(report, "//testsuites")
+    expect(testable.attribute('failures').value).to eq('0')
+    expect(testable.attribute('tests').value).to eq('173')
   end
 end

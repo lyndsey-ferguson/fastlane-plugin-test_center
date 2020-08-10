@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='AtomicBoyUITests.xctest' tests='49' failures='6' retries='3'>
+  <testsuite name='AtomicBoyUITests' tests='48' failures='6'>
+    <testcase classname='AtomicBoyUITests' name='testExample' time='4.565' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample10' time='2.769'/>
+    <testcase classname='AtomicBoyUITests' name='testExample11' time='2.744' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample12' time='2.779'/>
+    <testcase classname='AtomicBoyUITests' name='testExample13' time='3.123'/>
+    <testcase classname='AtomicBoyUITests' name='testExample14' time='2.747' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample15' time='2.922'/>
+    <testcase classname='AtomicBoyUITests' name='testExample16' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:160
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample17' time='2.941'/>
+    <testcase classname='AtomicBoyUITests' name='testExample18' time='2.837' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample19' time='2.840'/>
+    <testcase classname='AtomicBoyUITests' name='testExample2' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:48
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample20' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:192
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample21' time='2.838'/>
+    <testcase classname='AtomicBoyUITests' name='testExample22' time='2.832'/>
+    <testcase classname='AtomicBoyUITests' name='testExample23' time='2.802' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample24' time='2.897'/>
+    <testcase classname='AtomicBoyUITests' name='testExample25' time='2.839' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample26' time='2.872' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample27' time='2.852' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample28' time='2.815'/>
+    <testcase classname='AtomicBoyUITests' name='testExample29' time='2.803' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample3' time='2.810' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample30' time='2.799' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample31' time='2.805'/>
+    <testcase classname='AtomicBoyUITests' name='testExample32' time='2.796' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample33' time='2.793' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample34' time='2.776'/>
+    <testcase classname='AtomicBoyUITests' name='testExample35' time='2.764'/>
+    <testcase classname='AtomicBoyUITests' name='testExample36' time='2.821'/>
+    <testcase classname='AtomicBoyUITests' name='testExample37' time='2.771' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample38' time='2.841'/>
+    <testcase classname='AtomicBoyUITests' name='testExample39' time='2.776'/>
+    <testcase classname='AtomicBoyUITests' name='testExample4' time='2.820'/>
+    <testcase classname='AtomicBoyUITests' name='testExample40' time='2.843' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample41' time='2.923' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample42' time='2.786'/>
+    <testcase classname='AtomicBoyUITests' name='testExample43' time='2.850' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample44' time='3.002' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample45' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:392
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample46' time='2.816' retries='2'/>
+    <testcase classname='AtomicBoyUITests' name='testExample47' time='3.025' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample48' time='2.896'/>
+    <testcase classname='AtomicBoyUITests' name='testExample5' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:72
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample6' time='2.899' retries='1'/>
+    <testcase classname='AtomicBoyUITests' name='testExample7' time='2.796'/>
+    <testcase classname='AtomicBoyUITests' name='testExample8' retries='2'>
+      <failure message='((false) is true) failed'>
+        AtomicBoyUITests.m:96
+      </failure>
+    </testcase>
+    <testcase classname='AtomicBoyUITests' name='testExample9' time='2.875' retries='1'/>
+  </testsuite>
+  <testsuite name='AtomicBoyUITests.SwiftAtomicBoyUITests' tests='1' failures='0'>
+    <testcase classname='AtomicBoyUITests.SwiftAtomicBoyUITests' name='testExample' time='0.214' retries='2'/>
+  </testsuite>
+</testsuites>

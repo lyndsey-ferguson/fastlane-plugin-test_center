@@ -362,6 +362,7 @@ module TestCenter::Helper::MultiScanManager
         runner.instance_variable_set(:@batch_count, 2)
         runner.instance_variable_set(:@test_collector, @mock_test_collector)
         mocked_report_collator = OpenStruct.new
+        expect(runner).to receive(:collate_multitarget_junits)
         expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new)
           .with(
             source_reports_directory_glob: File.absolute_path('./path/to/output/directory/BagOfTests-batch-*'),

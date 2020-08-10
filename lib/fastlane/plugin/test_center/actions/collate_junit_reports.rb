@@ -1,6 +1,7 @@
 module Fastlane
   module Actions
     class CollateJunitReportsAction < Action
+      require 'set'
 
       def self.run(params)
         report_filepaths = params[:reports]
@@ -9,17 +10,27 @@ module Fastlane
         else
           UI.verbose("collate_junit_reports with #{report_filepaths}")
           reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
+          packages = reports.map { |r| r.root.attribute('name').value }.uniq
+          combine_multiple_targets = packages.size > 1 
+
           # copy any missing testsuites
           target_report = reports.shift
-          preprocess_testsuites(target_report)
+
+          package = target_report.root.attribute('name').value
+          preprocess_testsuites(target_report, package, combine_multiple_targets)
 
           reports.each do |report|
             increment_testable_tries(target_report.root, report.root)
-            preprocess_testsuites(report)
+            package = report.root.attribute('name').value
+            preprocess_testsuites(report, package, combine_multiple_targets)
             UI.verbose("> collating last report file #{report_filepaths.last}")
             report.elements.each('//testsuite') do |testsuite|
               testsuite_name = testsuite.attribute('name').value
-              target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}']")
+              package_attribute = ''
+              if combine_multiple_targets
+                package_attribute = "@package='#{package}'"
+              end
+              target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}' #{package_attribute}]")
               if target_testsuite
                 UI.verbose("  > collating testsuite #{testsuite_name}")
                 collate_testsuite(target_testsuite, testsuite)
@@ -36,6 +47,7 @@ module Fastlane
           end
           testable = REXML::XPath.first(target_report, 'testsuites')
           update_testable_counts(testable)
+          testable.add_attribute('name', packages.to_a.join(', '))
 
           FileUtils.mkdir_p(File.dirname(params[:collated_report]))
           File.open(params[:collated_report], 'w') do |f|
@@ -81,10 +93,11 @@ module Fastlane
         update_testsuite_counts(testsuite)
       end
 
-      def self.preprocess_testsuites(report)
+      def self.preprocess_testsuites(report, package, combine_multiple_targets)
         report.elements.each('//testsuite') do |testsuite|
           flatten_duplicate_testsuites(report, testsuite)
           collapse_testcase_multiple_failures_in_testsuite(testsuite)
+          testsuite.add_attribute('package', package) if combine_multiple_targets
         end
       end
 
