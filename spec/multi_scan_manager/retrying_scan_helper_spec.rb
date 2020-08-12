@@ -371,7 +371,8 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{path/to/output/directory/report.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
-          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
+          passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads'],
+          failing: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
         expect(helper.scan_options).to include(
