@@ -120,7 +120,7 @@ module TestCenter
       # . 'testable/testsuite/testcase2',
       # . 'testable/testsuite/testcase3'
       # ]
-      def expand_testsuites_to_tests(testables_tests)
+      def expand_short_testidentifiers_to_tests(testables_tests)
         # Remember, testable_tests is of the format:
         # {
         #   'testable1' => [
@@ -176,7 +176,7 @@ module TestCenter
         unless @testables_tests
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
-            expand_testsuites_to_tests(@testables_tests)
+            expand_short_testidentifiers_to_tests(@testables_tests)
           else
             @testables_tests = xctestrun_known_tests
             if @skip_testing
