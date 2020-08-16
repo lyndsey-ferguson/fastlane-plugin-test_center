@@ -345,7 +345,7 @@ module TestCenter::Helper
             }
           )
           testable_tests = {
-            'AtomicPuppyUITests' => ['AtomicPuppyUITests'],
+            'AtomicPuppyUITests' => ['AtomicPuppyUITests', 'AtomicPuppyUITests'],
             'AtomicKittyUITests' => ['AtomicKittyUITests']
           }
 

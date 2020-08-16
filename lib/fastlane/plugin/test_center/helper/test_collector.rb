@@ -160,7 +160,9 @@ module TestCenter
             testsuite = ''
             if test_components.size == 1
               if test_components[0] == testable
-                testables_tests[testable][index] = all_known_tests[testable]
+                # The following || [] is just in case the user provided multiple
+                # test targets or there are no actual tests found.
+                testables_tests[testable][index] = all_known_tests[testable] || []
                 all_known_tests.delete(testable)
                 next
               end
