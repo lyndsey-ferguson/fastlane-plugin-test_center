@@ -320,6 +320,51 @@ module TestCenter::Helper
             'AtomicPuppyUITests/PuppyUITests/testExample4'
           ])
         end
+
+        it 'expands test targets to tests correctly' do
+          test_collector = TestCollector.new(
+            xctestrun: 'path/to/fake.xctestrun'
+          )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return(
+            {
+              'AtomicPuppyUITests' => [
+                'AtomicPuppyUITests/PuppyUITests/testExample1',
+                'AtomicPuppyUITests/PuppyUITests/testExample2',
+                'AtomicPuppyUITests/PuppyUITests/testExample3',
+                'AtomicPuppyUITests/PuppyUITests/testExample4',
+                'AtomicPuppyUITests/DogBowlUITests/testExample1'
+              ],
+              'AtomicKittyUITests' => [
+                'AtomicKittyUITests/KittyUITests/testExample1',
+                'AtomicKittyUITests/KittyUITests/testExample2',
+                'AtomicKittyUITests/KittyUITests/testExample3',
+                'AtomicKittyUITests/KittyUITests/testExample4',
+                'AtomicKittyUITests/FrenchPoodleUITests/testXample1'
+              ]
+
+            }
+          )
+          testable_tests = {
+            'AtomicPuppyUITests' => ['AtomicPuppyUITests'],
+            'AtomicKittyUITests' => ['AtomicKittyUITests']
+          }
+
+          resultant_testable_tests = test_collector.expand_short_testidentifiers_to_tests(testable_tests)
+          expect(resultant_testable_tests['AtomicKittyUITests']).to eq([
+            'AtomicKittyUITests/KittyUITests/testExample1',
+            'AtomicKittyUITests/KittyUITests/testExample2',
+            'AtomicKittyUITests/KittyUITests/testExample3',
+            'AtomicKittyUITests/KittyUITests/testExample4',
+            'AtomicKittyUITests/FrenchPoodleUITests/testXample1'
+          ])
+          expect(resultant_testable_tests['AtomicPuppyUITests']).to eq([
+            'AtomicPuppyUITests/PuppyUITests/testExample1',
+            'AtomicPuppyUITests/PuppyUITests/testExample2',
+            'AtomicPuppyUITests/PuppyUITests/testExample3',
+            'AtomicPuppyUITests/PuppyUITests/testExample4',
+            'AtomicPuppyUITests/DogBowlUITests/testExample1'
+          ])
+        end
       end
     end
   end
