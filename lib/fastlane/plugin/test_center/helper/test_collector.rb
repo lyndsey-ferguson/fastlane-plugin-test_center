@@ -105,21 +105,6 @@ module TestCenter
         @known_tests
       end
 
-      # The purpose of this method is to expand :only_testing
-      # that has elements that are just the 'testsuite' or
-      # are just the 'testable/testsuite'. We want to take
-      # those and expand them out to the individual testcases.
-      # 'testsuite' => [
-      #   'testable/testsuite/testcase1',
-      # . 'testable/testsuite/testcase2',
-      # . 'testable/testsuite/testcase3'
-      # ]
-      # OR
-      # 'testable/testsuite' => [
-      #   'testable/testsuite/testcase1',
-      # . 'testable/testsuite/testcase2',
-      # . 'testable/testsuite/testcase3'
-      # ]
       def expand_short_testidentifiers_to_tests(testables_tests)
         # Remember, testable_tests is of the format:
         # {
