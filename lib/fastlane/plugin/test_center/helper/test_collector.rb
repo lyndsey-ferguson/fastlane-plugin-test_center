@@ -159,6 +159,12 @@ module TestCenter
 
             testsuite = ''
             if test_components.size == 1
+              if test_components[0] == testable
+                testables_tests[testable][index] = all_known_tests[testable]
+                all_known_tests.delete(testable)
+                next
+              end
+
               testsuite = test_components[0]
             else
               testsuite = test_components[1]
