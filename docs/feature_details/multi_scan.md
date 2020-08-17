@@ -35,7 +35,14 @@ If you have a large number of tests, and you want to inspect the overall status 
 
 ## Better Results Reporting
 
-Do you have multiple test targets and the normal operation of `:scan` is providing you a test report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that. It will provide a separate test report for each test target. It can handle JUnit, HTML, JSON, and Apple's `xcresult` bundles.
+Do you have multiple test targets and the normal operation of `:scan` is providing you a junit report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that in v3.14.0 by adding a `package` attribute to each testsuite to let you which test target the test was run in. `:multi_scan` can handle JUnit, HTML, JSON, and Apple's `xcresult` bundles.
+
+> **Note**: I'm making the collation of junits with multiple targets available to Supporters first to show them appreciation. I'll open it up to everyone else on September 15th, 2020.
+>
+> Interested in joining? Click [here ♥️](https://github.com/sponsors/lyndsey-ferguson) and select a tier that gives you early access to new features.
+>
+> **Bonus**: if your organization (👨‍👩‍👧‍) becomes a Sponsor, every member of that org gets that same early access!
+
 
 `xcresult` bundles are particularly useful because they contain screenshots of the UI when a UI test fails so you can review what was actually there compared to what you expected.
 
