@@ -105,22 +105,7 @@ module TestCenter
         @known_tests
       end
 
-      # The purpose of this method is to expand :only_testing
-      # that has elements that are just the 'testsuite' or
-      # are just the 'testable/testsuite'. We want to take
-      # those and expand them out to the individual testcases.
-      # 'testsuite' => [
-      #   'testable/testsuite/testcase1',
-      # . 'testable/testsuite/testcase2',
-      # . 'testable/testsuite/testcase3'
-      # ]
-      # OR
-      # 'testable/testsuite' => [
-      #   'testable/testsuite/testcase1',
-      # . 'testable/testsuite/testcase2',
-      # . 'testable/testsuite/testcase3'
-      # ]
-      def expand_testsuites_to_tests(testables_tests)
+      def expand_short_testidentifiers_to_tests(testables_tests)
         # Remember, testable_tests is of the format:
         # {
         #   'testable1' => [
@@ -159,6 +144,14 @@ module TestCenter
 
             testsuite = ''
             if test_components.size == 1
+              if test_components[0] == testable
+                # The following || [] is just in case the user provided multiple
+                # test targets or there are no actual tests found.
+                testables_tests[testable][index] = all_known_tests[testable] || []
+                all_known_tests.delete(testable)
+                next
+              end
+
               testsuite = test_components[0]
             else
               testsuite = test_components[1]
@@ -176,7 +169,7 @@ module TestCenter
         unless @testables_tests
           if @only_testing
             @testables_tests = only_testing_to_testables_tests
-            expand_testsuites_to_tests(@testables_tests)
+            expand_short_testidentifiers_to_tests(@testables_tests)
           else
             @testables_tests = xctestrun_known_tests
             if @skip_testing

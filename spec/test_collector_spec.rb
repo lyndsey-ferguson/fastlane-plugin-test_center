@@ -285,39 +285,84 @@ module TestCenter::Helper
           allow(test_collector).to receive(:xctestrun_known_tests).and_return(
             {
               'AtomicPuppyUITests' => [
-                'AtomicPuppyUITests/AtomicPuppyUITests/testExample1',
-                'AtomicPuppyUITests/AtomicPuppyUITests/testExample2',
-                'AtomicPuppyUITests/AtomicPuppyUITests/testExample3',
-                'AtomicPuppyUITests/AtomicPuppyUITests/testExample4',
+                'AtomicPuppyUITests/PuppyUITests/testExample1',
+                'AtomicPuppyUITests/PuppyUITests/testExample2',
+                'AtomicPuppyUITests/PuppyUITests/testExample3',
+                'AtomicPuppyUITests/PuppyUITests/testExample4',
                 'AtomicPuppyUITests/DogBowlUITests/testExample1'
               ],
-              'PuppyUITests' => [
-                'PuppyUITests/PuppyUITests/testExample1',
-                'PuppyUITests/PuppyUITests/testExample2',
-                'PuppyUITests/PuppyUITests/testExample3',
-                'PuppyUITests/PuppyUITests/testExample4',
-                'PuppyUITests/FrenchPoodleUITests/testXample1'
+              'AtomicKittyUITests' => [
+                'AtomicKittyUITests/KittyUITests/testExample1',
+                'AtomicKittyUITests/KittyUITests/testExample2',
+                'AtomicKittyUITests/KittyUITests/testExample3',
+                'AtomicKittyUITests/KittyUITests/testExample4',
+                'AtomicKittyUITests/FrenchPoodleUITests/testXample1'
               ]
 
             }
           )
           testable_tests = {
-            'AtomicPuppyUITests' => ['AtomicPuppyUITests'],
-            'PuppyUITests' => ['PuppyUITests']
+            'AtomicPuppyUITests' => ['PuppyUITests'],
+            'AtomicKittyUITests' => ['KittyUITests']
           }
 
-          resultant_testable_tests = test_collector.expand_testsuites_to_tests(testable_tests)
-          expect(resultant_testable_tests['PuppyUITests']).to eq([
-            'PuppyUITests/PuppyUITests/testExample1',
-            'PuppyUITests/PuppyUITests/testExample2',
-            'PuppyUITests/PuppyUITests/testExample3',
-            'PuppyUITests/PuppyUITests/testExample4'
+          resultant_testable_tests = test_collector.expand_short_testidentifiers_to_tests(testable_tests)
+          expect(resultant_testable_tests['AtomicKittyUITests']).to eq([
+            'AtomicKittyUITests/KittyUITests/testExample1',
+            'AtomicKittyUITests/KittyUITests/testExample2',
+            'AtomicKittyUITests/KittyUITests/testExample3',
+            'AtomicKittyUITests/KittyUITests/testExample4'
           ])
           expect(resultant_testable_tests['AtomicPuppyUITests']).to eq([
-            'AtomicPuppyUITests/AtomicPuppyUITests/testExample1',
-            'AtomicPuppyUITests/AtomicPuppyUITests/testExample2',
-            'AtomicPuppyUITests/AtomicPuppyUITests/testExample3',
-            'AtomicPuppyUITests/AtomicPuppyUITests/testExample4'
+            'AtomicPuppyUITests/PuppyUITests/testExample1',
+            'AtomicPuppyUITests/PuppyUITests/testExample2',
+            'AtomicPuppyUITests/PuppyUITests/testExample3',
+            'AtomicPuppyUITests/PuppyUITests/testExample4'
+          ])
+        end
+
+        it 'expands test targets to tests correctly' do
+          test_collector = TestCollector.new(
+            xctestrun: 'path/to/fake.xctestrun'
+          )
+          allow(test_collector).to receive(:xctestrun_known_tests).and_return(
+            {
+              'AtomicPuppyUITests' => [
+                'AtomicPuppyUITests/PuppyUITests/testExample1',
+                'AtomicPuppyUITests/PuppyUITests/testExample2',
+                'AtomicPuppyUITests/PuppyUITests/testExample3',
+                'AtomicPuppyUITests/PuppyUITests/testExample4',
+                'AtomicPuppyUITests/DogBowlUITests/testExample1'
+              ],
+              'AtomicKittyUITests' => [
+                'AtomicKittyUITests/KittyUITests/testExample1',
+                'AtomicKittyUITests/KittyUITests/testExample2',
+                'AtomicKittyUITests/KittyUITests/testExample3',
+                'AtomicKittyUITests/KittyUITests/testExample4',
+                'AtomicKittyUITests/FrenchPoodleUITests/testXample1'
+              ]
+
+            }
+          )
+          testable_tests = {
+            'AtomicPuppyUITests' => ['AtomicPuppyUITests', 'AtomicPuppyUITests'],
+            'AtomicKittyUITests' => ['AtomicKittyUITests']
+          }
+
+          resultant_testable_tests = test_collector.expand_short_testidentifiers_to_tests(testable_tests)
+          expect(resultant_testable_tests['AtomicKittyUITests']).to eq([
+            'AtomicKittyUITests/KittyUITests/testExample1',
+            'AtomicKittyUITests/KittyUITests/testExample2',
+            'AtomicKittyUITests/KittyUITests/testExample3',
+            'AtomicKittyUITests/KittyUITests/testExample4',
+            'AtomicKittyUITests/FrenchPoodleUITests/testXample1'
+          ])
+          expect(resultant_testable_tests['AtomicPuppyUITests']).to eq([
+            'AtomicPuppyUITests/PuppyUITests/testExample1',
+            'AtomicPuppyUITests/PuppyUITests/testExample2',
+            'AtomicPuppyUITests/PuppyUITests/testExample3',
+            'AtomicPuppyUITests/PuppyUITests/testExample4',
+            'AtomicPuppyUITests/DogBowlUITests/testExample1'
           ])
         end
       end
