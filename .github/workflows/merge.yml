@@ -16,15 +16,7 @@ jobs:
       run: |
         gem install bundler
         bundle install
-    - name: run basic integration tests
-      run: bundle exec fastlane integration_test_basic
-    - name: run basic integration tests with edge cases
-      run: bundle exec fastlane integration_test_basic_edgecase_1
-    - name: run parallel testrun integration tests
-      run: bundle exec fastlane integration_test_parallel
-    - name: run parallel testrun edge cases
-      run: |
-        bundle exec fastlane integration_test_parallel_edgecase_1
-    - name: run batch integration tests
-      run: bundle exec fastlane integration_test_batches
+    - name: run integration tests for actions
+      run: bundle exec fastlane run_action_integration_tests
+
 

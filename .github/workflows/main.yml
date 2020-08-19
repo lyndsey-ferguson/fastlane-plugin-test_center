@@ -1,21 +1,21 @@
+---
 name: Run Tests
-
-on: [push]
-
+'on':
+- pull_request
 jobs:
-  build:
-
+  test_on_older_rubies:
     runs-on: macos-latest
     strategy:
       matrix:
-        ruby: [ '2.4.x', '2.5.x' ]
+        ruby:
+        - 2.4.x
+        - 2.5.x
     name: Run Tests with Ruby ${{ matrix.ruby }}
-    
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby }}
+        ruby-version: "${{ matrix.ruby }}"
     - name: setup
       run: |
         gem install bundler
@@ -24,7 +24,6 @@ jobs:
       run: bundle exec rubocop
     - name: test
       run: bundle exec rspec
-
   test_on_latest_ruby:
     name: Run Tests with the latest Ruby
     runs-on: macos-latest
@@ -38,5 +37,315 @@ jobs:
       run: bundle exec rubocop
     - name: test
       run: bundle exec rspec
-    - name: run basic integration tests
-      run: bundle exec fastlane integration_test_simple
+  example_suppressed_tests_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppressed_tests_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppressed_tests_0
+      run: bundle exec fastlane example_suppressed_tests_0
+  example_suppressed_tests_1:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppressed_tests_1
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppressed_tests_1
+      run: bundle exec fastlane example_suppressed_tests_1
+  example_suppressed_tests_2:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppressed_tests_2
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppressed_tests_2
+      run: bundle exec fastlane example_suppressed_tests_2
+  example_suppress_tests_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppress_tests_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppress_tests_0
+      run: bundle exec fastlane example_suppress_tests_0
+  example_suppress_tests_1:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppress_tests_1
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppress_tests_1
+      run: bundle exec fastlane example_suppress_tests_1
+  example_suppress_tests_2:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppress_tests_2
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppress_tests_2
+      run: bundle exec fastlane example_suppress_tests_2
+  example_suppress_tests_from_junit_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppress_tests_from_junit_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppress_tests_from_junit_0
+      run: bundle exec fastlane example_suppress_tests_from_junit_0
+  example_suppress_tests_from_junit_1:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_suppress_tests_from_junit_1
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_suppress_tests_from_junit_1
+      run: bundle exec fastlane example_suppress_tests_from_junit_1
+  example_tests_from_xctestrun_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_tests_from_xctestrun_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_tests_from_xctestrun_0
+      run: bundle exec fastlane example_tests_from_xctestrun_0
+  example_collate_test_result_bundles_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_collate_test_result_bundles_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_collate_test_result_bundles_0
+      run: bundle exec fastlane example_collate_test_result_bundles_0
+  example_tests_from_junit_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_tests_from_junit_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_tests_from_junit_0
+      run: bundle exec fastlane example_tests_from_junit_0
+  example_multi_scan_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_multi_scan_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_multi_scan_0
+      run: bundle exec fastlane example_multi_scan_0
+  example_multi_scan_1:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_multi_scan_1
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_multi_scan_1
+      run: bundle exec fastlane example_multi_scan_1
+  example_test_options_from_testplan_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_test_options_from_testplan_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_test_options_from_testplan_0
+      run: bundle exec fastlane example_test_options_from_testplan_0
+  example_collate_html_reports_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_collate_html_reports_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_collate_html_reports_0
+      run: bundle exec fastlane example_collate_html_reports_0
+  example_collate_junit_reports_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_collate_junit_reports_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_collate_junit_reports_0
+      run: bundle exec fastlane example_collate_junit_reports_0
+  example_collate_json_reports_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_collate_json_reports_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_collate_json_reports_0
+      run: bundle exec fastlane example_collate_json_reports_0
+  example_testplans_from_scheme_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_testplans_from_scheme_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_testplans_from_scheme_0
+      run: bundle exec fastlane example_testplans_from_scheme_0
+  example_collate_xcresults_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_collate_xcresults_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_collate_xcresults_0
+      run: bundle exec fastlane example_collate_xcresults_0
+  integration_test_multi_scan_0:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_0
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_0
+      run: bundle exec fastlane integration_test_multi_scan_0
+  integration_test_multi_scan_1:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_1
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_1
+      run: bundle exec fastlane integration_test_multi_scan_1
+  integration_test_multi_scan_2:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_2
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_2
+      run: bundle exec fastlane integration_test_multi_scan_2
+  integration_test_multi_scan_3:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_3
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_3
+      run: bundle exec fastlane integration_test_multi_scan_3
+  integration_test_multi_scan_4:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_4
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_4
+      run: bundle exec fastlane integration_test_multi_scan_4
+  integration_test_multi_scan_5:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_5
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_5
+      run: bundle exec fastlane integration_test_multi_scan_5
+  integration_test_multi_scan_6:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: integration_test_multi_scan_6
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run integration_test_multi_scan_6
+      run: bundle exec fastlane integration_test_multi_scan_6
