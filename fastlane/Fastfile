@@ -1,79 +1,24 @@
 require_relative 'test_center_utils'
 
-# Retrieves the example code from each action and runs it to ensure that everything
-# is working as intended.
-lane :run_examples do
-  action_examples.values.flatten.each do |example_code_snippet|
-    # rubocop:disable Security/Eval
-    eval(example_code_snippet)
-    # rubocop:enable Security/Eval
+action_examples, _, action_integration_tests = action_info
+action_examples.each do |action_name, examples|
+  examples.each_with_index do |example, index|
+    lane_name = "example_#{action_name}_#{index}"
+    lane lane_name.to_sym do
+      # rubocop:disable Security/Eval
+      eval(example)
+      # rubocop:enable Security/Eval
+    end
   end
 end
 
-lane :integration_test_simple do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
-  )
-end
-
-lane :integration_test_basic do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2
-  )
-end
-
-lane :integration_test_basic_edgecase_1 do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    only_testing: ['AtomicBoyUITests', 'AtomicBoyTests']
-  )
-
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    only_testing: ['AtomicBoyUITests/AtomicBoyUITests']
-  )
-end
-
-lane :integration_test_parallel do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    parallel_testrun_count: 2
-  )
-end
-
-lane :integration_test_parallel_edgecase_1 do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    parallel_testrun_count: 4,
-    only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
-  )
-end
-
-lane :integration_test_batches do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    fail_build: false,
-    try_count: 2,
-    batch_count: 2
-  )
+action_integration_tests.each do |action_name, integration_tests|
+  integration_tests.each_with_index do |integration_test, index|
+    lane_name = "integration_test_#{action_name}_#{index}"
+    lane lane_name.to_sym do
+      # rubocop:disable Security/Eval
+      eval(integration_test)
+      # rubocop:enable Security/Eval
+    end
+  end
 end

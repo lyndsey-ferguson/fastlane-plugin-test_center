@@ -4,6 +4,7 @@ require 'rspec/core/rake_task'
 require_relative 'fastlane/test_center_utils'
 require 'fastlane'
 require 'markdown-tables'
+require 'yaml'
 
 RSpec::Core::RakeTask.new
 
@@ -92,8 +93,80 @@ task :update_action_doc_examples do
   end
 end
 
+GITHUB_WORKFLOW_FILEPATH = '.github/workflows/main.yml'
+
+def github_job_definition(lane_name)
+  job_definition = """
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: #{lane_name}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup
+        run: |
+          gem install bundler
+          bundle install
+      - name: run #{lane_name}
+        run: bundle exec fastlane #{lane_name}
+  """
+  YAML.load(job_definition)
+end
+
+def update_github_workflow_standard_jobs(workflow)
+  standard_jobs = """
+    test_on_older_rubies:
+      runs-on: macos-latest
+      strategy:
+        matrix:
+          ruby:
+          - 2.4.x
+          - 2.5.x
+      name: Run Tests with Ruby ${{ matrix.ruby }}
+      steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: \"${{ matrix.ruby }}\"
+      - name: setup
+        run: |
+          gem install bundler
+          bundle install
+      - name: lint
+        run: bundle exec rubocop
+      - name: test
+        run: bundle exec rspec
+    test_on_latest_ruby:
+      name: Run Tests with the latest Ruby
+      runs-on: macos-latest
+      steps:
+      - uses: actions/checkout@v1
+      - name: setup
+        run: |
+          gem install bundler
+          bundle install
+      - name: lint
+        run: bundle exec rubocop
+      - name: test
+        run: bundle exec rspec
+  """
+  workflow['jobs'] = YAML.load(standard_jobs)
+end
+
+
+desc 'Builds the CI jobs based on the examples and tests from each action'
+task :update_action_ci_jobs do
+  action_examples, _, action_integration_tests = action_info
+  workflow = YAML.load(File.read(GITHUB_WORKFLOW_FILEPATH))
+  update_github_workflow_standard_jobs(workflow)
+  fastfile = Fastlane::FastFile.new('fastlane/Fastfile')
+  fastfile.runner.available_lanes.each do |lane_name|
+    workflow['jobs'][lane_name] = github_job_definition(lane_name)
+  end
+  File.open(GITHUB_WORKFLOW_FILEPATH, 'w') { |f| f.write workflow.to_yaml }
+end
+
 desc 'Builds and releases the new version to Sponsors'
-task :release_to_sponsors => [:build, :check_for_blacklisted_requires, :spec, :rubocop] do
+task :release_to_sponsors => [:build, :check_for_blacklisted_requires, :spec, :rubocop, :update_action_ci_jobs] do
   `gem push --key sponsors \
   --host https://rubygems.pkg.github.com/fastlane-plugin-test-center \
   pkg/fastlane-plugin-test_center-#{Fastlane::TestCenter::VERSION}.gem`

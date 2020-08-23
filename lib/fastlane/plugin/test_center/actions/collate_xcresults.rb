@@ -86,15 +86,19 @@ module Fastlane
       def self.example_code
         [
           "
+          require 'tmpdir'
+
           UI.important(
             'example: ' \\
             'collate the xcresult bundles to a temporary xcresult bundle \"result.xcresult\"'
           )
-          xcresults = Dir['../spec/fixtures/*.xcresult'].map { |relpath| File.absolute_path(relpath) }
-          collate_xcresults(
-            xcresults: xcresults,
-            collated_xcresult: File.join('test_output', 'result.xcresult')
-          )
+          xcresults = Dir['../spec/fixtures/AtomicBoyUITests-batch-{3,4}/result.xcresult'].map { |relpath| File.absolute_path(relpath) }
+          Dir.mktmpdir('test_output') do |dir|
+            collate_xcresults(
+              xcresults: xcresults,
+              collated_xcresult: File.join(dir, 'result.xcresult')
+            )
+          end
           "
         ]
       end

@@ -487,6 +487,84 @@ module Fastlane
         ]
       end
 
+      def self.integration_tests
+        [
+          "
+          UI.header('Basic test')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2
+          )
+          ",
+          "
+          UI.header('Basic test with 1 specific test')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
+          )
+          ",
+          "
+          UI.header('Basic test with test target expansion')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            only_testing: ['AtomicBoyUITests', 'AtomicBoyTests']
+          )
+          ",
+          "
+          UI.header('Parallel test run')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            parallel_testrun_count: 2
+          )
+          ",
+          "
+          UI.header('Parallel test run with fewer tests than parallel test runs')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            parallel_testrun_count: 4,
+            only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
+          )
+          ",
+          "
+          UI.header('Basic test with batches')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            batch_count: 2
+          )
+          ",
+          "
+          UI.header('Basic test with xcresult')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            output_types: 'xcresult',
+            output_files: 'result.xcresult',
+            collate_reports: false,
+            fail_build: false,
+            try_count: 2,
+            batch_count: 2
+          )
+          "
+        ]
+      end
+
       def self.authors
         ["lyndsey-ferguson/@lyndseydf"]
       end
