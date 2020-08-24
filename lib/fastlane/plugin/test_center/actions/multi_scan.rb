@@ -171,7 +171,10 @@ module Fastlane
         use_scanfile_to_override_settings(scan_options)
         turn_off_concurrent_workers(scan_options)
         UI.important("Turning off :skip_build as it doesn't do anything with multi_scan") if scan_options[:skip_build]
-        scan_options.reject! { |k,v| k == :skip_build }
+        if scan_options[:disable_xcpretty]
+          UI.important("Turning off :disable_xcpretty as xcpretty is needed to generate junit reports for retrying failed tests")
+        end
+        scan_options.reject! { |k,v| %i[skip_build disable_xcpretty].include?(k) }
         ScanHelper.remove_preexisting_simulator_logs(scan_options)
         if scan_options[:test_without_building]
           UI.verbose("Preparing Scan config options for multi_scan testing")
@@ -495,7 +498,8 @@ module Fastlane
             workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
             scheme: 'AtomicBoy',
             fail_build: false,
-            try_count: 2
+            try_count: 2,
+            disable_xcpretty: true
           )
           ",
           "
