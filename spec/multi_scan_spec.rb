@@ -21,6 +21,36 @@ module Fastlane::Actions
           }
         )
       end
+
+      it 'does NOT pass down :disable_xcpretty to #prepare_scan_config' do
+        allow(MultiScanAction).to receive(:reset_scan_config_to_defaults)
+        allow(MultiScanAction).to receive(:use_scanfile_to_override_settings)
+        allow(::TestCenter::Helper::ScanHelper).to receive(:remove_preexisting_simulator_logs)
+        expect(MultiScanAction).to receive(:prepare_scan_config) do |options|
+          expect(options).not_to include(:disable_xcpretty)
+        end
+        MultiScanAction.prepare_for_testing(
+          {
+            disable_xcpretty: true,
+            test_without_building: true
+          }
+        )
+      end
+
+      it 'does NOT pass down :disable_xcpretty to #build_for_testing' do
+        allow(MultiScanAction).to receive(:reset_scan_config_to_defaults)
+        allow(MultiScanAction).to receive(:use_scanfile_to_override_settings)
+        allow(::TestCenter::Helper::ScanHelper).to receive(:remove_preexisting_simulator_logs)
+        expect(MultiScanAction).to receive(:build_for_testing) do |options|
+          expect(options).not_to include(:disable_xcpretty)
+        end
+        MultiScanAction.prepare_for_testing(
+          {
+            disable_xcpretty: true
+          }
+        )
+      end
+
     end
 
     describe '#prepare_scan_config' do
