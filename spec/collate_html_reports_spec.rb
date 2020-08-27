@@ -93,6 +93,16 @@ module Fastlane::Actions
         Fastlane::Actions::CollateHtmlReportsAction.repair_malformed_html('path/to/malformed-report.html')
         expect(patched_file.string).to include('&lt;unknown&gt;')
       end
+
+      it 'finds and fixes ampersands' do
+        malformed_report = File.open('./spec/fixtures/malformed-report-2.html')
+        allow(File).to receive(:read).with('path/to/malformed-report.html').and_return(malformed_report.read)
+        patched_file = StringIO.new
+        allow(File).to receive(:open).with('path/to/malformed-report.html', 'w').and_yield(patched_file)
+        Fastlane::Actions::CollateHtmlReportsAction.repair_malformed_html('path/to/malformed-report.html')
+        expect(patched_file.string).to include('(([textField fb_clearTextWithError:&amp;error]) is true) failed')
+        expect(patched_file.string).not_to include('&amp;amp;')
+      end
     end
   end
 end
