@@ -44,9 +44,10 @@ module Fastlane
         html_file_contents = File.read(html_report_filepath)
         File.open(html_report_filepath, 'w') do |file|
           html_file_contents.each_line do |line|
-            m = %r{(<section class="test-detail[^"]*">)(.*(<|>).*)(</section>)}.match(line)
+            m = %r{(<section class="test-detail[^"]*">)(.*(<|>|&(?!amp;)).*)(</section>)}.match(line)
             if m
               test_details = m[2]
+              test_details.gsub!(/&(?!amp;)/, '&amp;')
               test_details.gsub!('<', '&lt;')
               test_details.gsub!('>', '&gt;')
               line = m[1] + test_details + m[4]
