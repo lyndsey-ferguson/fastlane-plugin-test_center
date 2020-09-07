@@ -14,10 +14,12 @@ UI.important(
   'collate the test_result bundles to a temporary bundle "result.test_result"'
 )
 bundles = Dir['../spec/fixtures/*.test_result'].map { |relpath| File.absolute_path(relpath) }
-collate_test_result_bundles(
-  bundles: bundles,
-  collated_bundle: File.join('test_output', 'result.test_result')
-)
+Dir.mktmpdir('test_output') do |dir|
+  collate_test_result_bundles(
+    bundles: bundles,
+    collated_bundle: File.join(dir, 'result.test_result')
+  )
+end
 
 ```
 <!-- collate_test_result_bundles examples: end -->
