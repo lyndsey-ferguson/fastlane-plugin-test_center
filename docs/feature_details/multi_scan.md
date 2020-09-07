@@ -33,6 +33,13 @@ If you have a large number of tests, and you want to inspect the overall status 
 
 <center><img src="./images/retrying_tests.png" alt="retrying_failed_tests" /></center>
 
+> **Note**: I'm making the control of subsequent runs of `multi_scan` via the `:testrun_complete_block` available to Supporters first to show them appreciation. I'll open it up to everyone else on October 5th, 2020.
+>
+> Interested in joining? Click [here ♥️](https://github.com/sponsors/lyndsey-ferguson) and select a tier that gives you early access to new features.
+>
+> **Bonus**: if your organization (👨‍👩‍👧‍) becomes a Sponsor, every member of that org gets that same early access!
+
+
 ## Better Results Reporting
 
 Do you have multiple test targets and the normal operation of `:scan` is providing you a junit report that implies that all the tests ran in just one test target? Don't worry, `:multi_scan` has fixed that in v3.14.0 by adding a `package` attribute to each testsuite to let you which test target the test was run in. `:multi_scan` can handle JUnit, HTML, JSON, and Apple's `xcresult` bundles.
@@ -118,6 +125,12 @@ In addition to the parameters supported by [`scan`](https://docs.fastlane.tools/
 |:-|:-|-:|
 |try_count|The number of times to retry running tests via scan|1|
 |batch_count|The number of test batches to run through scan. Can be combined with :try_count|1|
+<<<<<<< HEAD
+||||||| parent of f1b6419... Update docs to describe upcoming features
+|batches|The explicit batches (an Array of Arrays of test identifiers) to run either serially, or each batch on a simulator in parallel if :parallel_testrun_count is given||
+=======
+|batches|The explicit batches (an Array of Arrays of test identifiers) to run either serially, or each batch on a simulator in parallel if :parallel_testrun_count is given. <br/> <br/> > **Note**: The `:batches` option will be available to Supporters first to show them appreciation. I'll open it up to everyone else on October 5th, 2020|
+>>>>>>> f1b6419... Update docs to describe upcoming features
 |retry_test_runner_failures|Set to true If you want to treat build failures during testing, like 'Test runner exited before starting test execution', as 'all tests failed'|false|
 |invocation_based_tests|Set to true If your test suit have invocation based tests like Kiwi|false|
 |swift_test_prefix|The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`|test|
