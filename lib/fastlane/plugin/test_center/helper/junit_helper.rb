@@ -84,7 +84,9 @@ module TestCenter
           full_testsuite = xml_element.parent.attribute('name').value
           testsuite = full_testsuite.testsuite
           is_swift = full_testsuite.testsuite_swift?
-          testable_filename = xml_element.parent.parent.attribute('name')&.value || ''
+          testsuite_element = xml_element.parent.parent
+          FastlaneCore::UI.important("About to parse #{testsuite_element.name} with attributes #{testsuite_element.attributes}")
+          testable_filename = testsuite_element.attribute('name')&.value || ''
           testable = File.basename(testable_filename, '.xctest')
           @identifier = "#{testsuite}/#{name}"
           unless testable.empty?
