@@ -89,16 +89,46 @@ module TestCenter
           remove_preexisting_test_result_bundles
           remote_preexisting_xcresult_bundles
 
-          tests_passed = false
+          test_results = [false]
           if should_run_tests_through_single_try?
-            tests_passed = run_tests_through_single_try
+            test_results.clear
+            setup_run_tests_for_each_device do |device_name|
+              FastlaneCore::UI.message("Single try testing for device '#{device_name}'")
+              test_results << run_tests_through_single_try
+            end
           end
 
-          unless tests_passed || @options[:try_count] < 1
+          unless test_results.all? || @options[:try_count] < 1
+            test_results.clear 
             setup_testcollector
-            tests_passed = run_test_batches
+            setup_run_tests_for_each_device do |device_name|
+              FastlaneCore::UI.message("Testing batches for device '#{device_name}'")
+              test_results << run_test_batches
+            end
           end
-          tests_passed
+          test_results.all?
+        end
+
+        def setup_run_tests_for_each_device
+          original_output_directory = @options.fetch(:output_directory, 'test_results') 
+          scan_destinations = Scan.config[:destination].clone
+          try_count = @options[:try_count]
+
+          scan_destinations.each_with_index do |destination, device_index|
+            @options[:try_count] = try_count
+            device_udid_match = destination.match(/id=(?<udid>[^,]+)/)
+            device_udid = device_udid_match[:udid] if device_udid_match
+            if scan_destinations.size > 1
+              @options[:output_directory] = File.join(original_output_directory, device_udid)
+              Scan.config[:destination].replace([destination])
+            end
+            command = "xcrun simctl list devices | grep #{device_udid}"
+            device_info = Fastlane::Actions.sh(command, log: false)
+
+            yield device_info.strip.gsub(/ \(#{device_udid}.*/, '')
+          end
+          Scan.config[:destination].replace(scan_destinations)
+          @options[:output_directory] = original_output_directory
         end
 
         def should_run_tests_through_single_try?

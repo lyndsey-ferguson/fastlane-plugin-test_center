@@ -89,6 +89,12 @@ module TestCenter
           clones.flatten.each(&:delete)
         end
 
+        def shutdown_cloned_simulators(clones)
+          return if clones.nil?
+
+          clones.flatten.each(&:shutdown)
+        end
+
         def setup_serial_workers
           serial_scan_options = @options.reject { |key| %i[device devices].include?(key) }
           serial_scan_options[:destination] ||= Scan&.config&.fetch(:destination)
@@ -125,6 +131,7 @@ module TestCenter
             busy_workers.map(&:pid).each do |pid|
               Process.wait(pid)
             end
+            shutdown_cloned_simulators(@clones)
             busy_workers.each { |w| w.process_results }
           end
         end

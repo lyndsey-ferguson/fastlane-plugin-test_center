@@ -225,7 +225,8 @@ module TestCenter::Helper::MultiScanManager
           mocked_workers.each do |w|
             expect(w).to receive(:process_results)
           end
-          
+          expect(pool).to receive(:shutdown_cloned_simulators)
+
           pool.wait_for_all_workers
         end
       end
