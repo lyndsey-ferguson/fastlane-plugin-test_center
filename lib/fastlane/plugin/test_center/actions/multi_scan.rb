@@ -441,7 +441,7 @@ module Fastlane
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
-            description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process',
+            description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process. Return a Hash with :continue set to false to stop retrying tests, or :only_testing to change which tests will be run in the next try',
             optional: true,
             is_string: false,
             default_value: nil,
@@ -469,6 +469,10 @@ module Fastlane
 
             # UI.abort_with_message!('You could conditionally abort')
             UI.message(\"\\\u1F60A everything is fine, let's continue try \#{try_attempt + 1} for batch \#{batch}\")
+            {
+              continue: true,
+              only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample17']
+            }
           end
 
           multi_scan(

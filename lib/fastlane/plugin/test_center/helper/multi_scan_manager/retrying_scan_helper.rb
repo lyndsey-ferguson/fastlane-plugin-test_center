@@ -16,6 +16,7 @@ module TestCenter
             @options[:output_files],
             @options[:custom_report_file_name]
           )
+          @callback_overrides_only_testing = false
         end
 
         def before_testrun
@@ -189,7 +190,26 @@ module TestCenter
           update_json_failure_details(info)
           update_test_result_bundle_details(info)
 
-          @options[:testrun_completed_block].call(info)
+          @callback_overrides_only_testing = false
+          callback_result = @options[:testrun_completed_block].call(info)
+          if callback_result.kind_of?(Hash)
+            should_continue = callback_result.fetch(:continue, true)
+            if !should_continue
+              discontinue_message = 'Following testrun_completed_block\'s request to discontinue testing'
+              discontinue_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+              FastlaneCore::UI.verbose(discontinue_message)
+              @testrun_count = options[:try_count]
+            end
+            overridden_only_testing = callback_result.fetch(:only_testing, nil)
+            if overridden_only_testing && should_continue
+              override_only_testing_message = 'Following testrun_completed_block\'s request to change :only_testing to '
+              override_only_testing_message << overridden_only_testing.to_s
+              override_only_testing_message << " for batch ##{@options[:batch]}" unless @options[:batch].nil?
+              FastlaneCore::UI.verbose(override_only_testing_message)
+              @callback_overrides_only_testing = true
+              @options[:only_testing] = overridden_only_testing
+            end
+          end
         end
 
         def failure_details(additional_info)
@@ -242,6 +262,8 @@ module TestCenter
         end
 
         def update_only_testing
+          return if @callback_overrides_only_testing
+
           report_filepath = File.join(output_directory, @reportnamer.junit_last_reportname)
           config = FastlaneCore::Configuration.create(
             Fastlane::Actions::TestsFromJunitAction.available_options,
