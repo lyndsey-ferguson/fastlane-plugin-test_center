@@ -2,10 +2,10 @@ module TestCenter::Helper::MultiScanManager
   describe 'Runner' do
     before(:each) do
       @mock_test_collector = OpenStruct.new(
-        test_batches: [],
+        batches: [],
         xctestrun_path: ''
       )
-      allow(@mock_test_collector).to receive(:test_batches).and_return([['MockTest']])
+      allow(@mock_test_collector).to receive(:batches).and_return([['MockTest']])
       allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_test_collector)
       @use_refactored_parallelized_multi_scan = ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
     end
@@ -200,7 +200,7 @@ module TestCenter::Helper::MultiScanManager
           mocked_testbatch_worker = OpenStruct.new
           allow(RetryingScan).to receive(:run)
           allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
-          allow(@mock_test_collector).to receive(:test_batches).and_return(
+          allow(@mock_test_collector).to receive(:batches).and_return(
             [
               ['AtomicBoyTests/testOne'],
               ['AtomicBoyUITests/testOne']
@@ -232,7 +232,7 @@ module TestCenter::Helper::MultiScanManager
         mocked_testbatch_worker = OpenStruct.new
           allow(RetryingScan).to receive(:run)
           allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
-          allow(@mock_test_collector).to receive(:test_batches).and_return(
+          allow(@mock_test_collector).to receive(:batches).and_return(
             [
               ['AtomicBoyTests/testOne'],
               ['AtomicBoyUITests/testOne']
@@ -263,7 +263,7 @@ module TestCenter::Helper::MultiScanManager
             test_test_batch_results = options[:test_batch_results]
             mocked_testbatch_worker
           end
-          allow(@mock_test_collector).to receive(:test_batches).and_return(
+          allow(@mock_test_collector).to receive(:batches).and_return(
             [
               ['AtomicBoyTests/testOne'],
               ['AtomicBoyUITests/testOne']
@@ -300,7 +300,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-(\d)/report(-\d)?\.junit}).and_return(true)
         allow(@mock_test_collector).to receive(:testables).and_return([ 'BagOfTests' ])
-        allow(@mock_test_collector).to receive(:test_batches).and_return([ '1', '2'])
+        allow(@mock_test_collector).to receive(:batches).and_return([ '1', '2'])
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',
@@ -351,7 +351,7 @@ module TestCenter::Helper::MultiScanManager
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-(\d)/report(-\d)?\.junit}).and_return(true)
         allow(@mock_test_collector).to receive(:testables).and_return([ 'BagOfTests', 'WarehouseOfFun'])
-        allow(@mock_test_collector).to receive(:test_batches).and_return([ '1', '2'])
+        allow(@mock_test_collector).to receive(:batches).and_return([ '1', '2'])
         runner = Runner.new(
           {
             output_directory: './path/to/output/directory',

@@ -362,6 +362,14 @@ module Fastlane
             end
           ),
           FastlaneCore::ConfigItem.new(
+            key: :batches,
+            env_name: "FL_MULTI_SCAN_BATCHES",
+            description: "The explicit batches (an Array of Arrays of test identifiers) to run either serially, or each batch on a simulator in parallel if :parallel_testrun_count is given",
+            type: Array,
+            optional: true,
+            conflicting_options: [:batch_count]
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :retry_test_runner_failures,
             description: "Set to true If you want to treat build failures during testing, like 'Test runner exited before starting test execution', as 'all tests failed'",
             type: Boolean,
@@ -375,7 +383,7 @@ module Fastlane
             is_string: false,
             default_value: false,
             optional: true,
-            conflicting_options: [:batch_count],
+            conflicting_options: %i[batch_count batches],
             conflict_block: proc do |value|
               UI.user_error!(
                 "Error: Can't use 'invocation_based_tests' and 'batch_count' options in one run, "\
@@ -485,6 +493,120 @@ module Fastlane
             output_types: 'json',
             output_files: 'report.json',
             fail_build: false
+          )
+          ",
+          "
+          UI.header('batches feature')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            try_count: 3,
+            fail_build: false,
+            batches: [
+              [
+                'AtomicBoyUITests/AtomicBoyUITests/testExample5',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample10',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample15'
+              ],
+              [
+                'AtomicBoyUITests/AtomicBoyUITests/testExample6',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample12',
+                'AtomicBoyUITests/AtomicBoyUITests/testExample18'
+              ]
+            ]
+          )
+          "
+        ]
+      end
+
+      def self.integration_tests
+        [
+          "
+          UI.header('Basic test')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            disable_xcpretty: true
+          )
+          ",
+          "
+          UI.header('Basic test with 1 specific test')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
+          )
+          ",
+          "
+          UI.header('Basic test with test target expansion')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            only_testing: ['AtomicBoyUITests', 'AtomicBoyTests']
+          )
+          ",
+          "
+          UI.header('Parallel test run')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            parallel_testrun_count: 2
+          )
+          ",
+          "
+          UI.header('Parallel test run with fewer tests than parallel test runs')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            parallel_testrun_count: 4,
+            only_testing: ['AtomicBoyUITests/AtomicBoyUITests/testExample']
+          )
+          ",
+          "
+          UI.header('Basic test with batch count')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            batch_count: 2
+          )
+          ",
+          "
+          UI.header('Basic test with batches')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            batches: [
+              ['AtomicBoyUITests/AtomicBoyUITests/testExample', 'AtomicBoyUITests/AtomicBoyUITests/testExample2'],
+              ['AtomicBoyUITests/AtomicBoyUITests/testExample3', 'AtomicBoyUITests/AtomicBoyUITests/testExample4']
+            ],
+            parallel_testrun_count: 2
+          )
+          ",
+          "
+          UI.header('Basic test with xcresult')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'AtomicBoy',
+            output_types: 'xcresult',
+            output_files: 'result.xcresult',
+            collate_reports: false,
+            fail_build: false,
+            try_count: 2,
+            batch_count: 2
           )
           "
         ]

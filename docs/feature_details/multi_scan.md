@@ -146,7 +146,12 @@ In addition to the parameters supported by [`scan`](https://docs.fastlane.tools/
 |:-|:-|-:|
 |try_count|The number of times to retry running tests via scan|1|
 |batch_count|The number of test batches to run through scan. Can be combined with :try_count|1|
+<<<<<<< HEAD
 |batches|The explicit batches (an Array of Arrays of test identifiers) to run either serially, or each batch on a simulator in parallel if :parallel_testrun_count is given. <br/> <br/> > **Note**: The `:batches` option will be available to Supporters first to show them appreciation. I'll open it up to everyone else on October 5th, 2020|
+||||||| parent of 4be6863... Add option to provide own batches
+=======
+|batches|The explicit batches (an Array of Arrays of test identifiers) to run either serially, or each batch on a simulator in parallel if :parallel_testrun_count is given||
+>>>>>>> 4be6863... Add option to provide own batches
 |retry_test_runner_failures|Set to true If you want to treat build failures during testing, like 'Test runner exited before starting test execution', as 'all tests failed'|false|
 |invocation_based_tests|Set to true If your test suit have invocation based tests like Kiwi|false|
 |swift_test_prefix|The prefix used to find test methods. In standard XCTests, this is `test`. If you are using Quick with Swift, set this to `spec`|test|

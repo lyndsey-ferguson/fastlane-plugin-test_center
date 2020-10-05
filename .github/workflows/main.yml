@@ -193,6 +193,18 @@ jobs:
         bundle install
     - name: run example_multi_scan_1
       run: bundle exec fastlane example_multi_scan_1
+  example_multi_scan_2:
+    if: contains(github.event.pull_request.labels.*.name, 'run tests')
+    name: example_multi_scan_2
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: run example_multi_scan_2
+      run: bundle exec fastlane example_multi_scan_2
   example_test_options_from_testplan_0:
     if: contains(github.event.pull_request.labels.*.name, 'run tests')
     name: example_test_options_from_testplan_0

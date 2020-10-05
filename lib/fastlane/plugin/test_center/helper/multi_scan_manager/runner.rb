@@ -65,8 +65,8 @@ module TestCenter
 
           @test_collector = TestCollector.new(@options)
           @options.reject! { |key| %i[testplan].include?(key) }
-          @batch_count = @test_collector.test_batches.size
-          tests = @test_collector.test_batches.flatten
+          @batch_count = @test_collector.batches.size
+          tests = @test_collector.batches.flatten
           if tests.size < @options[:parallel_testrun_count].to_i
             FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{tests.size}). Reducing to that number.")
             @options[:parallel_testrun_count] = tests.size
@@ -196,7 +196,7 @@ module TestCenter
           pool = TestBatchWorkerPool.new(pool_options)
           pool.setup_workers
 
-          remaining_test_batches = @test_collector.test_batches.clone
+          remaining_test_batches = @test_collector.batches.clone
           remaining_test_batches.each_with_index do |test_batch, current_batch_index|
             worker = pool.wait_for_worker
             FastlaneCore::UI.message("Starting test run #{current_batch_index + 1}")
@@ -209,7 +209,7 @@ module TestCenter
         end
 
         def scan_options_for_worker(test_batch, batch_index)
-          if @test_collector.test_batches.size > 1
+          if @test_collector.batches.size > 1
             # If there are more than 1 batch, then we want each batch result
             # sent to a "batch index" output folder to be collated later
             # into the requested output_folder.
