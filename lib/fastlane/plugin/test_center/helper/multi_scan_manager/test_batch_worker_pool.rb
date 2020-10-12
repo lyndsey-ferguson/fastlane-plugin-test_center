@@ -33,6 +33,8 @@ module TestCenter
           end
           # boot all the simulators _before_ calling `xcodebuilt test` to avoid
           # testmanagerd connection failures.
+          @clones.flatten.each(&:shutdown)
+          @clones.flatten.each(&:disable_hardware_keyboard)
           @clones.flatten.each(&:boot)
           @clones
         end
