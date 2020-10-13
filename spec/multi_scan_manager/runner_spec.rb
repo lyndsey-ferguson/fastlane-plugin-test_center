@@ -8,6 +8,10 @@ module TestCenter::Helper::MultiScanManager
       allow(@mock_test_collector).to receive(:batches).and_return([['MockTest']])
       allow(TestCenter::Helper::TestCollector).to receive(:new).and_return(@mock_test_collector)
       @use_refactored_parallelized_multi_scan = ENV['USE_REFACTORED_PARALLELIZED_MULTI_SCAN']
+      mock_scan_config = {
+        destination: ["platform=iOS Simulator,id=194E8418-5B34-4919-978F-50D313EC1086"]
+      }
+      allow(Scan).to receive(:config).and_return(mock_scan_config) 
     end
 
     after(:each) do
@@ -99,10 +103,10 @@ module TestCenter::Helper::MultiScanManager
           {
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
-            try_count: 1
+            try_count: 1,
+            devices: ['iPhone Phantom']
           }
         )
-
         allow(@xctest_runner).to receive(:setup_testcollector)
         allow(@xctest_runner).to receive(:run_test_batches).and_return(true)
         allow(@xctest_runner).to receive(:run_first_run_of_invocation_based_tests).and_return(true)
@@ -125,7 +129,8 @@ module TestCenter::Helper::MultiScanManager
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             try_count: 2,
-            invocation_based_tests: true
+            invocation_based_tests: true,
+            devices: ['iPhone Phantom']
           }
         )
         expect(runner).to receive(:run_tests_through_single_try)
@@ -145,7 +150,8 @@ module TestCenter::Helper::MultiScanManager
               'KiwiTests/SmallBirdTests',
               'KiwiTests/CruddogTests',
               'KiwiTests/KiwiDemoTests'
-            ]
+            ],
+            devices: ['iPhone Phantom']
           }
         )
         expect(invocation_runner).not_to receive(:run_tests_through_single_try)
@@ -166,7 +172,6 @@ module TestCenter::Helper::MultiScanManager
             'KiwiTests/KiwiDemoTests'
           ]
         )
-        allow(Scan).to receive(:config).and_return({ destination: ['iPhone 5s,id=ABCDEFGHIJ']})
         
         runner = Runner.new(
           {
