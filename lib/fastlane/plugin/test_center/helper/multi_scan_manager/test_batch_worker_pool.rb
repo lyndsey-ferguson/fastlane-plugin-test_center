@@ -63,7 +63,9 @@ module TestCenter
         def parallel_scan_options(worker_index)
           options = @options.reject { |key| %i[device devices].include?(key) }
           options[:destination] = destination_for_worker(worker_index)
-          options[:scan_devices_override] = simulator_devices_for_worker(worker_index)
+          if @options[:platform] == :ios_simulator
+            options[:scan_devices_override] = simulator_devices_for_worker(worker_index)
+          end
           options[:buildlog_path] = buildlog_path_for_worker(worker_index) if @options[:buildlog_path]
           options[:derived_data_path] = derived_data_path_for_worker(worker_index)
           options[:batch_index] = worker_index
