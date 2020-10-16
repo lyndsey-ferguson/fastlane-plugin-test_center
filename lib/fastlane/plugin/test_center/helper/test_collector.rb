@@ -116,9 +116,9 @@ module TestCenter
             # with their own testCases.
             if all_known_tests[testable].to_a.empty?
               FastlaneCore::UI.verbose("Unable to expand #{testable} to constituent tests")
-              expand_test_identifiers = [testable]
+              expanded_test_identifiers = [testable]
             else
-              expand_test_identifiers = all_known_tests[testable]
+              expanded_test_identifiers = all_known_tests[testable]
             end
           else
             # this is a testable and a test suite, let's expand it out to all of
@@ -131,7 +131,7 @@ module TestCenter
             end
           end
           test_identifiers.delete_at(index)
-          test_identifiers.insert(index, *expand_test_identifiers)
+          test_identifiers.insert(index, *expanded_test_identifiers)
         end
       end
 
