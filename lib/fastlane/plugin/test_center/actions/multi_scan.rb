@@ -28,16 +28,23 @@ module Fastlane
         force_quit_simulator_processes if params[:quit_simulators]
 
         prepare_for_testing(params.values)
+        
+        tests_passed = true
+        summary = {}
+        if params[:build_for_testing]
+          summary = build_summary
+        else
+          coerce_destination_to_array(params)
+          platform = :mac
+          platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
 
-        coerce_destination_to_array(params)
-        platform = :mac
-        platform = :ios_simulator if Scan.config[:destination].any? { |d| d.include?('platform=iOS Simulator') }
+          runner_options = params.values.merge(platform: platform)
+          runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
+          tests_passed = runner.run
 
-        runner_options = params.values.merge(platform: platform)
-        runner = ::TestCenter::Helper::MultiScanManager::Runner.new(runner_options)
-        tests_passed = runner.run
+          summary = run_summary(params, tests_passed)
+        end
 
-        summary = run_summary(params, tests_passed)
         print_run_summary(summary)
 
         if params[:fail_build] && !tests_passed
@@ -99,6 +106,16 @@ module Fastlane
           title: "multi_scan results"
         )
         # :nocov:
+      end
+
+      def self.build_summary
+        {
+          result: true,
+          total_tests: 0,
+          passing_testcount: 0,
+          failed_testcount: 0,
+          total_retry_count: 0
+        }
       end
 
       def self.run_summary(scan_options, tests_passed)
