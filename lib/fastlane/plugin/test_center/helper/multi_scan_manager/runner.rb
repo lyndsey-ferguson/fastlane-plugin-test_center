@@ -94,7 +94,7 @@ module TestCenter
           if should_run_tests_through_single_try?
             test_results.clear
             setup_run_tests_for_each_device do |device_name|
-              FastlaneCore::UI.message("Single try testing for device '#{device_name}'")
+              FastlaneCore::UI.message("Single try testing for device '#{device_name}'") if device_name
               test_results << run_tests_through_single_try
             end
           end
@@ -103,7 +103,7 @@ module TestCenter
             test_results.clear 
             setup_testcollector
             setup_run_tests_for_each_device do |device_name|
-              FastlaneCore::UI.message("Testing batches for device '#{device_name}'")
+              FastlaneCore::UI.message("Testing batches for device '#{device_name}'") if device_name
               test_results << run_test_batches
             end
           end
@@ -112,6 +112,11 @@ module TestCenter
 
         def setup_run_tests_for_each_device
           original_output_directory = @options.fetch(:output_directory, 'test_results') 
+          unless @options[:platform] == :ios_simulator
+            yield
+            return
+          end
+
           scan_destinations = Scan.config[:destination].clone
           try_count = @options[:try_count]
 
