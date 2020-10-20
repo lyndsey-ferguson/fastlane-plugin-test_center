@@ -36,6 +36,7 @@ module TestCenter
           @clones.flatten.each(&:shutdown)
           @clones.flatten.each(&:disable_hardware_keyboard)
           @clones.flatten.each(&:boot)
+          SimulatorHelper.call_simulator_started_callback(@options, @clones.flatten)
           @clones
         end
 

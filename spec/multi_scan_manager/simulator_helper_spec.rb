@@ -125,5 +125,50 @@ module TestCenter::Helper::MultiScanManager
       end
 
     end
+
+    describe '.call_simulator_started_callback' do
+      it 'returns early if the callback option is not set' do
+        devices = [ OpenStruct.new ]
+
+        expect(devices).not_to receive(:each)
+
+        SimulatorHelper.call_simulator_started_callback(
+          { platform: :ios_simulator },
+          devices
+        ) 
+      end
+
+      it 'returns early if the platform is not iOS Simulator' do
+        devices = [ OpenStruct.new ]
+
+        expect(devices).not_to receive(:each)
+
+        SimulatorHelper.call_simulator_started_callback(
+          { platform: :macos },
+          devices
+        )
+      end
+
+      it 'sends the device udid to the callback for each iOS Simulator' do
+        devices = [
+          OpenStruct.new(udid: '123'),
+          OpenStruct.new(udid: 'ABC')
+        ]
+
+        callback = OpenStruct.new
+
+        expect(callback).to receive(:call).with('123')
+        expect(callback).to receive(:call).with('ABC')
+
+        SimulatorHelper.call_simulator_started_callback(
+          {
+            platform: :ios_simulator,
+            simulator_started_callback: callback
+          },
+          devices
+        )
+
+      end
+    end
   end
 end

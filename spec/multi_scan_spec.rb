@@ -391,32 +391,50 @@ module Fastlane::Actions
         end
       )
     end
+
+    describe '#turn_off_concurrent_workers' do
+      before(:all) do
+        @fastlane_version = Fastlane::VERSION
+      end
+      after(:all) do
+        Fastlane::VERSION = @fastlane_version
+      end
+
+      it 'turn off concurrent_workers if it was given if fastlane >= 2.142.0' do
+        scan_options = {
+          concurrent_workers: 4
+        }
+        Fastlane::VERSION = '2.142.0'
+        Fastlane::Actions::MultiScanAction.turn_off_concurrent_workers(scan_options)
+        expect(scan_options).not_to have_key(:concurrent_workers)
+      end
+
+      it 'ignores concurrent_workers if it was given if fastlane < 2.142.0' do
+        scan_options = {
+          concurrent_workers: 4
+        }
+        Fastlane::VERSION = '2.139.0'
+        Fastlane::Actions::MultiScanAction.turn_off_concurrent_workers(scan_options)
+        expect(scan_options).to have_key(:concurrent_workers)
+      end
+    end
+
+    describe ':simulator_started_callback' do
+      it 'raises an exception when parameter is *not* a callback or nil' do
+        fastfile = "lane :test do
+          sim_callback = 'Yes!'
+          multi_scan(
+            simulator_started_callback: sim_callback
+          )
+        end"
+
+        expect { Fastlane::FastFile.new.parse(fastfile).runner.execute(:test) }.to(
+          raise_error(FastlaneCore::Interface::FastlaneError) do |error|
+            expect(error.message).to match("'simulator_started_callback' value must be a Proc! Found String instead.")
+          end
+        )
+      end
+    end
   end
 
-  describe '#turn_off_concurrent_workers' do
-    before(:all) do
-      @fastlane_version = Fastlane::VERSION
-    end
-    after(:all) do
-      Fastlane::VERSION = @fastlane_version
-    end
-
-    it 'turn off concurrent_workers if it was given if fastlane >= 2.142.0' do
-      scan_options = {
-        concurrent_workers: 4
-      }
-      Fastlane::VERSION = '2.142.0'
-      Fastlane::Actions::MultiScanAction.turn_off_concurrent_workers(scan_options)
-      expect(scan_options).not_to have_key(:concurrent_workers)
-    end
-
-    it 'ignores concurrent_workers if it was given if fastlane < 2.142.0' do
-      scan_options = {
-        concurrent_workers: 4
-      }
-      Fastlane::VERSION = '2.139.0'
-      Fastlane::Actions::MultiScanAction.turn_off_concurrent_workers(scan_options)
-      expect(scan_options).to have_key(:concurrent_workers)
-    end
-  end
 end

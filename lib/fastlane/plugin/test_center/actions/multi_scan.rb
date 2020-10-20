@@ -471,6 +471,14 @@ module Fastlane
             is_string: false,
             default_value: nil,
             type: Proc
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :simulator_started_callback,
+            description: 'A block invoked after the iOS simulators have started',
+            optional: true,
+            is_string: false,
+            default_value: nil,
+            type: Proc
           )
         ]
       end

@@ -63,6 +63,15 @@ module TestCenter
             simulator.delete if /#{self.class.name}<\d+>/ =~ simulator.name
           end
         end
+
+        def self.call_simulator_started_callback(options, devices)
+          return unless options[:simulator_started_callback]
+          return unless options[:platform] == :ios_simulator
+
+          devices.each do |device|
+            options[:simulator_started_callback].call(device.udid)
+          end
+        end
       end
     end
   end

@@ -28,7 +28,8 @@ module TestCenter::Helper::MultiScanManager
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           clean: false,
-          disable_concurrent_testing: true
+          disable_concurrent_testing: true,
+          parallel_testrun_count: 1
         )
       end
       it 'returns options without :result_bundle' do
@@ -46,7 +47,8 @@ module TestCenter::Helper::MultiScanManager
           clean: false,
           disable_concurrent_testing: true,
           output_files: 'report.junit,report.xcresult',
-          output_types: 'junit,xcresult'
+          output_types: 'junit,xcresult',
+          parallel_testrun_count: 1
         )
       end
     end
@@ -158,10 +160,8 @@ module TestCenter::Helper::MultiScanManager
         expect(invocation_runner).to receive(:run_test_batches)
         invocation_runner.run
       end
-    end
 
-    describe '#run_invocation_based_tests' do
-      it 'strips test cases off of skip_testing:' do
+      it 'strips test cases off of skip_testing: for :invocation_based_tests' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
@@ -198,7 +198,7 @@ module TestCenter::Helper::MultiScanManager
         runner.run
       end
     end
-
+    
     describe '#run_test_batches' do
       describe 'serial batches' do  
         it 'calls a test_worker for each test batch' do
@@ -223,6 +223,8 @@ module TestCenter::Helper::MultiScanManager
           runner.instance_variable_set(:@test_collector, @mock_test_collector)
 
           allow(runner).to receive(:collate_batched_reports)
+
+          expect(SimulatorHelper).to receive(:call_simulator_started_callback).once
           expect(mocked_testbatch_worker).to receive(:run) do |options|
             expect(options).to include(batch: 1)
           end
@@ -231,10 +233,9 @@ module TestCenter::Helper::MultiScanManager
           end
           runner.run
         end
-      end
 
-      it 'returns true if all test_batch_worker runs return true' do
-        mocked_testbatch_worker = OpenStruct.new
+        it 'returns true if all test_batch_worker runs return true' do
+          mocked_testbatch_worker = OpenStruct.new
           allow(RetryingScan).to receive(:run)
           allow(TestBatchWorker).to receive(:new).and_return(mocked_testbatch_worker)
           allow(@mock_test_collector).to receive(:batches).and_return(
@@ -243,7 +244,7 @@ module TestCenter::Helper::MultiScanManager
               ['AtomicBoyUITests/testOne']
             ]
           )
-          
+  
           runner = Runner.new(
             {
               output_directory: './path/to/output/directory',
@@ -253,13 +254,15 @@ module TestCenter::Helper::MultiScanManager
           )
           runner.instance_variable_set(:@test_collector, @mock_test_collector)
           allow(runner).to receive(:collate_batched_reports)
-
+  
+          expect(SimulatorHelper).to receive(:call_simulator_started_callback).once
+          
           expect(mocked_testbatch_worker).to receive(:run).and_return(true).twice
           run_passed = runner.run
           expect(run_passed).to eq(true)
-      end
-
-      it 'returns false when even one test_batch_worker runs return false' do
+        end
+  
+        it 'returns false when even one test_batch_worker runs return false' do
           mocked_testbatch_worker = OpenStruct.new
           allow(RetryingScan).to receive(:run)
           
@@ -283,14 +286,102 @@ module TestCenter::Helper::MultiScanManager
             }
           )
           runner.instance_variable_set(:@test_collector, @mock_test_collector)
-
+  
           allow(runner).to receive(:collate_batched_reports)
 
+          expect(SimulatorHelper).to receive(:call_simulator_started_callback).once
           expect(mocked_testbatch_worker).to receive(:run) { | anytthing | test_test_batch_results << true }
           expect(mocked_testbatch_worker).to receive(:run) { | anytthing | test_test_batch_results << false }
           
           run_passed = runner.run
           expect(run_passed).to eq(false)
+        end
+
+        it 'does NOT call the callback if serial testing followed after :run_tests_through_single_try' do
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+          allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+            failed: [ 
+              'KiwiTests/PumpkinTests',
+              'KiwiTests/SmallBirdTests',
+              'KiwiTests/CruddogTests',
+              'KiwiTests/KiwiDemoTests'
+            ]
+          )
+          mocked_testbatch_worker = OpenStruct.new
+          allow(RetryingScan).to receive(:run)
+          
+          test_test_batch_results = nil
+          allow(TestBatchWorker).to receive(:new) do |options|
+            test_test_batch_results = options[:test_batch_results]
+            mocked_testbatch_worker
+          end
+
+          allow(@mock_test_collector).to receive(:batches).and_return(
+            [
+              ['AtomicBoyTests/testOne'],
+              ['AtomicBoyUITests/testOne']
+            ]
+          )
+          
+          runner = Runner.new(
+            {
+              output_directory: './path/to/output/directory',
+              scheme: 'AtomicUITests',
+              try_count: 2,
+              invocation_based_tests: true
+            }
+          )
+          runner.instance_variable_set(:@test_collector, @mock_test_collector)
+  
+          allow(runner).to receive(:collate_batched_reports)
+
+          expect(SimulatorHelper).to receive(:call_simulator_started_callback).once
+          expect(mocked_testbatch_worker).to receive(:run) { | anytthing | test_test_batch_results << true }
+          expect(mocked_testbatch_worker).to receive(:run) { | anytthing | test_test_batch_results << false }
+          
+          run_passed = runner.run
+          expect(run_passed).to eq(false)
+        end
+      end
+
+      describe 'parallel batches' do
+        it 'does NOT call the callback if parallel testing' do
+          mocked_testbatch_worker = OpenStruct.new
+          allow(mocked_testbatch_worker).to receive(:run)
+          allow(mocked_testbatch_worker).to receive(:run)
+
+          allow(RetryingScan).to receive(:run)
+          
+          test_test_batch_results = nil
+          mocked_pool = OpenStruct.new
+          allow(TestBatchWorkerPool).to receive(:new).and_return(mocked_pool)
+          allow(mocked_pool).to receive(:setup_workers)
+          allow(mocked_pool).to receive(:wait_for_worker).and_return(mocked_testbatch_worker)
+          allow(mocked_pool).to receive(:wait_for_all_workers)
+          allow(@mock_test_collector).to receive(:batches).and_return(
+            [
+              ['AtomicBoyTests/testOne'],
+              ['AtomicBoyUITests/testOne']
+            ]
+          )
+          
+          runner = Runner.new(
+            {
+              output_directory: './path/to/output/directory',
+              scheme: 'AtomicUITests',
+              try_count: 2,
+              parallel_testrun_count: 2
+            }
+          )
+          runner.instance_variable_set(:@test_collector, @mock_test_collector)
+  
+          allow(runner).to receive(:collate_batched_reports)
+
+          expect(SimulatorHelper).not_to receive(:call_simulator_started_callback) 
+          
+          run_passed = runner.run
+        end
       end
     end
 

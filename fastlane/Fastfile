@@ -22,3 +22,23 @@ action_integration_tests.each do |action_name, integration_tests|
     end
   end
 end
+
+require 'pry-byebug'
+
+lane :issue_286 do
+  sim_callback = lambda do |simulator_device_udid|
+    command = "xcrun simctl spawn #{simulator_device_udid} log stream --level info --predicate 'subsystem == \'cow\' && category == \"doggy\"' --style json --type log"
+    puts "Start streaming system log for device #{simulator_device_udid}"
+  end
+
+  multi_scan(
+    project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
+    scheme: 'AtomicBoy',
+    try_count: 3,
+    fail_build: false,
+    prelaunch_simulator: true,
+    invocation_based_tests: true,
+    simulator_started_callback: sim_callback,
+    parallel_testrun_count: 4
+  )
+end
