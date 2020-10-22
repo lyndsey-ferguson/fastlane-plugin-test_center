@@ -50,7 +50,11 @@ module TestCenter
           if @options[:scan_devices_override]
             scan_device_names = @options[:scan_devices_override].map { |device| device.name }
             FastlaneCore::UI.verbose("\tSetting Scan.devices to #{scan_device_names}")
-            Scan.devices.replace(@options[:scan_devices_override])
+            if Scan.devices
+              Scan.devices.replace(@options[:scan_devices_override])
+            else
+              Scan.devices = @options[:scan_devices_override]
+            end
           end
         end
 
