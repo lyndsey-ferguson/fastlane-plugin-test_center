@@ -508,6 +508,10 @@ module Fastlane
             }
           end
 
+          sim_callback = lambda do |simulator_device_udid|
+            puts \"Start streaming system log for device \#{simulator_device_udid}\"
+          end
+
           multi_scan(
             project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
             scheme: 'AtomicBoy',
@@ -515,7 +519,8 @@ module Fastlane
             batch_count: 4,
             fail_build: false,
             parallel_testrun_count: 4,
-            testrun_completed_block: test_run_block
+            testrun_completed_block: test_run_block,
+            simulator_started_callback: sim_callback
           )
           ",
           "

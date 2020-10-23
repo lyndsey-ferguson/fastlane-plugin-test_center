@@ -111,7 +111,8 @@ multi_scan(
   batch_count: 4,
   fail_build: false,
   parallel_testrun_count: 4,
-  testrun_completed_block: test_run_block
+  testrun_completed_block: test_run_block,
+  simulator_started_callback: sim_callback
 )
 
 ```
@@ -177,5 +178,5 @@ In addition to the parameters supported by [`scan`](https://docs.fastlane.tools/
 |_reuse_simulators_for_parallel_testruns_<br/>♥️ Coming Dec 18th, 2020|Find simulators (or clone new ones) that match the requested device for the parallel test runs|false|
 |_override_scan_options_block_<br/>♥️ Coming Dec 18th, 2020|A block invoked with a Hash of the scan options that will be used when test run is about to start. This allows your code to modify the arguments that will be sent to scan||
 |testrun_completed_block|A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process. Return a Hash with :continue set to false to stop retrying tests, or :only_testing to change which tests will be run in the next try||
-|_simulator_started_callback_<br/>♥️ Coming Dec 18th, 2020|A block invoked after the iOS simulators have started||
+|simulator_started_callback|A block invoked after the iOS simulators have started||
 <!-- multi_scan parameters: end -->
