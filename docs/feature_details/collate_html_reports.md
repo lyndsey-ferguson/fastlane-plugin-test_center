@@ -2,6 +2,8 @@
 
 Do you have multiple html test reports coming in from different sources and need them combined? Use this action to collate all the tests performed for a given test target into one report file.
 
+> Note: if you want to use `--verbose` to get more detailed logging, but you don't want to see the detailed logging for `collate_html_reports`, set the environment variable `COLLATE_HTML_REPORTS_VERBOSITY` to 0.
+
 <img src="./images/collation.jpg" alt="collate html image" />
 
 ## Example
