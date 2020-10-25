@@ -13,12 +13,7 @@ module Fastlane
 
     class MultiScanAction < Action
       def self.run(params)
-        params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
-        if params[:try_count] < 1
-          UI.important('multi_scan will not test any if :try_count < 0, setting to 1')
-          params[:try_count] = 1
-        end
-
+        update_interdependent_params(params)
         strip_leading_and_trailing_whitespace_from_output_types(params)
 
         warn_of_xcode11_result_bundle_incompatability(params)
@@ -51,6 +46,14 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
         summary
+      end
+
+      def self.update_interdependent_params(params)
+        params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
+        if params[:try_count] < 1
+          UI.important('multi_scan will not test any if :try_count < 0, setting to 1')
+          params[:try_count] = 1
+        end
       end
 
       def self.warn_of_parallelism_with_circle_ci(params)
@@ -463,6 +466,14 @@ module Fastlane
             is_string: false,
             default_value: nil,
             type: Proc
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :reuse_simulators_for_parallel_testruns,
+            description: 'Find simulators (or clone new ones) that match the requested device for the parallel test runs. This option sets :pre_delete_cloned_simulators to false',
+            optional: true,
+            is_string: false,
+            type: Boolean,
+            default_value: false
           ),
           FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,

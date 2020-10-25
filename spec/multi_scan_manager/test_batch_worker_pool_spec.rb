@@ -36,17 +36,17 @@ module TestCenter::Helper::MultiScanManager
           [ cloned_simulator_3 ],
           [ cloned_simulator_4 ]
         ]
-        allow(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+        allow(@mocked_simulator_helper).to receive(:parallel_destination_simulators).and_return(@mocked_cloned_simulators)
       end
 
       describe '#setup_workers' do
-        it 'creates 4 copies of the simulators in the :destination option for :ios_simulator' do
-          expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+        it 'gets 4 copies of the simulators in the :destination option for :ios_simulator' do
+          expect(@mocked_simulator_helper).to receive(:parallel_destination_simulators).and_return(@mocked_cloned_simulators)
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :ios_simulator}).setup_workers
         end
 
-        it 'creates no simulators for :mac' do
-          expect(@mocked_simulator_helper).not_to receive(:clone_destination_simulators)
+        it 'does not get simulators for :mac' do
+          expect(@mocked_simulator_helper).not_to receive(:parallel_destination_simulators)
           TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :mac}).setup_workers
         end
 
@@ -113,7 +113,7 @@ module TestCenter::Helper::MultiScanManager
         describe '#setup_cloned_simulators' do
           it 'clones simulators' do
             pool = TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :ios_simulator})
-            expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+            expect(@mocked_simulator_helper).to receive(:parallel_destination_simulators).and_return(@mocked_cloned_simulators)
             expect(pool).to receive(:at_exit) do |&block|
               expect(pool).to receive(:clean_up_cloned_simulators)
               block.call()
@@ -123,7 +123,7 @@ module TestCenter::Helper::MultiScanManager
 
           it 'cleans up cloned simulators only when exiting from the main process' do
             pool = TestBatchWorkerPool.new({parallel_testrun_count: 4, platform: :ios_simulator})
-            expect(@mocked_simulator_helper).to receive(:clone_destination_simulators).and_return(@mocked_cloned_simulators)
+            expect(@mocked_simulator_helper).to receive(:parallel_destination_simulators).and_return(@mocked_cloned_simulators)
             allow(pool).to receive(:clean_up_cloned_simulators)
             pids = [1, 99]
             allow(Process).to receive(:pid) { pids.shift }

@@ -4,12 +4,46 @@ module TestCenter
       class SimulatorHelper
         def initialize(options)
           @options = options
+          # TODO: add byebug to make sure we're mocking this
+          @all_simulators = FastlaneCore::DeviceManager.simulators('iOS') 
         end
 
         def setup
           if @options[:parallel_testrun_count] > 1 && @options.fetch(:pre_delete_cloned_simulators, true)
             delete_multi_scan_cloned_simulators
           end
+        end
+
+        def parallel_destination_simulators
+          remaining_desired_simulators = @options[:parallel_testrun_count] || 0
+
+          simulators = []
+          if @options[:reuse_simulators_for_parallel_testruns]
+            matching_simulators = find_matching_destination_simulators(remaining_desired_simulators)
+            remaining_desired_simulators -= matching_simulators.size
+            (0...matching_simulators.size).each do |s|
+              simulators << [matching_simulators[s]]
+            end
+          end
+
+          if remaining_desired_simulators > 0
+            simulators.concat(clone_destination_simulators(remaining_desired_simulators))
+          end
+          simulators
+        end
+
+        def find_matching_destination_simulators(remaining_desired_simulators)
+          destination = Scan.config[:destination].clone.first
+
+          desired_device = @all_simulators.find do |simulator|
+            match = destination.match(/id=(?<udid>[^,]+)/) 
+            match && match[:udid] == simulator.udid
+          end
+
+          matching_simulators = @all_simulators.find_all do |simulator|
+            desired_device.os_version == simulator.os_version && simulator.name =~ /#{Regexp.escape(desired_device.name)} Clone \d #{self.class.name}<[^>]+>/ 
+          end
+          matching_simulators.first(remaining_desired_simulators)
         end
 
         def simulator_matches_destination(simulator, destination)
@@ -27,12 +61,12 @@ module TestCenter
           found_match
         end
 
-        def clone_destination_simulators
+        def clone_destination_simulators(remaining_desired_simulators)
           cloned_simulators = []
 
-          run_count = @options[:parallel_testrun_count] || 0
+          run_count = remaining_desired_simulators
           destinations = Scan.config[:destination].clone
-          original_simulators = FastlaneCore::DeviceManager.simulators('iOS').find_all do |simulator|
+          original_simulators = @all_simulators.find_all do |simulator|
             found_simulator = destinations.find do |destination|
               simulator_matches_destination(simulator, destination)
             end

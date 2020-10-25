@@ -23,13 +23,16 @@ module TestCenter
 
           @simhelper = SimulatorHelper.new(
             parallel_testrun_count: @options[:parallel_testrun_count],
-            pre_delete_cloned_simulators: @options.fetch(:pre_delete_cloned_simulators, true)
+            pre_delete_cloned_simulators: @options.fetch(:pre_delete_cloned_simulators, true),
+            reuse_simulators_for_parallel_testruns: @options[:reuse_simulators_for_parallel_testruns] || false
           )
           @simhelper.setup
-          @clones = @simhelper.clone_destination_simulators
+          @clones = @simhelper.parallel_destination_simulators
           main_pid = Process.pid
-          at_exit do
-            clean_up_cloned_simulators(@clones) if Process.pid == main_pid
+          unless @options[:reuse_simulators_for_parallel_testruns]
+            at_exit do
+              clean_up_cloned_simulators(@clones) if Process.pid == main_pid
+            end
           end
           # boot all the simulators _before_ calling `xcodebuilt test` to avoid
           # testmanagerd connection failures.
