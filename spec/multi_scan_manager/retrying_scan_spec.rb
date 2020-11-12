@@ -5,6 +5,7 @@ module TestCenter::Helper::MultiScanManager
       allow(RetryingScanHelper).to receive(:new).and_return(@mock_retrying_scan_helper)
       allow(@mock_retrying_scan_helper).to receive(:scan_options).and_return({})
       @mock_retrying_scan_helper_testrun_count = 0
+      allow(@mock_retrying_scan_helper).to receive(:before_testrun)
       allow(@mock_retrying_scan_helper).to receive(:after_testrun)
       allow(@mock_retrying_scan_helper).to receive(:testrun_count) do
         @mock_retrying_scan_helper_testrun_count += 1
@@ -13,73 +14,8 @@ module TestCenter::Helper::MultiScanManager
       allow(File).to receive(:open).and_call_original
       @mock_scan_runner = OpenStruct.new
       allow(Scan::Runner).to receive(:new).and_return(@mock_scan_runner)
-      @mock_scan_config = FastlaneCore::Configuration.new(Fastlane::Actions::ScanAction.available_options, { derived_data_path: ''} )
-      allow_any_instance_of(RetryingScan).to receive(:scan_config).and_return(@mock_scan_config)
-      @mock_scan_cache = { destination: ["platform=iOS Simulator,id=HungryHippo"] }
-      allow_any_instance_of(RetryingScan).to receive(:scan_cache).and_return(@mock_scan_cache)
     end
 
-    describe '#prepare_scan_config' do
-      it 'removes :device and :devices' do
-        retrying_scan = RetryingScan.new
-
-        @mock_scan_config[:device] = 'iPhone 91v'
-        @mock_scan_config[:devices] = ['iPhone 92w', 'iPhone 92x']
-
-        retrying_scan.prepare_scan_config
-        expect(@mock_scan_config[:device]).to be_nil
-        expect(@mock_scan_config[:devices]).to be_nil
-      end
-
-      it 'clears out the Scan cache' do
-        retrying_scan = RetryingScan.new
-        retrying_scan.prepare_scan_config
-        expect(@mock_scan_cache).to be_empty
-      end
-
-      it 'removes :result_bundle if ReportNamer includes "xcresult" output_type' do
-        allow(ReportNameHelper).to receive(:includes_xcresult?).and_return(true)
-        retrying_scan = RetryingScan.new
-        @mock_scan_config[:result_bundle] = true
-        retrying_scan.prepare_scan_config
-        expect(@mock_scan_config[:result_bundle]).to be_falsey
-      end
-    end
-
-    describe '#update_scan_options' do
-      it 'removes the :device and :devices options from the Scan config' do
-        retrying_scan = RetryingScan.new(
-          {
-            derived_data_path: './path/to/derived_data_path'
-          }
-        )
-        expect(retrying_scan).to receive(:prepare_scan_config)
-        retrying_scan.update_scan_options
-      end
-
-      it 'updates Scan.devices when :scan_devices_override is set' do
-        Scan.devices = initial_scan_devices = [
-          OpenStruct.new(name: 'Alpha'),
-          OpenStruct.new(name: 'Beta')
-        ]
-
-        overridden_scan_devices = [
-          OpenStruct.new(name: 'Alpha'),
-          OpenStruct.new(name: 'Beta')
-        ]
-        retrying_scan = RetryingScan.new(
-          {
-            derived_data_path: './path/to/derived_data_path',
-            scan_devices_override: overridden_scan_devices
-          }
-        )
-        allow(retrying_scan).to receive(:prepare_scan_config)
-
-        retrying_scan.update_scan_options
-
-        expect(Scan.devices).to eq(overridden_scan_devices)
-      end
-    end
 
     describe 'scan' do
       it 'is called once if there are no failures' do
