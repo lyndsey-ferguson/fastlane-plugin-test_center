@@ -457,6 +457,14 @@ module Fastlane
             default_value: true
           ),
           FastlaneCore::ConfigItem.new(
+            key: :override_scan_options_block,
+            description: 'A block invoked with a Hash of the scan options that will be used when test run is about to start. This allows your code to modify the arguments that will be sent to scan',
+            optional: true,
+            is_string: false,
+            default_value: nil,
+            type: Proc
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
             description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process. Return a Hash with :continue set to false to stop retrying tests, or :only_testing to change which tests will be run in the next try',
             optional: true,

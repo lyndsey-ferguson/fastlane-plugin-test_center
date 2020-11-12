@@ -6,6 +6,12 @@ module TestCenter::Helper::MultiScanManager
       allow(File).to receive(:open).and_call_original
       allow(Scan).to receive(:config).and_return(derived_data_path: '')
       allow(Scan).to receive(:config=)
+      @mock_scan_runner = OpenStruct.new
+      allow(Scan::Runner).to receive(:new).and_return(@mock_scan_runner)
+      @mock_scan_config = FastlaneCore::Configuration.new(Fastlane::Actions::ScanAction.available_options, { derived_data_path: ''} )
+      allow_any_instance_of(RetryingScanHelper).to receive(:scan_config).and_return(@mock_scan_config)
+      @mock_scan_cache = { destination: ["platform=iOS Simulator,id=HungryHippo"] }
+      allow_any_instance_of(RetryingScanHelper).to receive(:scan_cache).and_return(@mock_scan_cache)
       allow(FastlaneCore::UI).to receive(:message).and_call_original
       allow(FileUtils).to receive(:rm_rf).and_call_original
       @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
@@ -825,6 +831,114 @@ module TestCenter::Helper::MultiScanManager
           xcargs: "-parallel-testing-enabled=YES"
         )
         helper.update_only_testing
+      end
+    end
+
+    describe '#set_scan_config' do
+      it 'updates Scan.devices when :scan_devices_override is set' do
+        Scan.devices = initial_scan_devices = [
+          OpenStruct.new(name: 'Alpha'),
+          OpenStruct.new(name: 'Beta')
+        ]
+
+        overridden_scan_devices = [
+          OpenStruct.new(name: 'Alpha'),
+          OpenStruct.new(name: 'Beta')
+        ]
+        retrying_scan_helper = RetryingScanHelper.new(
+          {
+            derived_data_path: './path/to/derived_data_path',
+            scan_devices_override: overridden_scan_devices
+          }
+        )
+        allow(retrying_scan_helper).to receive(:prepare_scan_config)
+
+        retrying_scan_helper.set_scan_config
+
+        expect(Scan.devices).to eq(overridden_scan_devices)
+      end
+    end
+
+    describe '#prepare_scan_config' do
+      it 'removes the :device and :devices options from the Scan config' do
+        retrying_scan_helper = RetryingScanHelper.new(
+          {
+            derived_data_path: './path/to/derived_data_path'
+          }
+        )
+        expect(retrying_scan_helper).to receive(:prepare_scan_config)
+        retrying_scan_helper.prepare_scan_config
+      end
+
+      it 'removes :device and :devices' do
+        retrying_scan_helper = RetryingScanHelper.new({})
+
+        @mock_scan_config[:device] = 'iPhone 91v'
+        @mock_scan_config[:devices] = ['iPhone 92w', 'iPhone 92x']
+
+        retrying_scan_helper.prepare_scan_config
+        expect(@mock_scan_config[:device]).to be_nil
+        expect(@mock_scan_config[:devices]).to be_nil
+      end
+
+      it 'clears out the Scan cache' do
+        retrying_scan_helper = RetryingScanHelper.new({})
+        retrying_scan_helper.prepare_scan_config
+        expect(@mock_scan_cache).to be_empty
+      end
+
+      it 'removes :result_bundle if ReportNamer includes "xcresult" output_type' do
+        allow(ReportNameHelper).to receive(:includes_xcresult?).and_return(true)
+        retrying_scan_helper = RetryingScanHelper.new({})
+        @mock_scan_config[:result_bundle] = true
+        retrying_scan_helper.prepare_scan_config
+        expect(@mock_scan_config[:result_bundle]).to be_falsey
+      end
+    end
+
+    describe '#send_callback_override_scan_options_block' do
+      it 'does not change the scan options of there is no callback' do
+        options = {
+          derived_data_path: './path/to/derived_data_path'
+        }
+
+        retrying_scan_helper = RetryingScanHelper.new(options)
+        expect(retrying_scan_helper.send_callback_override_scan_options_block(options)).to eq(options)
+      end
+
+      it 'calls callback to successfully change options' do
+        callback = lambda do |options|
+          options.delete(:xctestrun)
+        end
+
+        options = {
+          derived_data_path: './path/to/derived_data_path',
+          xctestrun: './path/to/derived_data_path/build/Products/xctestrun',
+          override_scan_options_block: callback
+        }
+        retrying_scan_helper = RetryingScanHelper.new(options)
+        expect(retrying_scan_helper.send_callback_override_scan_options_block(options)).not_to have_key(:xctestrun)
+      end
+
+      it 'calls callback to successfully return new options' do
+        new_derived_data_path = './brand/new/path/to/derived_data_path'
+        callback = lambda do |options|
+          {
+            derived_data_path: new_derived_data_path
+          }
+        end
+
+        options = {
+          derived_data_path: './path/to/derived_data_path',
+          xctestrun: './path/to/derived_data_path/build/Products/xctestrun',
+          override_scan_options_block: callback
+        }
+        retrying_scan_helper = RetryingScanHelper.new(options)
+        expect(retrying_scan_helper.send_callback_override_scan_options_block(options)).to eq(
+          {
+            derived_data_path: new_derived_data_path
+          }
+        )
       end
     end
   end
