@@ -8,7 +8,7 @@ module Fastlane
         if report_filepaths.size == 1
           FileUtils.cp(report_filepaths[0], params[:collated_report])
         else
-          UI.verbose("collate_junit_reports with #{report_filepaths}")
+          verbose("collate_junit_reports with #{report_filepaths}")
           reports = report_filepaths.map { |report_filepath| REXML::Document.new(File.new(report_filepath)) }
           packages = reports.map { |r| r.root.attribute('name').value }.uniq
           combine_multiple_targets = packages.size > 1 
@@ -23,7 +23,7 @@ module Fastlane
             increment_testable_tries(target_report.root, report.root)
             package = report.root.attribute('name').value
             preprocess_testsuites(report, package, combine_multiple_targets)
-            UI.verbose("> collating last report file #{report_filepaths.last}")
+            verbose("> collating last report file #{report_filepaths.last}")
             report.elements.each('//testsuite') do |testsuite|
               testsuite_name = testsuite.attribute('name').value
               package_attribute = ''
@@ -32,15 +32,15 @@ module Fastlane
               end
               target_testsuite = REXML::XPath.first(target_report, "//testsuite[@name='#{testsuite_name}' #{package_attribute}]")
               if target_testsuite
-                UI.verbose("  > collating testsuite #{testsuite_name}")
+                verbose("  > collating testsuite #{testsuite_name}")
                 collate_testsuite(target_testsuite, testsuite)
-                UI.verbose("  < collating testsuite #{testsuite_name}")
+                verbose("  < collating testsuite #{testsuite_name}")
               else
                 testable = REXML::XPath.first(target_report, "//testsuites")
                 testable << testsuite
               end
             end
-            UI.verbose("< collating last report file #{report_filepaths.last}")
+            verbose("< collating last report file #{report_filepaths.last}")
           end
           target_report.elements.each('//testsuite') do |testsuite|
             update_testsuite_counts(testsuite)
@@ -83,12 +83,12 @@ module Fastlane
         testsuite_name = testsuite.attribute('name').value
         duplicate_testsuites = REXML::XPath.match(report, "//testsuite[@name='#{testsuite_name}']")
         if duplicate_testsuites.size > 1
-          UI.verbose("    > flattening_duplicate_testsuites")
+          verbose("    > flattening_duplicate_testsuites")
           duplicate_testsuites.drop(1).each do |duplicate_testsuite|
             collate_testsuite(testsuite, duplicate_testsuite)
             duplicate_testsuite.parent.delete_element(duplicate_testsuite)
           end
-          UI.verbose("    < flattening_duplicate_testsuites")
+          verbose("    < flattening_duplicate_testsuites")
         end
         update_testsuite_counts(testsuite)
       end
@@ -108,14 +108,14 @@ module Fastlane
           target_testcase = REXML::XPath.first(target_testsuite, "testcase[@name='#{name}' and @classname='#{classname}']")
           # Replace target_testcase with testcase
           if target_testcase
-            UI.verbose("      collate_testsuite with testcase #{name}")
-            UI.verbose("      replacing \"#{target_testcase}\" with \"#{testcase}\"")
+            verbose("      collate_testsuite with testcase #{name}")
+            verbose("      replacing \"#{target_testcase}\" with \"#{testcase}\"")
             parent = target_testcase.parent
             increment_testcase_tries(target_testcase, testcase) unless testcase.root == target_testcase.root 
             parent.insert_after(target_testcase, testcase)
             parent.delete_element(target_testcase)
-            UI.verbose("")
-            UI.verbose("      target_testcase after replacement \"#{parent}\"")
+            verbose("")
+            verbose("      target_testcase after replacement \"#{parent}\"")
           else
             target_testsuite << testcase
           end
@@ -163,6 +163,12 @@ module Fastlane
         value1 = node1.attribute(attribute).value.to_i
         value2 = node2.attribute(attribute).value.to_i
         (value1 + value2).to_s
+      end
+
+      def self.verbose(message)
+        return if ENV.fetch('COLLATE_JUNIT_REPORTS_VERBOSITY', 1).to_i.zero?
+
+        UI.verbose(message)
       end
 
       #####################################################

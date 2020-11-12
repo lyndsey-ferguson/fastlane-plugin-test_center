@@ -1,6 +1,13 @@
 module TestCenter
   module Helper
     module HtmlTestReport
+
+      def self.verbose(message)
+        return if ENV.fetch('COLLATE_HTML_REPORTS_VERBOSITY', 1).to_i.zero?
+
+        FastlaneCore::UI.verbose(message)
+      end
+
       class Report
         require 'rexml/formatters/transitive'
 
@@ -24,16 +31,16 @@ module TestCenter
         def collate_report(report)
           testsuites.each(&:remove_duplicate_testcases)
           report.testsuites.each(&:remove_duplicate_testcases)
-          FastlaneCore::UI.verbose("TestCenter::Helper::HtmlTestReport::Report.collate_report to report:\n\t#{@root}")
+          HtmlTestReport.verbose("TestCenter::Helper::HtmlTestReport::Report.collate_report to report:\n\t#{@root}")
           report.testsuites.each do |given_testsuite|
             existing_testsuite = testsuite_with_title(given_testsuite.title)
             if existing_testsuite.nil?
-              FastlaneCore::UI.verbose("\tadding testsuite\n\t\t#{given_testsuite}")
+              HtmlTestReport.verbose("\tadding testsuite\n\t\t#{given_testsuite}")
               add_testsuite(given_testsuite)
             else
-              FastlaneCore::UI.verbose("\tcollating testsuite\n\t\t#{given_testsuite.root}")
+              HtmlTestReport.verbose("\tcollating testsuite\n\t\t#{given_testsuite.root}")
               existing_testsuite.collate_testsuite(given_testsuite)
-              FastlaneCore::UI.verbose("\tafter collation exiting testsuite\n\t\t#{existing_testsuite.root}")
+              HtmlTestReport.verbose("\tafter collation exiting testsuite\n\t\t#{existing_testsuite.root}")
             end
           end
           update_test_count
@@ -210,15 +217,15 @@ module TestCenter
           given_testcases.each do |given_testcase|
             existing_testcase = testcase_with_title(given_testcase.title)
             if existing_testcase.nil?
-              FastlaneCore::UI.verbose("\t\tadding testcase\n\t\t\t#{given_testcase.root}")
+              HtmlTestReport.verbose("\t\tadding testcase\n\t\t\t#{given_testcase.root}")
               unless given_testcase.passing?
-                FastlaneCore::UI.verbose("\t\t\twith failure:\n\t\t\t\t#{given_testcase.failure_details}")
+                HtmlTestReport.verbose("\t\t\twith failure:\n\t\t\t\t#{given_testcase.failure_details}")
               end
               add_testcase(given_testcase)
             else
-              FastlaneCore::UI.verbose("\t\tupdating testcase\n\t\t\t#{existing_testcase.root}")
+              HtmlTestReport.verbose("\t\tupdating testcase\n\t\t\t#{existing_testcase.root}")
               unless given_testcase.passing?
-                FastlaneCore::UI.verbose("\t\t\twith failure:\n\t\t\t\t#{given_testcase.failure_details}")
+                HtmlTestReport.verbose("\t\t\twith failure:\n\t\t\t\t#{given_testcase.failure_details}")
               end
               existing_testcase.update_testcase(given_testcase)
             end
@@ -275,7 +282,7 @@ module TestCenter
           color = row_color
           failure = failure_details
           if failure.nil? && !passing?
-            FastlaneCore::UI.error("\t\t\t\tupdating failing test case that does not have failure_details")
+            HtmlTestReport.error("\t\t\t\tupdating failing test case that does not have failure_details")
           end
           parent = @root.parent
 
@@ -283,7 +290,7 @@ module TestCenter
 
           new_failure = testcase.failure_details
           if new_failure && testcase.passing?
-            FastlaneCore::UI.error("\t\t\t\tswapping passing failing test case that _does_have_ failure_details")
+            HtmlTestReport.error("\t\t\t\tswapping passing failing test case that _does_have_ failure_details")
           end
 
           parent.replace_child(@root, testcase.root)
