@@ -629,6 +629,16 @@ module Fastlane
             try_count: 2,
             batch_count: 2
           )
+          ",
+          "
+          UI.header('Basic test with testplan')
+          multi_scan(
+            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+            scheme: 'SuperAtomicBoy',
+            fail_build: false,
+            try_count: 2,
+            testplan: 'AtomicBoy_2'
+          )
           "
         ]
       end

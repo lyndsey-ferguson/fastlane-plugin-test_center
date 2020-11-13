@@ -29,6 +29,10 @@ module TestCenter
             ENV.delete('SCAN_RESULT_BUNDLE')
           end
           scan_config._values.delete(:skip_testing)
+          scan_config._values.delete(:testplan)
+          if scan_config.config_file_options
+            scan_config.config_file_options.reject! { |k, v| %i[skip_testing testplan device devices].include?(k) }
+          end
           scan_cache.clear
         end
 
