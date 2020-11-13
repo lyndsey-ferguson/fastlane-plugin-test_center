@@ -139,25 +139,32 @@ module Fastlane
           "
           require 'fastlane/actions/scan'
 
-          UI.important(
-            'example: ' \\
-            'get list of tests that are referenced from an xctestrun file'
-          )
-          # build the tests so that we have a xctestrun file to parse
-          scan(
-            build_for_testing: true,
-            workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-            scheme: 'AtomicBoy'
-          )
+          lane :split_tests do
+            scan(
+              build_for_testing: true,
+              workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+              scheme: 'AtomicBoy'
+            )
+            derived_data_path = Scan.config[:derived_data_path]
+            xctestrun_file = Dir.glob(\"\#{derived_data_path}/Build/Products/*.xctestrun\").first
+            tests = tests_from_xctestrun(xctestrun: xctestrun_file).values.flatten.shuffle
+            slice_size = (tests.size/4.0).ceil
+            tests.each_slice(slice_size).each_with_index do |inner_array, index|
+              File.write(\"test_output/batch\#{index}.txt\", inner_array.join(','))
+            end
+          end
 
-          # find the xctestrun file
-          derived_data_path = Scan.config[:derived_data_path]
-          xctestrun_file = Dir.glob(\"\#{derived_data_path}/Build/Products/*.xctestrun\").first
-
-          # get the tests from the xctestrun file
-          tests = tests_from_xctestrun(xctestrun: xctestrun_file)
-          UI.header('xctestrun file contains the following tests')
-          tests.values.flatten.each { |test_identifier| puts test_identifier }
+          lane :run_built_tests_with_matching_name do |options|
+            batch_file = File.join('test_output', \"batch\#{options[:batch_index]}.txt\")
+            only_testing = File.read(batch_file).split(',')
+            multi_scan(
+              workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+              scheme: 'AtomicBoy',
+              try_count: 3,
+              fail_build: false,
+              only_testing: only_testing
+            )
+          end
           "
         ]
       end
