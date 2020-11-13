@@ -158,6 +158,7 @@ In addition to the parameters supported by [`scan`](https://docs.fastlane.tools/
 |reuse_simulators_for_parallel_testruns|Find simulators (or clone new ones) that match the requested device for the parallel test runs|false|
 |override_scan_options_block|A block invoked with a Hash of the scan options that will be used when test run is about to start. This allows your code to modify the arguments that will be sent to scan||
 |reuse_simulators_for_parallel_testruns|Find simulators (or clone new ones) that match the requested device for the parallel test runs. This option sets :pre_delete_cloned_simulators to false|false|
+|override_scan_options_block|A block invoked with a Hash of the scan options that will be used when test run is about to start. This allows your code to modify the arguments that will be sent to scan||
 |testrun_completed_block|A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process. Return a Hash with :continue set to false to stop retrying tests, or :only_testing to change which tests will be run in the next try||
 |simulator_started_callback|A block invoked after the iOS simulators have started||
 <!-- multi_scan parameters: end -->
