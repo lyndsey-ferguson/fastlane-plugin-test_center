@@ -28,7 +28,7 @@ lane :split_tests do
   end
 end
 
-lane :run_built_tests_with_matching_name do |options|
+lane :run_split_tests do |options|
   batch_file = File.join('test_output', "batch#{options[:batch_index]}.txt")
   only_testing = File.read(batch_file).split(',')
   multi_scan(
