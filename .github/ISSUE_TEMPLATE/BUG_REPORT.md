@@ -38,7 +38,7 @@ openssl rsautl -encrypt -pubin -inkey lyndsey-ferguson-id_rsa.pub.pkcs8 -in secr
 ```
 4. Package up the encrypted files:
 ```
-zip issue-310.zip *.enc
+zip issue.zip *.enc
 ```
 
 Attach that zip to this issue.
