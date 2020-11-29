@@ -22,3 +22,23 @@ action_integration_tests.each do |action_name, integration_tests|
     end
   end
 end
+
+lane :issue_310 do
+  test_options = test_options_from_testplan(
+    testplan: 'MyProject-TESTS.xctestplan'
+  )
+  only_testing = test_options[:only_testing]
+  only_testing.each do |test_identifier|
+    puts test_identifier
+  end
+end
+
+lane :testing do
+  multi_scan(
+    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
+    scheme: 'SuperAtomicBoy',
+    fail_build: false,
+    try_count: 2,
+    testplan: 'AtomicBoy_2'
+  )
+end

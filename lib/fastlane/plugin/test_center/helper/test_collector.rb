@@ -61,7 +61,9 @@ module TestCenter
         testable_tests_hash = Hash.new { |h, k| h[k] = [] }
         only_testing = derive_only_testing(options)
         if only_testing
+          FastlaneCore::UI.verbose("testable_tests_hash_from_options: only_testing before 'expansion': #{only_testing}\n")
           expand_test_identifiers(only_testing)
+          FastlaneCore::UI.verbose("\ntestable_tests_hash_from_options: only_testing after 'expansion' : #{only_testing}")
           only_testing.each do |test_identifier|
             testable = test_identifier.split('/')[0]
             testable_tests_hash[testable] << test_identifier
