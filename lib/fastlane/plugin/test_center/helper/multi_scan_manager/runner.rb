@@ -68,6 +68,7 @@ module TestCenter
           @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.batches.size
           tests = @test_collector.batches.flatten
+          FastlaneCore::UI.verbose("Test Collector reports #{@batch_count}")
           if tests.size < @options[:parallel_testrun_count].to_i
             FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{tests.size}). Reducing to that number.")
             @options[:parallel_testrun_count] = tests.size
@@ -235,7 +236,7 @@ module TestCenter
           remaining_test_batches = @test_collector.batches.clone
           remaining_test_batches.each_with_index do |test_batch, current_batch_index|
             worker = pool.wait_for_worker
-            FastlaneCore::UI.message("Starting test run #{current_batch_index + 1}")
+            FastlaneCore::UI.message("Starting test run batch #{current_batch_index + 1} with #{test_batch.size} tests")
             worker.run(scan_options_for_worker(test_batch, current_batch_index))
           end
           pool.wait_for_all_workers
