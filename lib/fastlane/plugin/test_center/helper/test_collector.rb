@@ -57,6 +57,14 @@ module TestCenter
         only_testing
       end
 
+      def derive_skip_testing(options)
+        skip_testing = options[:skip_testing] || self.class.skip_testing_from_testplan(options)
+        if skip_testing && skip_testing.kind_of?(String)
+          skip_testing = only_testing.split(',').map(&:strip)
+        end
+        skip_testing
+      end
+
       def testable_tests_hash_from_options(options)
         testable_tests_hash = Hash.new { |h, k| h[k] = [] }
         only_testing = derive_only_testing(options)
@@ -70,10 +78,11 @@ module TestCenter
           end
         else
           testable_tests_hash = xctestrun_known_tests.clone
-          if options[:skip_testing]
-            expand_test_identifiers(options[:skip_testing])
+          skip_testing = derive_skip_testing(options)
+          if skip_testing 
+            expand_test_identifiers(skip_testing)
             testable_tests_hash.each do |testable, test_identifiers|
-              test_identifiers.replace(test_identifiers - options[:skip_testing])
+              test_identifiers.replace(test_identifiers - skip_testing)
               testable_tests_hash.delete(testable) if test_identifiers.empty?
             end
           end
@@ -152,34 +161,45 @@ module TestCenter
         @known_tests
       end
 
+      def self.test_options_from_testplan(options)
+        unless @test_options
+          @test_options = {}
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestplansFromSchemeAction.available_options,
+            {
+              workspace: options[:workspace],
+              xcodeproj: options[:project],
+              scheme: options[:scheme]
+            }
+          )
+          testplans = Fastlane::Actions::TestplansFromSchemeAction.run(config)
+          FastlaneCore::UI.verbose("TestCollector found testplans: #{testplans}")
+          testplan = testplans.find do |testplan_path|
+            %r{(.*/?#{ options[:testplan] })\.xctestplan}.match?(testplan_path)
+          end
+          FastlaneCore::UI.verbose("  using :testplan option, #{options[:testplan]}, using found one: #{testplan}")
+
+          return if testplan.nil?
+
+          config = FastlaneCore::Configuration.create(
+            Fastlane::Actions::TestOptionsFromTestplanAction.available_options,
+            {
+              testplan: testplan
+            }
+          )
+          @test_options = Fastlane::Actions::TestOptionsFromTestplanAction.run(config)
+        end
+        @test_options
+      end
+
       def self.only_testing_from_testplan(options)
         return unless options[:testplan] && options[:scheme]
+        return test_options_from_testplan(options)[:only_testing]
+      end
 
-        config = FastlaneCore::Configuration.create(
-          Fastlane::Actions::TestplansFromSchemeAction.available_options,
-          {
-            workspace: options[:workspace],
-            xcodeproj: options[:project],
-            scheme: options[:scheme]
-          }
-        )
-        testplans = Fastlane::Actions::TestplansFromSchemeAction.run(config)
-        FastlaneCore::UI.verbose("TestCollector found testplans: #{testplans}")
-        testplan = testplans.find do |testplan_path|
-          %r{(.*/?#{ options[:testplan] })\.xctestplan}.match?(testplan_path)
-        end
-        FastlaneCore::UI.verbose("  using :testplan option, #{options[:testplan]}, using found one: #{testplan}")
-
-        return if testplan.nil?
-
-        config = FastlaneCore::Configuration.create(
-          Fastlane::Actions::TestOptionsFromTestplanAction.available_options,
-          {
-            testplan: testplan
-          }
-        )
-        test_options = Fastlane::Actions::TestOptionsFromTestplanAction.run(config)
-        return test_options[:only_testing]
+      def self.skip_testing_from_testplan(options)
+        return unless options[:testplan] && options[:scheme]
+        return test_options_from_testplan(options)[:skip_testing]
       end
 
       def self.default_derived_data_path

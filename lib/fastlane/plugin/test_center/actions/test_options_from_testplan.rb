@@ -8,6 +8,8 @@ module Fastlane
 
         testplan = JSON.load(File.open(testplan_path))
         only_testing = []
+        skip_testing = []
+
         UI.verbose("Examining testplan JSON: #{testplan}")
         testplan['testTargets'].each do |test_target|
           testable = test_target.dig('target', 'name')
@@ -18,6 +20,13 @@ module Fastlane
               UI.verbose("    Found test: '#{selected_test}'")
               only_testing << "#{testable}/#{selected_test.sub('\/', '/')}"
             end
+          elsif test_target.key?('skippedTests')
+            UI.verbose(" . Found skippedTests")
+            test_identifiers = test_target['skippedTests'].each do |skipped_test|
+              skipped_test.delete!('()')
+              UI.verbose(" .   Found test: '#{skipped_test}'")
+              skip_testing << "#{testable}/#{skipped_test.sub('\/', '/')}"
+            end
           else
             UI.verbose("  No selected tests, using testable '#{testable}'")
             only_testing << testable
@@ -25,7 +34,8 @@ module Fastlane
         end
         {
           code_coverage: testplan.dig('defaultOptions', 'codeCoverage'),
-          only_testing: only_testing
+          only_testing: only_testing,
+          skip_testing: skip_testing
         }
       end
 
