@@ -188,6 +188,8 @@ module TestCenter
             }
           )
           @test_options = Fastlane::Actions::TestOptionsFromTestplanAction.run(config)
+          @test_options.delete(:only_testing) if @test_options[:only_testing].empty?
+          @test_options.delete(:skip_testing) if @test_options[:skip_testing].empty?
         end
         @test_options
       end

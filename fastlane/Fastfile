@@ -35,10 +35,10 @@ end
 
 lane :testing do
   multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'SuperAtomicBoy',
+    project: File.absolute_path('../FastlaneTestPlan/FastlaneTestPlan.xcodeproj'),
+    scheme: 'FastlaneTestPlan',
     fail_build: false,
     try_count: 2,
-    testplan: 'AtomicBoy_2'
+    testplan: 'FastlaneTestPlan/FastlaneTestPlan'
   )
 end
