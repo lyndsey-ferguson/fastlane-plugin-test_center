@@ -13,6 +13,7 @@ about: If a recent release broke a feature 😬 (Please make sure you know the l
 - [ ] I reviewed the [example(s)](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/blob/master/README.md) for the action(s) I am using
 - [ ] I searched for [existing GitHub issues](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues)
 - [ ] I have removed any sensitive data such as passwords, authentication tokens, or anything else I do not want to world to see
+- [ ] I have reviewed the [Discussions forum](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/discussions) to see my question has already been addressed.
 
 > If you love this fastlane plugin, consider sponsoring it or asking your company to sponsor it. I would really appreciate any
 > gesture: https://github.com/sponsors/lyndsey-ferguson. 😍
