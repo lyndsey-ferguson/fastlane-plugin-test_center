@@ -22,14 +22,3 @@ action_integration_tests.each do |action_name, integration_tests|
     end
   end
 end
-
-lane :test_287 do
-  multi_scan(
-    workspace: File.absolute_path('../AtomicBoy/AtomicBoy.xcworkspace'),
-    scheme: 'AtomicBoy',
-    try_count: 3,
-    fail_build: false,
-    parallel_testrun_count: 2,
-    reuse_simulators_for_parallel_testruns: true
-  )
-end
