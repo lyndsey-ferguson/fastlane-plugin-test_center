@@ -8,6 +8,12 @@ module TestCenter
         FastlaneCore::UI.verbose(message)
       end
 
+      def self.error(message)
+        return if ENV.fetch('COLLATE_HTML_REPORTS_VERBOSITY', 1).to_i.zero?
+
+        FastlaneCore::UI.error(message)
+      end
+
       class Report
         require 'rexml/formatters/transitive'
 

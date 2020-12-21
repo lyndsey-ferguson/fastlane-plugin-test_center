@@ -23,7 +23,76 @@ module TestCenter
           delete_xcresults # has to be performed _after_ moving a *.test_result
           quit_simulator
           set_json_env
+          set_scan_config
           print_starting_scan_message
+        end
+
+        def set_scan_config
+          valid_scan_keys = Fastlane::Actions::ScanAction.available_options.map(&:key)
+          new_scan_options = @options.select { |k,v| valid_scan_keys.include?(k) }
+                                 .merge(scan_options)
+
+          prepare_scan_config
+          new_scan_options[:build_for_testing] = false
+          new_scan_options.delete(:skip_testing)
+
+          new_scan_options = send_callback_override_scan_options_block(new_scan_options)
+
+          FastlaneCore::UI.verbose("retrying_scan #update_scan_options")
+          new_scan_options.each do |k,v|
+            next if v.nil?
+
+            scan_config.set(k,v) unless v.nil?
+            FastlaneCore::UI.verbose("\tSetting #{k.to_s} to #{v}")
+          end
+          if @options[:scan_devices_override]
+            scan_device_names = @options[:scan_devices_override].map { |device| device.name }
+            FastlaneCore::UI.verbose("\tSetting Scan.devices to #{scan_device_names}")
+            if Scan.devices
+              Scan.devices.replace(@options[:scan_devices_override])
+            else
+              Scan.devices = @options[:scan_devices_override]
+            end
+          end
+ 
+          values = scan_config.values(ask: false)
+          values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
+          ScanHelper.print_scan_parameters(values)
+        end
+
+        # :nocov:
+        def scan_config
+          Scan.config
+        end
+
+        def scan_cache
+          Scan.cache
+        end
+        # :nocov:
+
+        def prepare_scan_config
+          # this allows multi_scan's `destination` option to be picked up by `scan`
+          scan_config._values.delete(:device)
+          ENV.delete('SCAN_DEVICE')
+          scan_config._values.delete(:devices)
+          ENV.delete('SCAN_DEVICES')
+          # this prevents double -resultBundlePath args to xcodebuild
+          if ReportNameHelper.includes_xcresult?(@options[:output_types])
+            scan_config._values.delete(:result_bundle)
+            ENV.delete('SCAN_RESULT_BUNDLE')
+          end
+          scan_config._values.delete(:skip_testing)
+          scan_cache.clear
+        end
+
+        def send_callback_override_scan_options_block(new_scan_options)
+          return new_scan_options unless @options[:override_scan_options_block]
+
+          callback_result = @options[:override_scan_options_block].call(new_scan_options)
+          if callback_result.kind_of?(Hash)
+            return callback_result
+          end
+          new_scan_options
         end
 
         def quit_simulator

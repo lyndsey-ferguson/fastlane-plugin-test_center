@@ -18,6 +18,17 @@ module FastlaneCore
         self.name = newname
       end
 
+      def disable_hardware_keyboard
+        UI.verbose("Disabling hardware keyboard for #{self.udid}")
+        plist_filepath = File.expand_path("~/Library/Preferences/com.apple.iphonesimulator.plist")
+        keyboard_pref_key = ":DevicePreferences:#{self.udid}:ConnectHardwareKeyboard"
+
+        command = "/usr/libexec/PlistBuddy -c \"Set #{keyboard_pref_key} false\" #{plist_filepath} 2>/dev/null || "
+        command << "/usr/libexec/PlistBuddy -c \"Add #{keyboard_pref_key} bool false\" #{plist_filepath}"
+
+        `#{command}`
+      end
+
       def boot
         return unless is_simulator
         return unless os_type == "iOS"

@@ -13,12 +13,7 @@ module Fastlane
 
     class MultiScanAction < Action
       def self.run(params)
-        params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
-        if params[:try_count] < 1
-          UI.important('multi_scan will not test any if :try_count < 0, setting to 1')
-          params[:try_count] = 1
-        end
-
+        update_interdependent_params(params)
         strip_leading_and_trailing_whitespace_from_output_types(params)
 
         warn_of_xcode11_result_bundle_incompatability(params)
@@ -51,6 +46,14 @@ module Fastlane
           raise UI.test_failure!('Tests have failed')
         end
         summary
+      end
+
+      def self.update_interdependent_params(params)
+        params[:quit_simulators] = params._values[:force_quit_simulator] if params._values[:force_quit_simulator]
+        if params[:try_count] < 1
+          UI.important('multi_scan will not test any if :try_count < 0, setting to 1')
+          params[:try_count] = 1
+        end
       end
 
       def self.warn_of_parallelism_with_circle_ci(params)
@@ -457,8 +460,32 @@ module Fastlane
             default_value: true
           ),
           FastlaneCore::ConfigItem.new(
+            key: :override_scan_options_block,
+            description: 'A block invoked with a Hash of the scan options that will be used when test run is about to start. This allows your code to modify the arguments that will be sent to scan',
+            optional: true,
+            is_string: false,
+            default_value: nil,
+            type: Proc
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :reuse_simulators_for_parallel_testruns,
+            description: 'Find simulators (or clone new ones) that match the requested device for the parallel test runs. This option sets :pre_delete_cloned_simulators to false',
+            optional: true,
+            is_string: false,
+            type: Boolean,
+            default_value: false
+          ),
+          FastlaneCore::ConfigItem.new(
             key: :testrun_completed_block,
             description: 'A block invoked each time a test run completes. When combined with :parallel_testrun_count, will be called separately in each child process. Return a Hash with :continue set to false to stop retrying tests, or :only_testing to change which tests will be run in the next try',
+            optional: true,
+            is_string: false,
+            default_value: nil,
+            type: Proc
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :simulator_started_callback,
+            description: 'A block invoked after the iOS simulators have started',
             optional: true,
             is_string: false,
             default_value: nil,
@@ -492,6 +519,10 @@ module Fastlane
             }
           end
 
+          sim_callback = lambda do |simulator_device_udid|
+            puts \"Start streaming system log for device \#{simulator_device_udid}\"
+          end
+
           multi_scan(
             project: File.absolute_path('../AtomicBoy/AtomicBoy.xcodeproj'),
             scheme: 'AtomicBoy',
@@ -499,7 +530,8 @@ module Fastlane
             batch_count: 4,
             fail_build: false,
             parallel_testrun_count: 4,
-            testrun_completed_block: test_run_block
+            testrun_completed_block: test_run_block,
+            simulator_started_callback: sim_callback
           )
           ",
           "

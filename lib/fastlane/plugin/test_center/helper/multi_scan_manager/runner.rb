@@ -21,6 +21,8 @@ module TestCenter
             update_options_to_use_xcresult_output
           end
           @batch_count = 1 # default count. Will be updated by setup_testcollector
+          @options[:parallel_testrun_count] ||= 1
+          @initial_parallel_testrun_count = @options[:parallel_testrun_count]
           setup_testcollector
           setup_logcollection
           FastlaneCore::UI.verbose("< done in TestCenter::Helper::MultiScanManager.initialize")
@@ -67,6 +69,7 @@ module TestCenter
           @test_collector = TestCollector.new(@options)
           @options.reject! { |key| %i[testplan].include?(key) }
           @batch_count = @test_collector.batches.size
+          @options[:parallel_testrun_count] = @initial_parallel_testrun_count
           tests = @test_collector.batches.flatten
           if tests.size < @options[:parallel_testrun_count].to_i
             FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{tests.size}). Reducing to that number.")
@@ -184,6 +187,8 @@ module TestCenter
           options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           options[:try_count] = 1
 
+          SimulatorHelper.call_simulator_started_callback(@options, Scan.devices)
+
           tests_passed = RetryingScan.run(options)
           @options[:try_count] -= 1
 
@@ -228,6 +233,11 @@ module TestCenter
           pool_options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           pool_options[:test_batch_results] = test_batch_results
           pool_options[:xctestrun] = @test_collector.xctestrun_path
+
+          serial_test_batches = (@options.fetch(:parallel_testrun_count, 1) == 1)
+          if serial_test_batches && !@options[:invocation_based_tests]
+            SimulatorHelper.call_simulator_started_callback(@options, Scan.devices)
+          end
 
           pool = TestBatchWorkerPool.new(pool_options)
           pool.setup_workers
