@@ -34,13 +34,14 @@ module Fastlane
         failed = []
         passing = []
         failure_details = {}
-        rows = testable_summaries.map do |testable_summary|
+        testable_summaries.map do |testable_summary|
+          target_name = testable_summary.target_name
           all_tests = testable_summary.all_tests.flatten
           all_tests.each do |t|
             if t.test_status == 'Success'
-              passing << "#{t.parent.name}/#{t.identifier}"
+              passing << "#{target_name}/#{t.identifier}"
             else
-              test_identifier = "#{t.parent.name}/#{t.identifier}"
+              test_identifier = "#{target_name}/#{t.identifier}"
               failed << test_identifier
               failure = t.find_failure(failures)
               if failure
