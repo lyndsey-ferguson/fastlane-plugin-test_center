@@ -16,7 +16,7 @@ module Fastlane
         result_bundle_object_raw = sh("xcrun xcresulttool get --path #{xcresult_path.shellescape} --format json", print_command: false, print_command_output: false)
         result_bundle_object = JSON.parse(result_bundle_object_raw)
 
-        # Parses JSON into ActionsInvocationRecord to find a list of all ids for ActionTestPlanRunSummaries
+        # Parses JSON into ActionsInvocationRecord to find a list of all ids for ActionTestPlanRunSummaries.
         actions_invocation_record = Trainer::XCResult::ActionsInvocationRecord.new(result_bundle_object)
         test_refs = actions_invocation_record.actions.map do |action|
           action.action_result.tests_ref
