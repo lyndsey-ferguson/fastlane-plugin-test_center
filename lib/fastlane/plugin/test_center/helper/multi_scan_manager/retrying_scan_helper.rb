@@ -167,11 +167,14 @@ module TestCenter
             FastlaneCore::UI.important('Disabling -quiet as failing tests cannot be found with it enabled.')
             xcargs.gsub!('-quiet', '')
           end
-          xcargs.gsub!(/-parallel-testing-enabled(=|\s+)(YES|NO)/, '')
+          if FastlaneCore::Helper.xcode_at_least?(10)
+            xcargs.gsub!(/-parallel-testing-enabled(=|\s+)(YES|NO)/, '')
+            xcargs << " -parallel-testing-enabled NO "
+          end
           retrying_scan_options = @reportnamer.scan_options.merge(
             {
               output_directory: output_directory,
-              xcargs: "#{xcargs} -parallel-testing-enabled NO "
+              xcargs: xcargs
             }
           )
           if @reportnamer.includes_xcresult?
