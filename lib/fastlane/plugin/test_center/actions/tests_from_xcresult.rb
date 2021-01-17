@@ -39,9 +39,9 @@ module Fastlane
           all_tests = testable_summary.all_tests.flatten
           all_tests.each do |t|
             if t.test_status == 'Success'
-              passing << "#{target_name}/#{t.identifier}"
+              passing << "#{target_name}/#{t.identifier.sub('()', '')}"
             else
-              test_identifier = "#{target_name}/#{t.identifier}"
+              test_identifier = "#{target_name}/#{t.identifier.sub('()', '')}"
               failed << test_identifier
               failure = t.find_failure(failures)
               if failure
