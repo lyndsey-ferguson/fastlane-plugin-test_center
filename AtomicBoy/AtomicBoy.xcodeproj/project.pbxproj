@@ -22,6 +22,7 @@
 		26E17D392062D4F900928579 /* SwiftAtomicBoyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */; };
 		26E17D3B2062D50F00928579 /* TestObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E17D3A2062D50F00928579 /* TestObject.swift */; };
 		3A8E6E0225268995A59E6961 /* Pods_KiwiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD35E962360D594D599F3587 /* Pods_KiwiTests.framework */; };
+		924C09EB25B4779400E92AD5 /* CobaltDog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924C09EA25B4779300E92AD5 /* CobaltDog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAtomicBoyUITests.swift; sourceTree = "<group>"; };
 		26E17D3A2062D50F00928579 /* TestObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestObject.swift; sourceTree = "<group>"; };
 		4C050727974CFB3DA6DD48AD /* Pods-KiwiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KiwiTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-KiwiTests/Pods-KiwiTests.release.xcconfig"; sourceTree = "<group>"; };
+		924C09EA25B4779300E92AD5 /* CobaltDog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CobaltDog.swift; sourceTree = "<group>"; };
 		C204B95040F60D84A97B239D /* Pods-KiwiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KiwiTests.debug.xcconfig"; path = "Target Support Files/Pods-KiwiTests/Pods-KiwiTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DD35E962360D594D599F3587 /* Pods_KiwiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KiwiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -184,6 +186,7 @@
 				26E17D382062D4F900928579 /* SwiftAtomicBoyUITests.swift */,
 				26E17D3A2062D50F00928579 /* TestObject.swift */,
 				26E17D372062D4F900928579 /* AtomicBoyUITests-Bridging-Header.h */,
+				924C09EA25B4779300E92AD5 /* CobaltDog.swift */,
 			);
 			path = AtomicBoyUITests;
 			sourceTree = "<group>";
@@ -466,6 +469,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26E17D3B2062D50F00928579 /* TestObject.swift in Sources */,
+				924C09EB25B4779400E92AD5 /* CobaltDog.swift in Sources */,
 				26DB0F7E1FA12D4B0023C31D /* AtomicBoyUITests.m in Sources */,
 				26E17D392062D4F900928579 /* SwiftAtomicBoyUITests.swift in Sources */,
 			);
