@@ -161,7 +161,7 @@ module TestCenter
             )
             CollateXcresultsAction.run(config)
             FileUtils.rm_rf(test_xcresult_bundlepaths - [collated_xcresult_bundlepath])
-          elsif test_xcresult_bundlepaths.size == 1 && File.realdirpath(test_xcresult_bundlepaths.first) != File.realdirpath(collated_xcresult_bundlepath)
+          elsif test_xcresult_bundlepaths.size == 1 && File.realdirpath(test_xcresult_bundlepaths.first.downcase) != File.realdirpath(collated_xcresult_bundlepath.downcase)
             FastlaneCore::UI.verbose("Copying xcresult bundle from #{test_xcresult_bundlepaths.first} to #{collated_xcresult_bundlepath}")
             FileUtils.mkdir_p(File.dirname(collated_xcresult_bundlepath))
             FileUtils.mv(test_xcresult_bundlepaths.first, collated_xcresult_bundlepath)
