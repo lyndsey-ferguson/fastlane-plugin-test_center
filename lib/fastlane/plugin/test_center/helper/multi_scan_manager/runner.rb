@@ -103,7 +103,7 @@ module TestCenter
           end
 
           unless test_results.all? || @options[:try_count] < 1
-            test_results.clear 
+            test_results.clear
             setup_testcollector
             setup_run_tests_for_each_device do |device_name|
               FastlaneCore::UI.message("Testing batches for device '#{device_name}'") if device_name
@@ -114,7 +114,7 @@ module TestCenter
         end
 
         def setup_run_tests_for_each_device
-          original_output_directory = @options.fetch(:output_directory, 'test_results') 
+          original_output_directory = @options.fetch(:output_directory, 'test_results')
           unless @options[:platform] == :ios_simulator
             yield
             return
@@ -359,12 +359,12 @@ module TestCenter
 
           absolute_output_directory = File.absolute_path(output_directory)
           source_reports_directory_glob = "#{absolute_output_directory}/*"
-
+          FastlaneCore::UI.verbose("MultiScanManager::Runner sending 'source_reports_directory_glob' of \"#{source_reports_directory_glob}\"")
           TestCenter::Helper::MultiScanManager::ReportCollator.new(
             source_reports_directory_glob: source_reports_directory_glob,
             output_directory: absolute_output_directory,
             reportnamer: report_name_helper
-          ).collate_junit_reports 
+          ).collate_junit_reports
         end
 
         def collate_batched_reports_for_testable(testable)

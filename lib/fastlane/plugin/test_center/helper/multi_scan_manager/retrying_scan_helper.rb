@@ -9,6 +9,7 @@ module TestCenter
           raise ArgumentError, 'Do not use the :device or :devices option. Instead use the :destination option.' if (options.key?(:device) or options.key?(:devices))
 
           @options = options
+          FastlaneCore::UI.verbose("RetryingScanHelper.initialize with ':output' as \"#{@options[:output_directory]}\"")
           @testrun_count = 0
           @xcpretty_json_file_output = ENV['XCPRETTY_JSON_FILE_OUTPUT']
           @reportnamer = ReportNameHelper.new(
@@ -54,7 +55,7 @@ module TestCenter
               Scan.devices = @options[:scan_devices_override]
             end
           end
- 
+
           values = scan_config.values(ask: false)
           values[:xcode_path] = File.expand_path("../..", FastlaneCore::Helper.xcode_path)
           ScanHelper.print_scan_parameters(values)
@@ -447,7 +448,7 @@ module TestCenter
           return unless @options[:result_bundle]
 
           result_extension = FastlaneCore::Helper.xcode_at_least?('11') ? '.xcresult' : '.test_result'
-          
+
           glob_pattern = "#{output_directory}/*#{result_extension}"
           preexisting_test_result_bundles = Dir.glob(glob_pattern)
           unnumbered_test_result_bundles = preexisting_test_result_bundles.reject do |test_result|
