@@ -99,8 +99,7 @@ _fastlane_ is the easiest way to automate beta deployments and releases for your
 ## Supporters
 
 ![Владислав Давыдов](https://avatars1.githubusercontent.com/u/47553334?s=44&u=4691860dba898943b947180b3d28bb85851b0d7c&v=4)
-[vdavydovHH](https://github.com/vdavydovHH)  ![amelendezSGY](https://avatars1.githubusercontent.com/u/28657466?s=44&v=4)[amelendezSGY](https://github.com/amelendezSGY)
-
+[vdavydovHH](https://github.com/vdavydovHH)  
 ## License
 
 MIT
