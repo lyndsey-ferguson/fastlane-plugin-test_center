@@ -23,11 +23,11 @@ describe TestCenter do
           output_files: 'report.junit'
         )
       end
-      it 'provides the correct scan options when given no options', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given no options' do
         helper = ReportNameHelper.new
         expect(helper.scan_options).to include(
-          output_types: 'junit',
-          output_files: 'report.junit'
+          output_types: nil,
+          output_files: nil
         )
       end
       it 'provides the correct scan options when given no junit option via :output_files', :skip => "class is being refactored" do
