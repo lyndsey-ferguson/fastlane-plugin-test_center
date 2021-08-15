@@ -2,21 +2,21 @@ ReportNameHelper = TestCenter::Helper::ReportNameHelper
 describe TestCenter do
   describe TestCenter::Helper do
     describe ReportNameHelper do
-      it 'provides the correct scan options when given :output_types and :output_files', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given :output_types and :output_files' do
         helper = ReportNameHelper.new('html,junit', 'report.html,report.xml')
         expect(helper.scan_options).to include(
           output_types: 'html,junit',
           output_files: 'report.html,report.xml'
         )
       end
-      it 'provides the correct scan options when given :custom_report_file_name', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given :custom_report_file_name' do
         helper = ReportNameHelper.new('junit', 'report.xml')
         expect(helper.scan_options).to include(
           output_types: 'junit',
           output_files: 'report.xml'
         )
       end
-      it 'provides the correct scan options when given :output_types, :output_files, and :custom_report_file_name', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given :output_types, :output_files, and :custom_report_file_name' do
         helper = ReportNameHelper.new('junit', 'report.junit', 'report.xml')
         expect(helper.scan_options).to include(
           output_types: 'junit',
@@ -30,42 +30,31 @@ describe TestCenter do
           output_files: nil
         )
       end
-      it 'provides the correct scan options when given no junit option via :output_files', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given html option via :output_files' do
         helper = ReportNameHelper.new('html', 'report.html')
         expect(helper.scan_options).to include(
-          output_types: 'html,junit',
-          output_files: 'report.html,report.xml'
+          output_types: 'html',
+          output_files: 'report.html'
         )
       end
-      it 'provides the correct scan options when given :output_types but no filenames', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given :output_types but no filenames' do
         helper = ReportNameHelper.new('html,junit')
         expect(helper.scan_options).to include(
           output_types: 'html,junit',
           output_files: 'report.html,report.junit'
         )
       end
-      it 'provides the correct scan options when given no junit option via :custom_report_file_name', :skip => "class is being refactored" do
-        helper = ReportNameHelper.new('html', nil, 'report.html')
-        expect(helper.scan_options).to include(
-          output_types: 'html,junit',
-          output_files: 'report.html,report.xml'
-        )
-      end
-      it 'provides the correct scan options when given :output_types with json', :skip => "class is being refactored" do
+      it 'provides the correct scan options when given :output_types with json' do
         helper = ReportNameHelper.new('json', nil, 'report.json')
         expect(helper.scan_options).to include(
-          output_types: 'junit',
-          output_files: 'report.xml',
           formatter: 'xcpretty-json-formatter'
         )
         helper = ReportNameHelper.new('json')
         expect(helper.scan_options).to include(
-          output_types: 'junit',
-          output_files: 'report.xml',
           formatter: 'xcpretty-json-formatter'
         )
       end
-      it 'raises an exception when given multiple :output_types and only one :custom_report_file_name', :skip => "class is being refactored" do
+      it 'raises an exception when given multiple :output_types and only one :custom_report_file_name' do
         expect { ReportNameHelper.new('html,junit', nil, 'report.xml') }.to(
           raise_error(ArgumentError) do |error|
             expect(error.message).to eq('Error: count of :output_types, ["html", "junit"], does not match the output filename(s) ["report.xml"]')

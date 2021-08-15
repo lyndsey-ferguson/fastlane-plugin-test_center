@@ -6,23 +6,27 @@ module TestCenter
       attr_reader :report_count
 
       def initialize(output_types = nil, output_files = nil, custom_report_file_name = nil)
-        @output_types = output_types || 'xcresult'
+        @output_types = output_types
         @output_files = output_files || custom_report_file_name
         @report_count = 0
 
-        if @output_types && @output_files.nil?
-          @output_files = @output_types.split(',').map { |type| "report.#{type}" }.join(',')
-        end
-        unless @output_types.include?('xcresult')
-          FastlaneCore::UI.important('Scan output types missing \'xcresult\', adding it')
-          @output_types = @output_types.split(',').push('xcresult').join(',')
-          if @output_types.split(',').size == @output_files.split(',').size + 1
-            @output_files = @output_files.split(',').push('report.xcresult').join(',')
-            FastlaneCore::UI.message('As output files has one less than the new number of output types, assumming the filename for the xcresult was missing and added it')
-          end
-        end
+        initialize_default_output_files
+        validate_output_types_files_counts_match
+      end
+
+      def initialize_default_output_files
+        return unless @output_files.nil?
+        return unless @output_types.nil?
+
+        @output_files = @output_types.split(',').map { |type| "report.#{type}" }.join(',')
+      end
+
+      def validate_output_types_files_counts_match
+        return if @output_types.nil? || @output_files.nil?
 
         types = @output_types.split(',').each(&:chomp)
+        types.delete('xcresult')
+
         files = @output_files.split(',').each(&:chomp)
         unless files.size == types.size
           raise ArgumentError, "Error: count of :output_types, #{types}, does not match the output filename(s) #{files}"
@@ -40,6 +44,7 @@ module TestCenter
 
       def scan_options
         options = {}
+        return options if @output_types.nil? && @output_files.nil?
 
         types = @output_types.split(',').each(&:chomp)
         files = @output_files.split(',').each(&:chomp)
@@ -50,7 +55,6 @@ module TestCenter
         end
         if (xcresult_index = types.find_index('xcresult'))
           files.delete_at(xcresult_index)
-          types.delete_at(xcresult_index)
         end
         files.map! do |filename|
           filename.chomp
