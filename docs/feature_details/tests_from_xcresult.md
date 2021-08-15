@@ -2,7 +2,12 @@
 
 # ☑️  tests_from_xcresult
 
-Performing analysis on an `.xcresult` bundle? Get the failing and passing tests using this action.
+Performing analysis on an `.xcresult` bundle? Use this action to get a Hash of two arrays:
+1. An array of `:passing` test identiers.
+2. An array of `:failed` test identifers.
+
+A test identifer is the full name of the test that ran `testSuite/testClass/testMethod`.
+
 
 ## Example
 
