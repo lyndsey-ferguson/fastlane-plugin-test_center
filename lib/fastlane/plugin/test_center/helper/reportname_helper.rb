@@ -6,19 +6,19 @@ module TestCenter
       attr_reader :report_count
 
       def initialize(output_types = nil, output_files = nil, custom_report_file_name = nil)
-        @output_types = output_types || 'junit'
+        @output_types = output_types || 'xcresult'
         @output_files = output_files || custom_report_file_name
         @report_count = 0
 
         if @output_types && @output_files.nil?
           @output_files = @output_types.split(',').map { |type| "report.#{type}" }.join(',')
         end
-        unless @output_types.include?('junit')
-          FastlaneCore::UI.important('Scan output types missing \'junit\', adding it')
-          @output_types = @output_types.split(',').push('junit').join(',')
+        unless @output_types.include?('xcresult')
+          FastlaneCore::UI.important('Scan output types missing \'xcresult\', adding it')
+          @output_types = @output_types.split(',').push('xcresult').join(',')
           if @output_types.split(',').size == @output_files.split(',').size + 1
-            @output_files = @output_files.split(',').push('report.xml').join(',')
-            FastlaneCore::UI.message('As output files has one less than the new number of output types, assumming the filename for the junit was missing and added it')
+            @output_files = @output_files.split(',').push('report.xcresult').join(',')
+            FastlaneCore::UI.message('As output files has one less than the new number of output types, assumming the filename for the xcresult was missing and added it')
           end
         end
 
@@ -57,9 +57,11 @@ module TestCenter
           numbered_filename(filename)
         end
 
+        output_types = types.join(',') unless types.empty?
+        output_files = files.join(',') unless files.empty?
         options.merge(
-          output_types: types.join(','),
-          output_files: files.join(',')
+          output_types: output_types,
+          output_files: output_files
         )
       end
 
@@ -145,7 +147,7 @@ module TestCenter
       def json_numbered_fileglob
         "#{File.basename(json_reportname, '.*')}-[1-9]*#{json_filextension}"
       end
-      
+
       def self.ensure_output_includes_xcresult(output_types, output_files)
         return [output_types, output_files] if includes_xcresult?(output_types) || output_types.nil?
 
