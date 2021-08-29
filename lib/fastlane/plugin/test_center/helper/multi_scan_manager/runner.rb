@@ -63,6 +63,7 @@ module TestCenter
         end
 
         def setup_testcollector
+          FastlaneCore::UI.verbose("> setup_testcollector")
           return if @options[:invocation_based_tests] && @options[:only_testing].nil?
           return if @test_collector
 
@@ -75,6 +76,7 @@ module TestCenter
             FastlaneCore::UI.important(":parallel_testrun_count greater than the number of tests (#{tests.size}). Reducing to that number.")
             @options[:parallel_testrun_count] = tests.size
           end
+          FastlaneCore::UI.verbose("< setup_testcollector")
         end
 
         def output_directory(batch_index = 0, test_batch = [])
@@ -103,7 +105,7 @@ module TestCenter
           end
 
           unless test_results.all? || @options[:try_count] < 1
-            test_results.clear 
+            test_results.clear
             setup_testcollector
             setup_run_tests_for_each_device do |device_name|
               FastlaneCore::UI.message("Testing batches for device '#{device_name}'") if device_name
@@ -114,7 +116,7 @@ module TestCenter
         end
 
         def setup_run_tests_for_each_device
-          original_output_directory = @options.fetch(:output_directory, 'test_results') 
+          original_output_directory = @options.fetch(:output_directory, 'test_results')
           unless @options[:platform] == :ios_simulator
             yield
             return
@@ -146,6 +148,7 @@ module TestCenter
 
 
         def remove_preexisting_test_result_bundles
+          FastlaneCore::UI.verbose("> remove_preexisting_test_result_bundles")
           return unless @options[:result_bundle] || @options[:output_types]&.include?('xcresult')
 
           glob_pattern = "#{output_directory}/**/*.test_result"
@@ -157,9 +160,11 @@ module TestCenter
             end
             FileUtils.rm_rf(preexisting_test_result_bundles)
           end
+          FastlaneCore::UI.verbose("< remove_preexisting_test_result_bundles")
         end
 
         def remote_preexisting_xcresult_bundles
+          FastlaneCore::UI.verbose("> remote_preexisting_xcresult_bundles")
           return unless @options.fetch(:output_types, '').include?('xcresult')
 
           glob_pattern = "#{output_directory}/**/*.xcresult"
@@ -171,6 +176,7 @@ module TestCenter
             end
             FileUtils.rm_rf(preexisting_xcresult_bundles)
           end
+          FastlaneCore::UI.verbose("< remote_preexisting_xcresult_bundles")
         end
 
         def run_tests_through_single_try
@@ -229,6 +235,7 @@ module TestCenter
         end
 
         def run_test_batches
+          FastlaneCore::UI.verbose("> run_test_batches")
           test_batch_results = []
           pool_options = @options.reject { |key| %i[device devices force_quit_simulator].include?(key) }
           pool_options[:test_batch_results] = test_batch_results
@@ -251,6 +258,7 @@ module TestCenter
           pool.wait_for_all_workers
           collate_batched_reports
           FastlaneCore::UI.verbose("Results for each test run: #{test_batch_results}")
+          FastlaneCore::UI.verbose("< run_test_batches")
           test_batch_results.all?
         end
 
@@ -364,7 +372,7 @@ module TestCenter
             source_reports_directory_glob: source_reports_directory_glob,
             output_directory: absolute_output_directory,
             reportnamer: report_name_helper
-          ).collate_junit_reports 
+          ).collate_junit_reports
         end
 
         def collate_batched_reports_for_testable(testable)
