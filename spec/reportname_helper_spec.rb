@@ -25,10 +25,7 @@ describe TestCenter do
       end
       it 'provides the correct scan options when given no options' do
         helper = ReportNameHelper.new
-        expect(helper.scan_options).to include(
-          output_types: nil,
-          output_files: nil
-        )
+        expect(helper.scan_options).to eq({})
       end
       it 'provides the correct scan options when given html option via :output_files' do
         helper = ReportNameHelper.new('html', 'report.html')

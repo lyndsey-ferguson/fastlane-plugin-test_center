@@ -9,14 +9,13 @@ module TestCenter
         @output_types = output_types
         @output_files = output_files || custom_report_file_name
         @report_count = 0
-
         initialize_default_output_files
         validate_output_types_files_counts_match
       end
 
       def initialize_default_output_files
         return unless @output_files.nil?
-        return unless @output_types.nil?
+        return if @output_types.nil?
 
         @output_files = @output_types.split(',').map { |type| "report.#{type}" }.join(',')
       end
