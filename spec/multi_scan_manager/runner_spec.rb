@@ -297,10 +297,10 @@ module TestCenter::Helper::MultiScanManager
           expect(run_passed).to eq(false)
         end
 
-        it 'does NOT call the callback if serial testing followed after :run_tests_through_single_try', :skip => "reportname_helper is being refactored" do
-          allow(File).to receive(:exist?).and_call_original
-          allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-          allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        it 'does NOT call the callback if serial testing followed after :run_tests_through_single_try' do
+          allow(Dir).to receive(:exist?).and_call_original
+          allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+          allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
             failed: [
               'KiwiTests/PumpkinTests',
               'KiwiTests/SmallBirdTests',
