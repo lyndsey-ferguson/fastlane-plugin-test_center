@@ -103,7 +103,7 @@ module TestCenter
           end
 
           unless test_results.all? || @options[:try_count] < 1
-            test_results.clear 
+            test_results.clear
             setup_testcollector
             setup_run_tests_for_each_device do |device_name|
               FastlaneCore::UI.message("Testing batches for device '#{device_name}'") if device_name
@@ -114,7 +114,7 @@ module TestCenter
         end
 
         def setup_run_tests_for_each_device
-          original_output_directory = @options.fetch(:output_directory, 'test_results') 
+          original_output_directory = @options.fetch(:output_directory, 'test_results')
           unless @options[:platform] == :ios_simulator
             yield
             return
@@ -197,13 +197,6 @@ module TestCenter
             @options[:output_files],
             @options[:custom_report_file_name]
           )
-          report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
-          config = FastlaneCore::Configuration.create(
-            Fastlane::Actions::TestsFromJunitAction.available_options,
-            {
-              junit: File.absolute_path(report_filepath)
-            }
-          )
           @options[:only_testing] = retrieve_failed_single_try_tests
           @options[:only_testing] = @options[:only_testing].map(&:strip_testcase).uniq
 
@@ -218,14 +211,14 @@ module TestCenter
             @options[:output_files],
             @options[:custom_report_file_name]
           )
-          report_filepath = File.join(output_directory, reportnamer.junit_last_reportname)
+          report_filepath = File.join(output_directory, reportnamer.xcresult_last_bundlename)
           config = FastlaneCore::Configuration.create(
-            Fastlane::Actions::TestsFromJunitAction.available_options,
+            Fastlane::Actions::TestsFromXcresultAction.available_options,
             {
-              junit: File.absolute_path(report_filepath)
+              xcresult: File.absolute_path(report_filepath)
             }
           )
-          Fastlane::Actions::TestsFromJunitAction.run(config)[:failed]
+          Fastlane::Actions::TestsFromXcresultAction.run(config)[:failed]
         end
 
         def run_test_batches
@@ -364,7 +357,7 @@ module TestCenter
             source_reports_directory_glob: source_reports_directory_glob,
             output_directory: absolute_output_directory,
             reportnamer: report_name_helper
-          ).collate_junit_reports 
+          ).collate_junit_reports
         end
 
         def collate_batched_reports_for_testable(testable)

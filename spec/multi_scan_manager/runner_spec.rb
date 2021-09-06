@@ -161,10 +161,10 @@ module TestCenter::Helper::MultiScanManager
         invocation_runner.run
       end
 
-      it 'strips test cases off of skip_testing: for :invocation_based_tests', :skip => "reportname_helper is being refactored" do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+      it 'strips test cases off of skip_testing: for :invocation_based_tests' do
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           failed: [
             'KiwiTests/PumpkinTests',
             'KiwiTests/SmallBirdTests',
