@@ -93,10 +93,11 @@ module TestCenter
         def run
           ScanHelper.remove_preexisting_simulator_logs(@options)
           remove_preexisting_test_result_bundles
-          remote_preexisting_xcresult_bundles
+          remove_preexisting_xcresult_bundles
 
           test_results = [false]
           if should_run_tests_through_single_try?
+            FastlaneCore::UI.verbose("Tests should run through single try")
             test_results.clear
             setup_run_tests_for_each_device do |device_name|
               FastlaneCore::UI.message("Single try testing for device '#{device_name}'") if device_name
@@ -104,6 +105,7 @@ module TestCenter
             end
           end
 
+          FastlaneCore::UI.verbose("About to run_test_batches")
           unless test_results.all? || @options[:try_count] < 1
             test_results.clear
             setup_testcollector
@@ -117,14 +119,16 @@ module TestCenter
 
         def setup_run_tests_for_each_device
           original_output_directory = @options.fetch(:output_directory, 'test_results')
+          FastlaneCore::UI.verbose("checking if the platform is :ios_simulator")
           unless @options[:platform] == :ios_simulator
+            FastlaneCore::UI.verbose("it is not, yielding to the block")
             yield
             return
           end
 
           scan_destinations = Scan.config[:destination].clone
           try_count = @options[:try_count]
-
+          FastlaneCore::UI.verbose("working with scan_destinations: #{scan_destinations}")
           scan_destinations.each_with_index do |destination, device_index|
             @options[:try_count] = try_count
             device_udid_match = destination.match(/id=(?<udid>[^,]+)/)
@@ -163,8 +167,8 @@ module TestCenter
           FastlaneCore::UI.verbose("< remove_preexisting_test_result_bundles")
         end
 
-        def remote_preexisting_xcresult_bundles
-          FastlaneCore::UI.verbose("> remote_preexisting_xcresult_bundles")
+        def remove_preexisting_xcresult_bundles
+          FastlaneCore::UI.verbose("> remove_preexisting_xcresult_bundles")
           return unless @options.fetch(:output_types, '').include?('xcresult')
 
           glob_pattern = "#{output_directory}/**/*.xcresult"
@@ -176,7 +180,7 @@ module TestCenter
             end
             FileUtils.rm_rf(preexisting_xcresult_bundles)
           end
-          FastlaneCore::UI.verbose("< remote_preexisting_xcresult_bundles")
+          FastlaneCore::UI.verbose("< remove_preexisting_xcresult_bundles")
         end
 
         def run_tests_through_single_try
