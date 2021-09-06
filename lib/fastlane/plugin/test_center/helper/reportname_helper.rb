@@ -1,12 +1,48 @@
 module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
+    require 'pry-byebug'
 
     class ReportNameHelper
+
+      ##
+      # Manages the report filenames for the various types that multi_scan handles
+      #
+      # A xcresult file types are now required to record which tests
+      # failed or passed, is always 'on', regardless of whether or
+      # not the client specified that they want it or not.
+      #
+      # The other file types that are supported are:
+      # - junit
+      # - html
+      # - json
+      #
+      # There are two major functions that an instance of this class
+      # provides:
+      # 1. #scan_options - will provide a Hash of key-value pairs that
+      #    manage how the Scan class configures Xcode tests.
+      # 2. "filename" methods that provide the "last" file name used
+      #    to create a file, or the "current" file name to create the
+      #    next filename
       attr_reader :report_count
 
+      ##
+      # Initializes a new instance of a ReportNameHelper with some validation
+      # output_types: a string with commas that separate the different
+      #   types that the ReportNameHelper supports. This can be junit
+      #   json, html, xcresult. 'xcresult' is _always_ added to the
+      #   list as that type is used to determine which tests to retry or
+      #   not.
+      #
+      # output_files: a string with commas that separate the different
+      #   file names that will be used for each file type. Think of this
+      #   as the basename of the file.
+      #
+      # custom_report_file_name: a string for legacy uses of the old
+      #   scan tool when only one file name was provided for junit files.
+      #
       def initialize(output_types = nil, output_files = nil, custom_report_file_name = nil)
-        @output_types = output_types
+        @output_types = output_types || 'xcresult'
         @output_files = output_files || custom_report_file_name
         @report_count = 0
         initialize_default_output_files
@@ -20,12 +56,15 @@ module TestCenter
         @output_files = @output_types.split(',').map { |type| "report.#{type}" }.join(',')
       end
 
+      ##
+      # Validates that the number of 'output_files' matches the number
+      # of 'output_types' that were given. For example, if the client
+      # gave us 'junit' as the types, then we should have either 0 or
+      # 1 file.
       def validate_output_types_files_counts_match
         return if @output_types.nil? || @output_files.nil?
 
         types = @output_types.split(',').each(&:chomp)
-        types.delete('xcresult')
-
         files = @output_files.split(',').each(&:chomp)
         unless files.size == types.size
           raise ArgumentError, "Error: count of :output_types, #{types}, does not match the output filename(s) #{files}"
@@ -45,6 +84,8 @@ module TestCenter
         options = {}
         return options if @output_types.nil? && @output_files.nil?
 
+        # byebug if @output_types.nil? || @output_files.nil?
+
         types = @output_types.split(',').each(&:chomp)
         files = @output_files.split(',').each(&:chomp)
         if (json_index = types.find_index('json'))
@@ -53,6 +94,7 @@ module TestCenter
           types.delete_at(json_index)
         end
         if (xcresult_index = types.find_index('xcresult'))
+          types.delete_at(xcresult_index)
           files.delete_at(xcresult_index)
         end
         files.map! do |filename|

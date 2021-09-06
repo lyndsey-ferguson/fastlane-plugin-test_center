@@ -25,7 +25,12 @@ describe TestCenter do
       end
       it 'provides the correct scan options when given no options' do
         helper = ReportNameHelper.new
-        expect(helper.scan_options).to eq({})
+        expect(helper.scan_options).to eq(
+          {
+            output_types: nil,
+            output_files: nil
+          }
+        )
       end
       it 'provides the correct scan options when given html option via :output_files' do
         helper = ReportNameHelper.new('html', 'report.html')
@@ -147,6 +152,13 @@ describe TestCenter do
         expect(helper.json_last_reportname).to eq('report-2.json')
       end
 
+      describe 'xcresult' do
+        it 'does not show up in the list of scan_options' do
+          helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
+          expect(helper.scan_options[:output_types]).to be_nil
+        end
+      end
+
       it 'provides the base xcresult report bundle name when given all options', :skip => "class is being refactored" do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_bundlename).to eq('report.xcresult')
@@ -189,7 +201,7 @@ describe TestCenter do
         expect(helper.xcresult_fileglob).to eq('report*.xcresult')
       end
 
-      it 'provides the correct numbered xcresult fileglob', :skip => "class is being refactored" do
+      it 'provides the correct numbered xcresult fileglob' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_numbered_fileglob).to eq('report-[1-9]*.xcresult')
       end
