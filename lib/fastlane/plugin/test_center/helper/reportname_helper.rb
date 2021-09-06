@@ -45,8 +45,18 @@ module TestCenter
         @output_types = output_types || 'xcresult'
         @output_files = output_files || custom_report_file_name
         @report_count = 0
+        ensure_xcresult_enabled
         initialize_default_output_files
         validate_output_types_files_counts_match
+      end
+
+      def ensure_xcresult_enabled
+        unless @output_types.include?('xcresult')
+          @output_types += ',xcresult'
+        end
+        unless @output_files.nil?
+          @output_files += ',report.xcresult'
+        end
       end
 
       def initialize_default_output_files

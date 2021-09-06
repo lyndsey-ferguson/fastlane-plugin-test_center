@@ -631,7 +631,7 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'sends junit test_run info to the call back after a test failure', :skip => "reportname_helper is being refactored" do
+      it 'sends junit test_run info to the call back after a test failure' do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
         passing_tests = ['BagOfTests/CoinTossingUITests/testResultIsTails']
@@ -667,7 +667,7 @@ module TestCenter::Helper::MultiScanManager
           passing: [],
           batch: 1,
           try_count: 2,
-          report_filepath: File.absolute_path('./path/to/output/directory/report-2.junit')
+          report_filepath: File.absolute_path('./path/to/output/directory/report-2.xcresult')
         )
       end
 
@@ -819,7 +819,9 @@ module TestCenter::Helper::MultiScanManager
 
     describe '#update_only_testing' do
       it 'does not crash with an empty :only_testing' do
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{spec/fixtures/report.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
         helper = RetryingScanHelper.new(

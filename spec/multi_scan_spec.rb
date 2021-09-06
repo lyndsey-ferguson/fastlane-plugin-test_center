@@ -131,7 +131,7 @@ module Fastlane::Actions
         )
       end
 
-      it 'provides a sensible run_summary for 1 retry', :skip => "reportname_helper is being refactored" do
+      it 'provides a sensible run_summary for 1 retry' do
         summary = MultiScanAction.run_summary(
           {
             output_types: 'junit',
@@ -166,7 +166,7 @@ module Fastlane::Actions
         ).to be true
       end
 
-      it 'provides a sensible run_summary for 2 retries', :skip => "report_name_helper is being refactored" do
+      it 'provides a sensible run_summary for 2 retries' do
         allow(@other_action_mock).to receive(:tests_from_junit).and_return(
           {
             passing: [ '1', '2', '3', '4' ],
