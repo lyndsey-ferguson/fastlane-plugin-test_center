@@ -63,21 +63,21 @@ describe TestCenter do
           end
         )
       end
-      it 'raises an exception when given more :output_types than :output_files', :skip => "class is being refactored" do
+      it 'raises an exception when given more :output_types than :output_files' do
         expect { ReportNameHelper.new('html,junit', 'report.xml') }.to(
           raise_error(ArgumentError) do |error|
             expect(error.message).to eq('Error: count of :output_types, ["html", "junit"], does not match the output filename(s) ["report.xml"]')
           end
         )
       end
-      it 'raises an exception when given fewer :output_types than :output_files', :skip => "class is being refactored" do
+      it 'raises an exception when given fewer :output_types than :output_files' do
         expect { ReportNameHelper.new('junit', 'report.xml,report.json-compilation-database') }.to(
           raise_error(ArgumentError) do |error|
             expect(error.message).to eq('Error: count of :output_types, ["junit"], does not match the output filename(s) ["report.xml", "report.json-compilation-database"]')
           end
         )
       end
-      it 'provides the base junit report filename when given all options', :skip => "class is being refactored" do
+      it 'provides the base junit report filename when given all options' do
         helper = ReportNameHelper.new('junit', 'report.junit', 'report.xml')
         expect(helper.junit_reportname).to eq('report.junit')
 
@@ -85,14 +85,14 @@ describe TestCenter do
         expect(helper.junit_reportname).to eq('report.junit')
       end
 
-      it 'provides the base junit report filename when given :output_types and :custom_report_file_name', :skip => "class is being refactored" do
+      it 'provides the base junit report filename when given :output_types and :custom_report_file_name' do
         helper = ReportNameHelper.new('junit', nil, 'report.xml')
         expect(helper.junit_reportname).to eq('report.xml')
         helper.increment
         expect(helper.junit_reportname).to eq('report.xml')
       end
 
-      it 'provides the junit file extension', :skip => "class is being refactored" do
+      it 'provides the junit file extension' do
         helper = ReportNameHelper.new('junit', 'report.xml')
         expect(helper.junit_filextension).to eq('.xml')
 
@@ -100,7 +100,7 @@ describe TestCenter do
         expect(helper.junit_filextension).to eq('.junit')
       end
 
-      it 'increments one junit file name for the first time correctly', :skip => "class is being refactored" do
+      it 'increments one junit file name for the first time correctly' do
         helper = ReportNameHelper.new('junit', 'report.xml')
         helper.increment
         expect(helper.scan_options).to include(
@@ -109,7 +109,7 @@ describe TestCenter do
         )
       end
 
-      it 'increments one junit file name for the second time correctly', :skip => "class is being refactored" do
+      it 'increments one junit file name for the second time correctly' do
         helper = ReportNameHelper.new('junit', 'report.xml')
         helper.increment
         helper.increment
@@ -119,7 +119,7 @@ describe TestCenter do
         )
       end
 
-      it 'increments multiple file names for the first time correctly', :skip => "class is being refactored" do
+      it 'increments multiple file names for the first time correctly' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         helper.increment
         expect(helper.scan_options).to include(
@@ -128,7 +128,7 @@ describe TestCenter do
         )
       end
 
-      it 'increments multiple file names for the the second time correctly', :skip => "class is being refactored" do
+      it 'increments multiple file names for the the second time correctly' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         helper.increment
         helper.increment
@@ -138,14 +138,14 @@ describe TestCenter do
         )
       end
 
-      it 'provides the last reportname for each iteration', :skip => "class is being refactored" do
+      it 'provides the last reportname for each iteration' do
         helper = ReportNameHelper.new('junit,html', 'report.xml,report.html')
         expect(helper.junit_last_reportname).to eq('report.xml')
         helper.increment
         expect(helper.junit_last_reportname).to eq('report-2.xml')
       end
 
-      it 'provides the last reportname for each iteration when specifying json as an output_type', :skip => "class is being refactored" do
+      it 'provides the last reportname for each iteration when specifying json as an output_type' do
         helper = ReportNameHelper.new('junit,json', 'report.xml,report.json')
         expect(helper.json_last_reportname).to eq('report.json')
         helper.increment
@@ -157,9 +157,30 @@ describe TestCenter do
           helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
           expect(helper.scan_options[:output_types]).to be_nil
         end
+
+        it 'is listed as included when requested' do
+          helper = ReportNameHelper.new('xcresult')
+          expect(helper.includes_xcresult?).to be(true)
+        end
+
+        it 'is listed as included when not actually requested' do
+          helper = ReportNameHelper.new
+          expect(helper.includes_xcresult?).to be(true)
+        end
+
+        it 'has the expected bundle name' do
+          helper = ReportNameHelper.new
+          expect(helper.xcresult_last_bundlename).to eq('report.xcresult')
+        end
+
+        it 'has the expected incremented bundle name' do
+          helper = ReportNameHelper.new
+          helper.increment
+          expect(helper.xcresult_last_bundlename).to eq('report-2.xcresult')
+        end
       end
 
-      it 'provides the base xcresult report bundle name when given all options', :skip => "class is being refactored" do
+      it 'provides the base xcresult report bundle name when given all options' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_bundlename).to eq('report.xcresult')
 
@@ -167,36 +188,36 @@ describe TestCenter do
         expect(helper.xcresult_bundlename).to eq('final_report.xcresult')
       end
 
-      it 'provices a xcresult bundle name with a given suffix', :skip => "class is being refactored" do
+      it 'provices a xcresult bundle name with a given suffix' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_bundlename('hotdog')).to eq('report-hotdog.xcresult')
       end
 
-      it 'detects the desire to have xcresults kept', :skip => "class is being refactored" do
+      it 'detects the desire to have xcresults kept' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         allow(::FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
         expect(helper.includes_xcresult?).to eq(true)
       end
 
-      it 'detects the inability to have xcresults kept', :skip => "class is being refactored" do
+      it 'detects the inability to have xcresults kept' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         allow(::FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
         expect(helper.includes_xcresult?).to eq(false)
       end
 
-      it 'detects that xcresults are not desired', :skip => "class is being refactored" do
+      it 'detects that xcresults are not desired' do
         helper = ReportNameHelper.new('junit', 'report.junit')
         expect(helper.includes_xcresult?).to eq(false)
       end
 
-      it 'provides the last xcresult bundle name', :skip => "class is being refactored" do
+      it 'provides the last xcresult bundle name' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_last_bundlename).to eq('report.xcresult')
         helper.increment
         expect(helper.xcresult_last_bundlename).to eq('report-2.xcresult')
       end
 
-      it 'provides the correct xcresult fileglob', :skip => "class is being refactored" do
+      it 'provides the correct xcresult fileglob' do
         helper = ReportNameHelper.new('xcresult', 'report.xcresult', 'done.xcresult')
         expect(helper.xcresult_fileglob).to eq('report*.xcresult')
       end
