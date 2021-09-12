@@ -25,13 +25,12 @@ module TestCenter::Helper::MultiScanManager
     end
 
     describe 'before_testrun' do
-      it 'clears out pre-existing xcresult directory', :skip => "reportname_helper is being refactored" do
-        allow(Dir).to receive(:glob).with(%r{/.*/path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr/.*\.xcresult}).and_return(['./AtomicDragon.xcresult'])
+      it 'clears out pre-existing xcresult directory' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'path/to/AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory')
         )
-        expect(FileUtils).to receive(:rm_rf).with(['./AtomicDragon.xcresult'])
+        expect(FileUtils).to receive(:rm_rf).with(%r{path/to/output/directory/report.xcresult})
         helper.before_testrun
       end
 
@@ -158,11 +157,11 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun
       end
 
-      it 'renames the resultant test bundle after failure when using Xcode 10 or earlier', :skip => "reportname_helper is being refactored" do
+      it 'renames the resultant test bundle after failure when using Xcode 10 or earlier' do
         allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('10')
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
 
@@ -182,11 +181,11 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
       end
 
-      it 'renames the resultant test bundle after failure when using Xcode 11 or later', :skip => "reportname_helper is being refactored" do
+      it 'renames the resultant test bundle after failure when using Xcode 11 or later' do
         allow(FastlaneCore::Helper).to receive(:xcode_version).and_return('11')
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
             failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
 
@@ -219,10 +218,10 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun
       end
 
-      it 'collates the reports after a success', :skip => "reportname_helper is being refactored" do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+      it 'collates the reports after a success' do
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: []
         )
         mocked_report_collator = OpenStruct.new
@@ -249,10 +248,10 @@ module TestCenter::Helper::MultiScanManager
         helper.after_testrun
       end
 
-      it 'collates the reports after successive failures', :skip => "reportname_helper is being refactored" do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+      it 'collates the reports after successive failures' do
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: []
         )
         mocked_report_collator = OpenStruct.new
@@ -365,7 +364,7 @@ module TestCenter::Helper::MultiScanManager
         expect(helper.scan_options.keys).to include(:derived_data_path, :only_testing)
       end
 
-      it 'has only the failing tests', :skip => "reportname_helper is being refactored" do
+      it 'has only the failing tests' do
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: File.absolute_path('./path/to/output/directory'),
@@ -374,9 +373,9 @@ module TestCenter::Helper::MultiScanManager
             'BagOfTests/CoinTossingUITests/testResultIsHeads'
           ]
         )
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{path/to/output/directory/report.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{path/to/output/directory/report.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))
@@ -467,10 +466,10 @@ module TestCenter::Helper::MultiScanManager
         )
       end
 
-      it 'continually increments the report suffix for json', :skip => "reportname_helper is being refactored" do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xml}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+      it 'continually increments the report suffix for json' do
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
@@ -577,10 +576,10 @@ module TestCenter::Helper::MultiScanManager
         expect(helper.scan_options[:code_coverage]).to eq(true)
       end
 
-      it 'does not have code_coverage after runs that have test failures', :skip => "reportname_helper is being refactored" do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+      it 'does not have code_coverage after runs that have test failures' do
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: []
         )
 
