@@ -278,9 +278,9 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'will collate the reports into a file that has the batch information' do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-2/report(-\d)?\.(junit|html)}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-2/report(-\d)?\.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
 
@@ -386,9 +386,9 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'continually increments the report suffix for html and junit files' do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{path/to/output/directory/coinTossResult(-\d)?.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{path/to/output/directory/report(-\d)?.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
@@ -426,9 +426,9 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'continually increments the report suffix for batched html and junit files' do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-3/coinTossResult(-\d)?.junit}).and_return(true)
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/BagOfTests-batch-3/report(-\d)?.xcresult}).and_return(true)
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: ['BagOfTests/CoinTossingUITests/testResultIsHeads']
         )
 
@@ -632,10 +632,10 @@ module TestCenter::Helper::MultiScanManager
       end
 
       it 'sends junit test_run info to the call back after a test failure' do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.junit}).and_return(true)
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(%r{.*/path/to/output/directory/report(-\d)?\.xcresult}).and_return(true)
         passing_tests = ['BagOfTests/CoinTossingUITests/testResultIsTails']
-        allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
+        allow(Fastlane::Actions::TestsFromXcresultAction).to receive(:run).and_return(
           passing: passing_tests,
           failed: []
         )
@@ -657,7 +657,7 @@ module TestCenter::Helper::MultiScanManager
               passing: [],
               failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
             },
-            File.absolute_path('./path/to/output/directory/report-2.junit')
+            File.absolute_path('./path/to/output/directory/report-2.xcresult')
           ]
         )
         helper.after_testrun(FastlaneCore::Interface::FastlaneTestFailure.new('test failure'))

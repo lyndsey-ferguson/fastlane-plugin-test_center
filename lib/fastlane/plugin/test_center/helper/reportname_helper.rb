@@ -53,9 +53,9 @@ module TestCenter
       def ensure_xcresult_enabled
         unless @output_types.include?('xcresult')
           @output_types += ',xcresult'
-        end
-        unless @output_files.nil?
-          @output_files += ',report.xcresult'
+          unless @output_files.nil?
+            @output_files += ',report.xcresult'
+          end
         end
       end
 

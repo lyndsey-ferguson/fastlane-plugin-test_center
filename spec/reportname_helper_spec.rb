@@ -59,21 +59,21 @@ describe TestCenter do
       it 'raises an exception when given multiple :output_types and only one :custom_report_file_name' do
         expect { ReportNameHelper.new('html,junit', nil, 'report.xml') }.to(
           raise_error(ArgumentError) do |error|
-            expect(error.message).to eq('Error: count of :output_types, ["html", "junit"], does not match the output filename(s) ["report.xml"]')
+            expect(error.message).to eq('Error: count of :output_types, ["html", "junit", "xcresult"], does not match the output filename(s) ["report.xml", "report.xcresult"]')
           end
         )
       end
       it 'raises an exception when given more :output_types than :output_files' do
         expect { ReportNameHelper.new('html,junit', 'report.xml') }.to(
           raise_error(ArgumentError) do |error|
-            expect(error.message).to eq('Error: count of :output_types, ["html", "junit"], does not match the output filename(s) ["report.xml"]')
+            expect(error.message).to eq('Error: count of :output_types, ["html", "junit", "xcresult"], does not match the output filename(s) ["report.xml", "report.xcresult"]')
           end
         )
       end
       it 'raises an exception when given fewer :output_types than :output_files' do
         expect { ReportNameHelper.new('junit', 'report.xml,report.json-compilation-database') }.to(
           raise_error(ArgumentError) do |error|
-            expect(error.message).to eq('Error: count of :output_types, ["junit"], does not match the output filename(s) ["report.xml", "report.json-compilation-database"]')
+            expect(error.message).to eq('Error: count of :output_types, ["junit", "xcresult"], does not match the output filename(s) ["report.xml", "report.json-compilation-database", "report.xcresult"]')
           end
         )
       end
@@ -207,7 +207,7 @@ describe TestCenter do
 
       it 'detects that xcresults are not desired' do
         helper = ReportNameHelper.new('junit', 'report.junit')
-        expect(helper.includes_xcresult?).to eq(false)
+        expect(helper.includes_xcresult?).to eq(true)
       end
 
       it 'provides the last xcresult bundle name' do

@@ -107,6 +107,9 @@ module Fastlane::Actions
         allow(Dir).to receive(:glob)
           .with('test_output/**/report*.xml')
           .and_return([File.absolute_path('./spec/fixtures/junit.xml')])
+        allow(Dir).to receive(:glob)
+          .with('test_output/**/report*.xcresult')
+          .and_return([File.absolute_path('./spec/fixtures/AtomicBoy.xcresult')])
 
         @other_action_mock = OpenStruct.new
         allow(MultiScanAction).to receive(:other_action).and_return(@other_action_mock)
@@ -127,6 +130,15 @@ module Fastlane::Actions
                 location: 'AtomicBoy.m:38'
               }
             }
+          }
+        )
+        allow(@other_action_mock).to receive(:tests_from_xcresult).and_return(
+          {
+            passing: [ '1', '2' ],
+            failed: [
+              'BagOfTests/CoinTossingUITests/testResultIsTails',
+              'BagOfTests/AtomicBoy/testWristMissles'
+            ]
           }
         )
       end
@@ -234,6 +246,9 @@ module Fastlane::Actions
         allow(Dir).to receive(:glob)
           .with('test_output/**/*.test_result')
           .and_return([File.absolute_path('./spec/fixtures/Atomic Boy.test_result')])
+        allow(Dir).to receive(:glob)
+          .with('test_output/**/report*.xml')
+          .and_return([File.absolute_path('./spec/fixtures/junit.xml')])
         allow(Dir).to receive(:glob)
           .with('test_output/**/report*.xcresult')
           .and_return([File.absolute_path('./spec/fixtures/report.xcresult')])
