@@ -138,10 +138,13 @@ module Fastlane
           scan_options[:custom_report_file_name]
         )
         passing_testcount = 0
+        report_files = []
         failed_tests = []
         failure_details = {}
-        report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
-          File.absolute_path(relative_filepath)
+        if reportnamer.includes_junit?
+          report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
+            File.absolute_path(relative_filepath)
+          end
         end
         retry_total_count = 0
         report_files.each do |report_file|

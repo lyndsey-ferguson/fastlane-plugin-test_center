@@ -51,6 +51,8 @@ module TestCenter
         # :nocov:
 
         def collate_junit_reports
+          return unless @reportnamer.includes_junit?
+
           glob = "#{@source_reports_directory_glob}/#{@reportnamer.junit_fileglob}"
           report_files = sort_globbed_files(glob)
           collated_file =  File.absolute_path(File.join(@output_directory, @reportnamer.junit_reportname(@suffix)))
@@ -143,7 +145,7 @@ module TestCenter
           end
         end
 
-        def collate_xcresult_bundles 
+        def collate_xcresult_bundles
           return unless @reportnamer.includes_xcresult?
 
           test_xcresult_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.xcresult_fileglob}")

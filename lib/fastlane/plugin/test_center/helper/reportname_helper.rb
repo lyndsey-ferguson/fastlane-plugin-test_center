@@ -120,6 +120,10 @@ module TestCenter
         )
       end
 
+      def includes_junit?
+        @output_types.split(',').find_index('junit') != nil
+      end
+
       def junit_last_reportname
         junit_index = @output_types.split(',').find_index('junit')
         numbered_filename(@output_files.to_s.split(',')[junit_index])
