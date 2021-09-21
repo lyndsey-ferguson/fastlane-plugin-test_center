@@ -1,7 +1,6 @@
 module TestCenter
   module Helper
     require 'fastlane_core/ui/ui.rb'
-    require 'pry-byebug'
 
     class ReportNameHelper
 
@@ -93,8 +92,6 @@ module TestCenter
       def scan_options
         options = {}
         return options if @output_types.nil? && @output_files.nil?
-
-        # byebug if @output_types.nil? || @output_files.nil?
 
         types = @output_types.split(',').each(&:chomp)
         files = @output_files.split(',').each(&:chomp)
