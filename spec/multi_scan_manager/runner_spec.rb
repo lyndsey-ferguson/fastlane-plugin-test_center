@@ -21,10 +21,12 @@ module TestCenter::Helper::MultiScanManager
     describe '#update_options_to_use_xcresult_output' do
       it 'does nothing when :result_bundle is false' do
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory'
         )
         expect(runner.update_options_to_use_xcresult_output).to eq(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           clean: false,
@@ -35,6 +37,7 @@ module TestCenter::Helper::MultiScanManager
       it 'returns options without :result_bundle' do
         allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(true)
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           result_bundle: true,
@@ -42,6 +45,7 @@ module TestCenter::Helper::MultiScanManager
           output_files: 'report.junit'
         )
         expect(runner.update_options_to_use_xcresult_output).to eq(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           output_directory: './path/to/output/directory',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           clean: false,
@@ -56,6 +60,7 @@ module TestCenter::Helper::MultiScanManager
     describe '#output_directory' do
       it 'returns the :output_directory directly if no batches given' do
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory'
         )
@@ -64,6 +69,7 @@ module TestCenter::Helper::MultiScanManager
 
       it 'returns the \'test_results\' if no batches and output_directory given' do
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr'
         )
         expect(runner.output_directory).to eq(File.absolute_path('./test_results'))
@@ -71,6 +77,7 @@ module TestCenter::Helper::MultiScanManager
 
       it 'returns the :output_directory plus the batch if batches given' do
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           only_testing: [
@@ -89,6 +96,7 @@ module TestCenter::Helper::MultiScanManager
         allow(Dir).to receive(:glob).with(%r{.*/path/to/output/directory/\*\*/\*\.test_result}).and_return(['./AtomicDragon.test_result'])
         allow(FastlaneCore::Helper).to receive(:xcode_at_least?).and_return(false)
         runner = Runner.new(
+          workspace: './AtomicBoy/AtomicBoy.xcworkspace',
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           output_directory: './path/to/output/directory',
           result_bundle: true,
@@ -103,6 +111,7 @@ module TestCenter::Helper::MultiScanManager
       before(:each) do
         @xctest_runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             try_count: 1,
@@ -128,6 +137,7 @@ module TestCenter::Helper::MultiScanManager
       it 'runs :run_tests_through_single_try when given :invocation_based_tests' do
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             try_count: 2,
@@ -143,6 +153,7 @@ module TestCenter::Helper::MultiScanManager
       it 'does not run single_try_scan when not appropriate' do
         invocation_runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             try_count: 1,
@@ -175,6 +186,7 @@ module TestCenter::Helper::MultiScanManager
 
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             skip_testing: [
@@ -214,6 +226,7 @@ module TestCenter::Helper::MultiScanManager
 
           runner = Runner.new(
             {
+              workspace: './AtomicBoy/AtomicBoy.xcworkspace',
               output_directory: './path/to/output/directory',
               scheme: 'AtomicUITests',
               try_count: 2
@@ -247,6 +260,7 @@ module TestCenter::Helper::MultiScanManager
 
           runner = Runner.new(
             {
+              workspace: './AtomicBoy/AtomicBoy.xcworkspace',
               output_directory: './path/to/output/directory',
               scheme: 'AtomicUITests',
               try_count: 2
@@ -280,6 +294,7 @@ module TestCenter::Helper::MultiScanManager
 
           runner = Runner.new(
             {
+              workspace: './AtomicBoy/AtomicBoy.xcworkspace',
               output_directory: './path/to/output/directory',
               scheme: 'AtomicUITests',
               try_count: 2
@@ -326,6 +341,7 @@ module TestCenter::Helper::MultiScanManager
 
           runner = Runner.new(
             {
+              workspace: './AtomicBoy/AtomicBoy.xcworkspace',
               output_directory: './path/to/output/directory',
               scheme: 'AtomicUITests',
               try_count: 2,
@@ -368,6 +384,7 @@ module TestCenter::Helper::MultiScanManager
 
           runner = Runner.new(
             {
+              workspace: './AtomicBoy/AtomicBoy.xcworkspace',
               output_directory: './path/to/output/directory',
               scheme: 'AtomicUITests',
               try_count: 2,
@@ -387,7 +404,7 @@ module TestCenter::Helper::MultiScanManager
 
     describe 'collate_batched_reports' do
       it 'does nothing if there are fewer than 2 batches' do
-        runner = Runner.new({})
+        runner = Runner.new({workspace: './AtomicBoy/AtomicBoy.xcworkspace'})
         expect(runner).not_to receive(:collate_batched_reports_for_testable)
         runner.collate_batched_reports
       end
@@ -399,6 +416,7 @@ module TestCenter::Helper::MultiScanManager
         allow(@mock_test_collector).to receive(:batches).and_return([ '1', '2'])
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             collate_reports: true
@@ -431,6 +449,7 @@ module TestCenter::Helper::MultiScanManager
       it 'does not collate reports if not desired' do
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             collate_reports: false,
@@ -450,6 +469,7 @@ module TestCenter::Helper::MultiScanManager
         allow(@mock_test_collector).to receive(:batches).and_return([ '1', '2'])
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: './path/to/output/directory',
             scheme: 'AtomicUITests',
             collate_reports: true
@@ -494,6 +514,7 @@ module TestCenter::Helper::MultiScanManager
 
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: 'path/to/output/directory',
             scheme: 'AtomicUITests',
             collate_reports: true,
@@ -515,6 +536,7 @@ module TestCenter::Helper::MultiScanManager
 
         runner = Runner.new(
           {
+            workspace: './AtomicBoy/AtomicBoy.xcworkspace',
             output_directory: 'path/to/output/directory',
             scheme: 'AtomicUITests',
             collate_reports: true,
