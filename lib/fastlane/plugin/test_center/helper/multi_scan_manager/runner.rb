@@ -12,6 +12,7 @@ module TestCenter
         attr_reader :retry_total_count
 
         def initialize(multi_scan_options)
+          FastlaneCore::Project.detect_projects(multi_scan_options)
           @options = multi_scan_options.merge(
             clean: false,
             disable_concurrent_testing: true
