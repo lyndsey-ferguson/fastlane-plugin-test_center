@@ -45,8 +45,9 @@ module Fastlane
         contain_failed = false
         if summary[:failed_testcount] > 0
           summary[:failed_tests].each do |failed_test|
-            unless not summary[:success_tests].include? failed_test
+            unless summary[:success_tests].include?(failed_test)
               contain_failed = true
+              break
             end
           end
         end
