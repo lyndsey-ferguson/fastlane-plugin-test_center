@@ -86,8 +86,8 @@ module TestCenter
         batch_count = derive_batch_count(options)
         testable_tests_hash.each do |testable, test_identifiers|
           next if test_identifiers.empty?
-
           if batch_count > 1
+            test_identifiers = test_identifiers.sort
             slice_count = [(test_identifiers.length / batch_count.to_f).ceil, 1].max
             test_identifiers.each_slice(slice_count).to_a.each do |batch|
               @batches << batch
