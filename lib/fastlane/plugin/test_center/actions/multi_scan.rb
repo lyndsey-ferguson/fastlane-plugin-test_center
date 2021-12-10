@@ -42,7 +42,7 @@ module Fastlane
 
         print_run_summary(summary)
 
-        if params[:fail_build] && !tests_passed
+        if params[:fail_build] && !tests_passed && summary[:failed_testcount] > 0
           raise UI.test_failure!('Tests have failed')
         end
         summary
