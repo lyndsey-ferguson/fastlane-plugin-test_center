@@ -12,13 +12,23 @@ module Fastlane
               if testcase.passed?
                 passing << testcase.identifier
               else
-                failed << testcase.identifier
-                failure_details[testcase.identifier] = {
-                  message: testcase.message,
-                  location: testcase.location
-                }
+                unless failed.include?(testcase.identifier)
+                  failed << testcase.identifier
+                  failure_details[testcase.identifier] = {
+                    message: testcase.message,
+                    location: testcase.location
+                  }
+                end
               end
             end
+          end
+        end
+        # filter that success contained failed
+        failed.each do |fail|
+          if passing.include?(fail)
+            failed.delete(fail)
+            failure_details.delete(fail)
+            break
           end
         end
         {

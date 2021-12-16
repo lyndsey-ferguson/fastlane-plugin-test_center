@@ -44,12 +44,7 @@ module Fastlane
 
         contain_failed = false
         if summary[:failed_testcount] > 0
-          summary[:failed_tests].each do |failed_test|
-            unless summary[:success_tests].include?(failed_test)
-              contain_failed = true
-              break
-            end
-          end
+          contain_failed = true
         end
 
         if params[:fail_build] && !tests_passed && contain_failed
@@ -149,7 +144,6 @@ module Fastlane
         )
         passing_testcount = 0
         failed_tests = []
-        success_tests = []
         failure_details = {}
         report_files = Dir.glob("#{scan_options[:output_directory]}/**/#{reportnamer.junit_fileglob}").map do |relative_filepath|
           File.absolute_path(relative_filepath)
@@ -159,7 +153,6 @@ module Fastlane
           junit_results = other_action.tests_from_junit(junit: report_file)
           failed_tests.concat(junit_results[:failed])
           passing_testcount += junit_results[:passing].size
-          success_tests = junit_results[:passing]
           failure_details.merge!(junit_results[:failure_details])
 
           report = REXML::Document.new(File.new(report_file))
@@ -192,7 +185,6 @@ module Fastlane
           passing_testcount: passing_testcount,
           failed_testcount: failed_tests.size,
           failed_tests: failed_tests,
-          success_tests: success_tests,
           failure_details: failure_details,
           total_retry_count: retry_total_count,
           report_files: report_files

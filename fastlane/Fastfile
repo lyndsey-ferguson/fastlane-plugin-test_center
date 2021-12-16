@@ -22,3 +22,23 @@ action_integration_tests.each do |action_name, integration_tests|
     end
   end
 end
+
+lane :tests do
+UI.important(
+  'example: ' \
+  'get the failed and passing tests from the junit test report file'
+)
+result = tests_from_junit(junit: './spec/fixtures/junit.xml')
+UI.message("Passing tests: #{result[:passing]}")
+UI.message("Failed tests: #{result[:failed]}")
+end
+
+lane :tests2 do
+UI.important(
+  'example: ' \
+  'get the failed and passing tests from a xcresult bundle'
+)
+result = tests_from_xcresult(xcresult: './spec/fixtures/AtomicBoy.xcresult')
+UI.message("Passing tests: #{result[:passing]}")
+UI.message("Failed tests: #{result[:failed]}")
+end

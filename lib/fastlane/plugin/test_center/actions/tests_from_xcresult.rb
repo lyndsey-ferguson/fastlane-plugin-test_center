@@ -33,7 +33,7 @@ module Fastlane
         testable_summaries = all_summaries.map(&:testable_summaries).flatten
         failed = []
         passing = []
-	 skipped = []
+	      skipped = []
         failure_details = {}
         testable_summaries.map do |testable_summary|
           target_name = testable_summary.target_name
@@ -45,20 +45,31 @@ module Fastlane
               skipped << "#{target_name}/#{t.identifier.sub('()', '')}"
             else
               test_identifier = "#{target_name}/#{t.identifier.sub('()', '')}"
-              failed << test_identifier
-              failure = t.find_failure(failures)
-              if failure
-                failure_details[test_identifier] = {
-                  message: failure.failure_message
-                }
+              unless failed.include?(test_identifier)
+                failed << test_identifier
+                failure = t.find_failure(failures)
+                if failure
+                  failure_details[test_identifier] = {
+                    message: failure.failure_message
+                  }
+                end
               end
             end
           end
         end
+        # filter that success contained failed
+        failed.each do |fail|
+          if passing.include?(fail)
+            failed.delete(fail)
+            failure_details.delete(fail)
+            break
+          end
+        end
+
         {
           failed: failed.uniq,
           passing: passing.uniq,
-	   skipped: skipped.uniq,
+	        skipped: skipped.uniq,
           failure_details: failure_details
         }
       end
