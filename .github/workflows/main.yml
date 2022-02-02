@@ -8,8 +8,10 @@ jobs:
     strategy:
       matrix:
         ruby:
-        - 2.4.x
         - 2.5.x
+        - 2.6.x
+        - 2.7.x
+        - 3.0.x
     name: Run Tests with Ruby ${{ matrix.ruby }}
     steps:
     - uses: actions/checkout@v1
