@@ -283,14 +283,12 @@ module TestCenter::Helper::MultiScanManager
         allow(Fastlane::Actions::TestsFromJunitAction).to receive(:run).and_return(
           failed: ['BagOfTests/CoinTossingUITests/testResultIsTails']
         )
-
-        expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new).with(
-          source_reports_directory_glob: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
-          output_directory: File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'),
-          reportnamer: anything,
-          scheme: 'AtomicUITests',
-          result_bundle: anything
-        )
+        expect(TestCenter::Helper::MultiScanManager::ReportCollator).to receive(:new) do |arguments|
+          expect(arguments[:source_reports_directory_glob]).to eq(File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'))
+          expect(arguments[:output_directory]).to eq(File.absolute_path('./path/to/output/directory/BagOfTests-batch-2'))
+          expect(arguments[:scheme]).to eq('AtomicUITests')
+          OpenStruct.new(collate: true)
+        end
         helper = RetryingScanHelper.new(
           derived_data_path: 'AtomicBoy-flqqvvvzbouqymbyffgdbtjoiufr',
           scheme: 'AtomicUITests',

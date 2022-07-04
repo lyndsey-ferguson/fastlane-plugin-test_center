@@ -119,12 +119,13 @@ def update_github_workflow_standard_jobs(workflow)
       strategy:
         matrix:
           ruby:
-          - 2.4.x
-          - 2.5.x
+          - '2.6'
+          - '2.7'
+          - '3.0'
       name: Run Tests with Ruby ${{ matrix.ruby }}
       steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: \"${{ matrix.ruby }}\"
       - name: setup

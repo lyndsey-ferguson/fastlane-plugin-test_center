@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+  spec.required_ruby_version = '>= 2.6'
+
   spec.description = <<-SUMMARY
   🎯  Understand, tame, and train your iOS & Mac tests 🎉
   SUMMARY
