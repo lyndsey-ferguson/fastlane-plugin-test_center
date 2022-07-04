@@ -45,8 +45,10 @@ module Fastlane::Actions
           "AtomicBoyTests/AtomicBoyTests/testExample",
           "AtomicBoyTests/AtomicBoyTests/testPerformanceExample",
           "AtomicBoyUITests/AtomicBoyUITests/testExample",
-          "AtomicBoyUITests/AtomicBoyUITests/testExample2",
           "AtomicBoyUITests/AtomicBoyUITests/testExample3"
+        )
+        expect(result[:skip_testing]).to contain_exactly(
+          "AtomicBoyUITests/AtomicBoyUITests/testExample2"
         )
       end
     end

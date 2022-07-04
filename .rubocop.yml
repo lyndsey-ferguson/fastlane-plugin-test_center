@@ -317,6 +317,7 @@ Layout/SpaceAroundOperators:
 
 AllCops:
   TargetRubyVersion: 2.5
+  NewCops: enable
   Include:
     - '**/fastlane/Fastfile'
   Exclude:

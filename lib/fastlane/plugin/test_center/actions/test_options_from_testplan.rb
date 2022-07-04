@@ -6,26 +6,37 @@ module Fastlane
       def self.run(params)
         testplan_path = params[:testplan]
 
-        testplan = JSON.load(File.open(testplan_path))
+        testplan = JSON.parse(File.open(testplan_path).read)
         only_testing = []
+        skip_testing = []
         UI.verbose("Examining testplan JSON: #{testplan}")
         testplan['testTargets'].each do |test_target|
           testable = test_target.dig('target', 'name')
           if test_target.key?('selectedTests')
             UI.verbose("  Found selectedTests")
-            test_identifiers = test_target['selectedTests'].each do |selected_test|
+            test_target['selectedTests'].each do |selected_test|
               selected_test.delete!('()')
               UI.verbose("    Found test: '#{selected_test}'")
               only_testing << "#{testable}/#{selected_test.sub('\/', '/')}"
             end
-          else
-            UI.verbose("  No selected tests, using testable '#{testable}'")
+          end
+          if test_target.key?('skippedTests')
+            UI.verbose("  Found skippedTests")
+            test_target['skippedTests'].each do |skipped_test|
+              skipped_test.delete!('()')
+              UI.verbose("    Found test: '#{skipped_test}'")
+              skip_testing << "#{testable}/#{skipped_test.sub('\/', '/')}"
+            end
+          end
+          unless test_target.key?('selectedTests') || test_target.key?('skippedTests')
+            UI.verbose("  No selected or skipped tests, using testable '#{testable}'")
             only_testing << testable
           end
         end
         {
           code_coverage: testplan.dig('defaultOptions', 'codeCoverage'),
-          only_testing: only_testing
+          only_testing: only_testing,
+          skip_testing: skip_testing
         }
       end
 
@@ -57,7 +68,7 @@ module Fastlane
       end
 
       def self.return_value
-        "Returns a Hash with keys :code_coverage and :only_testing for the given testplan"
+        "Returns a Hash with keys :code_coverage, :only_testing, and :skip_testing for the given testplan"
       end
 
       def self.example_code

@@ -30,8 +30,10 @@
     {
       "selectedTests": [
         "AtomicBoyUITests\/testExample",
-        "AtomicBoyUITests\/testExample2",
         "AtomicBoyUITests\/testExample3"
+      ],
+      "skippedTests": [
+        "AtomicBoyUITests\/testExample2"
       ],
       "target": {
         "containerPath": "container:AtomicBoy.xcodeproj",
