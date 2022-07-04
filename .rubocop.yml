@@ -316,7 +316,7 @@ Layout/SpaceAroundOperators:
     - '**/spec/actions_specs/xcodebuild_spec.rb'
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
   Include:
     - '**/fastlane/Fastfile'
   Exclude:
