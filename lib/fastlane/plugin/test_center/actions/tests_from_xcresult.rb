@@ -33,7 +33,8 @@ module Fastlane
         testable_summaries = all_summaries.map(&:testable_summaries).flatten
         failed = []
         passing = []
-	 skipped = []
+        skipped = []
+        expected_failures = []
         failure_details = {}
         testable_summaries.map do |testable_summary|
           target_name = testable_summary.target_name
@@ -43,6 +44,8 @@ module Fastlane
               passing << "#{target_name}/#{t.identifier.sub('()', '')}"
             elsif t.test_status == 'Skipped'
               skipped << "#{target_name}/#{t.identifier.sub('()', '')}"
+            elsif t.test_status == 'Expected Failure'
+              expected_failures << "#{target_name}/#{t.identifier.sub('()', '')}"
             else
               test_identifier = "#{target_name}/#{t.identifier.sub('()', '')}"
               failed << test_identifier
@@ -58,7 +61,8 @@ module Fastlane
         {
           failed: failed.uniq,
           passing: passing.uniq,
-	   skipped: skipped.uniq,
+          skipped: skipped.uniq,
+          expected_failures: expected_failures.uniq,
           failure_details: failure_details
         }
       end
@@ -68,7 +72,7 @@ module Fastlane
       #####################################################
 
       def self.description
-        "☑️ Retrieves the failing, passing, and skipped tests as reported in a xcresult bundle"
+        "☑️ Retrieves the failing, passing, skipped, and expected failing tests as reported in a xcresult bundle"
       end
 
 
@@ -90,7 +94,8 @@ module Fastlane
         "A Hash with information about the test results:\r\n" \
         "failed: an Array of the failed test identifiers\r\n" \
         "passing: an Array of the passing test identifiers\r\n" \
-	 "skipped: an Array of the skipped test identifiers\r\n"
+	      "skipped: an Array of the skipped test identifiers\r\n" \
+        "expected_failures: an Array of the expected failure test identifiers\r\n"
       end
 
       def self.authors

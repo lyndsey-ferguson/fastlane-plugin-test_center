@@ -29,6 +29,9 @@ class CobaltDog: XCTestCase {
     func testExample() throws {
         // Use recording to get started writing UI tests.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTExpectFailure("https://dev.myco.com/bugs/1234 (Something is non-deterministic)", strict: false)
+
+        XCTAssertTrue(false);
     }
 
 }
