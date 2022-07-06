@@ -81,4 +81,18 @@ describe Fastlane::Actions::TestsFromXcresultAction do
       "AtomicBoyUITests/SwiftAtomicBoyUITests/testExample"
     )
   end
+
+  it 'returns "expected failures" found in an xcresult bundle' do
+    skip "This only works from Xcode 11+" unless FastlaneCore::Helper.xcode_at_least?('11.0.0')
+
+    fastfile = "lane :test do
+      tests_from_xcresult(
+        xcresult: '../spec/fixtures/Test-AtomicBoy-ExpectedFailures.xcresult'
+      )
+    end"
+    allow(Fastlane::Helper).to receive(:sh_enabled?).and_return(true)
+    result = Fastlane::FastFile.new.parse(fastfile).runner.execute(:test)
+
+    expect(result[:expected_failures]).to eq(["AtomicBoyUITests/CobaltDog/testExample"])
+  end
 end
