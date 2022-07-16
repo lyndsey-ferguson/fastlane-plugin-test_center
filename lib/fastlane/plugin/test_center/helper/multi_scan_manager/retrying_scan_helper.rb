@@ -215,6 +215,7 @@ module TestCenter
 
             handle_success
           end
+          collect_profdata
           collate_reports
         end
 
@@ -235,6 +236,13 @@ module TestCenter
             result_bundle: @options[:result_bundle]
           }
           TestCenter::Helper::MultiScanManager::ReportCollator.new(report_collator_options).collate
+        end
+
+        def collect_profdata
+          return unless @options[:code_coverage]
+
+          derived_data_path = File.expand_path(@options[:derived_data_path])
+          profdata_files = Dir.glob("#{derived_data_path}/Build/ProfileData/*/Coverage.profdata")
         end
 
         def handle_test_failure
