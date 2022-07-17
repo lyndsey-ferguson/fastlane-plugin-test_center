@@ -15,6 +15,7 @@ module TestCenter
         CollateXcresultsAction = Fastlane::Actions::CollateXcresultsAction
 
         def initialize(params)
+          FastlaneCore::UI.verbose("ReportCollator.initialize with ':source_reports_directory_glob' of \"#{params[:source_reports_directory_glob]}\"")
           @source_reports_directory_glob = params[:source_reports_directory_glob]
           @output_directory = params[:output_directory]
           @reportnamer = params[:reportnamer]
@@ -143,7 +144,7 @@ module TestCenter
           end
         end
 
-        def collate_xcresult_bundles 
+        def collate_xcresult_bundles
           return unless @reportnamer.includes_xcresult?
 
           test_xcresult_bundlepaths = sort_globbed_files("#{@source_reports_directory_glob}/#{@reportnamer.xcresult_fileglob}")
@@ -161,7 +162,7 @@ module TestCenter
             )
             CollateXcresultsAction.run(config)
             FileUtils.rm_rf(test_xcresult_bundlepaths - [collated_xcresult_bundlepath])
-          elsif test_xcresult_bundlepaths.size == 1 && File.realdirpath(test_xcresult_bundlepaths.first) != File.realdirpath(collated_xcresult_bundlepath)
+          elsif test_xcresult_bundlepaths.size == 1 && File.realdirpath(test_xcresult_bundlepaths.first.downcase) != File.realdirpath(collated_xcresult_bundlepath.downcase)
             FastlaneCore::UI.verbose("Copying xcresult bundle from #{test_xcresult_bundlepaths.first} to #{collated_xcresult_bundlepath}")
             FileUtils.mkdir_p(File.dirname(collated_xcresult_bundlepath))
             FileUtils.mv(test_xcresult_bundlepaths.first, collated_xcresult_bundlepath)

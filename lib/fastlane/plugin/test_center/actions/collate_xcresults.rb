@@ -36,6 +36,8 @@ module Fastlane
         end
 
         UI.message("Finished collating xcresults to '#{params[:collated_xcresult]}'")
+        UI.verbose("  final xcresults: #{other_action.tests_from_xcresult(xcresult: params[:collated_xcresult])}")
+
         commands_run
       end
 

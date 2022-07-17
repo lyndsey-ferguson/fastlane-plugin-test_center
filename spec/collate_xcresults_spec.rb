@@ -19,6 +19,9 @@ module Fastlane::Actions
     before(:each) do
      allow(File).to receive(:exist?).and_call_original
      allow(Dir).to receive(:exist?).with(%r{path/to/fake(1|2|3)?\.xcresult}).and_return(true)
+     mock_tests_from_xcresult = OpenStruct.new
+     allow(mock_tests_from_xcresult).to receive(:tests_from_xcresult)
+     allow(Fastlane::Actions::CollateXcresultsAction).to receive(:other_action).and_return(mock_tests_from_xcresult)
     end
 
     it "returns nil when Xcode 10 or earlier" do
