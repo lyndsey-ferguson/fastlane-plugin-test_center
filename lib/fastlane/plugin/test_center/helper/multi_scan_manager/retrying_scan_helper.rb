@@ -179,7 +179,7 @@ module TestCenter
             }
           )
           if @reportnamer.includes_xcresult?
-            retrying_scan_options[:xcargs] += "-resultBundlePath '#{File.join(output_directory, @reportnamer.xcresult_last_bundlename)}' "
+            retrying_scan_options[:result_bundle_path] = File.join(output_directory, @reportnamer.xcresult_last_bundlename)
           end
 
           @options.select { |k,v| valid_scan_keys.include?(k) }
