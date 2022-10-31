@@ -73,10 +73,11 @@ module TestCenter
       def junit_reportname(suffix = '')
         FastlaneCore::UI.message("!!!***!!! - #{@output_types}\n#{@output_files}")
         junit_index = @output_types.split(',').find_index('junit')
-        report_name = @output_files.to_s.split(',')[junit_index]
-        return report_name if suffix.empty?
-
-        "#{File.basename(report_name, '.*')}-#{suffix}#{junit_filextension}"
+        
+#        report_name = @output_files.to_s.split(',')[junit_index]
+#        return report_name if suffix.empty?
+        ""
+#        "#{File.basename(report_name, '.*')}-#{suffix}#{junit_filextension}"
       end
 
       def junit_filextension
